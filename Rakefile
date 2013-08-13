@@ -2,42 +2,35 @@
 #
 # Author:: Greg Look
 
-require 'pathname'
+require 'rake/clean'
+require 'rakejava'
 
 
 ### BUILD CONFIG ###
 
-library_name = 'wonderdome'
+LIBRARY_NAME = 'wonderdome'
 
-# package directory names
-build_dir = 'build'
-lib_dir   = 'lib'
-src_dir   = 'src'
-web_dir   = 'web'
-
-# package directory paths
-pkg_root = Pathname.new('.').expand_path
-build_path = pkg_root + build_dir
-lib_path   = pkg_root + lib_dir
-src_path   = pkg_root + src_dir
-web_path   = pkg_root + web_dir
+# package directories
+BUILD_DIR = 'build'
+LIB_DIR   = 'lib'
+SRC_DIR   = 'src'
+WEB_DIR   = 'web'
 
 # compiler paths
-java_home = nil
-sketchbook_path = Pathname.new(ENV['HOME']).join('sketchbook')
-processing_home = Pathname.new(ENV['HOME']).join('processing')
+SKETCHBOOK_PATH = "#{ENV['HOME']}/sketchbook"
+processing_home = "#{ENV['HOME']}/processing"
 processing_cmd = nil
 
 
 
 ### DEPLOYMENT CONFIG ###
 
-ssh_user       = "wonder@wonderdome"
-ssh_port       = "22"
-rsync_delete   = true
-rsync_args     = ""
+SSH_USER       = "wonder@wonderdome"
+SSH_PORT       = "22"
+RSYNC_DELETE   = true
+RSYNC_ARGS     = ""
 
-deploy_root    = "~"
+DEPLOY_ROOT    = "~"
 
 
 
@@ -48,15 +41,15 @@ def locate_command(name, dir=nil, msg="")
   command = nil
 
   if File.directory? dir
-    command = Pathname.new(dir).join(name)
+    command = "#{dir}/#{name}"
   else
     path = `which #{name}`
-    command = $?.success? && Pathname.new(path) || nil
+    command = path if $?.success?
   end
 
-  raise "Unable to locate '#{name}' command! #{msg}" if command.nil?
-  raise "Command does not exist: #{command} #{msg}" unless command.exist?
-  raise "Command is not executable: #{command} #{msg}" unless command.executable?
+  fail "Unable to locate '#{name}' command! #{msg}" if command.nil?
+  fail "Command does not exist: #{command} #{msg}" unless File.exist? command
+  fail "Command is not executable: #{command} #{msg}" unless File.executable? command
 
   command
 end
@@ -66,54 +59,103 @@ end
 ### PREPARATION TASKS ###
 
 # Prepare the build directory.
-directory build_dir
+#directory BUILD_DIR.to_s
+CLOBBER << BUILD_DIR
 
 
-# Locate the Processing compiler command.
-task :locate_processing do
-  processing_home = ENV['PROCESSING_HOME'] || processing_home
-  processing_cmd = locate_command 'processing-java', processing_home, "Please install Processing in your home directory or add it to your $PATH."
-  puts "Found Processing compiler: #{processing_cmd}"
-  processing_home = processing_cmd.parent
-end
+namespace :processing do
 
-
-# Check for required Processing libraries.
-task :check_libraries do
-  libs = ['udp', 'PixelPusher']
-  missing_libs = libs.reject do |lib| (lib_path + lib).directory? end
-  unless missing_libs.empty?
-    raise "Missing Processing libraries: #{missing_libs.join(', ')}. Install them locally in '#{lib_path}'."
+  desc "locate Processing directory and compiler"
+  task :configure do
+    processing_home = ENV['PROCESSING_HOME'] || processing_home
+    processing_cmd = locate_command 'processing-java', processing_home, "Please install Processing in your home directory or add it to your $PATH."
+    puts "Found Processing compiler: #{processing_cmd}"
+    processing_home = File.dirname(processing_cmd)
   end
+
 end
 
 
+namespace :lib do
 
-### COMPILATION STEPS ###
+  classes_dir = "#{BUILD_DIR}/classes"
+  lib_dir = "#{BUILD_DIR}/lib/#{LIBRARY_NAME}"
+  lib_src_dir  = "#{lib_dir}/src"
+  lib_doc_dir  = "#{lib_dir}/doc"
+  lib_lib_dir  = "#{lib_dir}/library"
+  lib_jar_file = "#{lib_dir}/library/#{LIBRARY_NAME}.jar"
 
-desc "copy library sources to output"
-task :copy_src => build_dir do
-  build_lib_src = build_path.join('lib', library_name, 'src')
-  mkdir_p build_lib_src
-  cp_r src_path, build_lib_src
+  # library directories
+  directory classes_dir
+  directory lib_dir
+  directory lib_src_dir
+  directory lib_doc_dir
+  directory lib_lib_dir
+
+  CLEAN << classes_dir
+
+  desc "check for required Processing libraries"
+  task :dependencies do
+    libs = ['udp', 'PixelPusher']
+    missing = libs.reject {|lib| File.directory? "#{LIB_DIR}/#{lib}" }
+    fail "Missing Processing libraries: #{missing.join(', ')}. Install them locally in '#{LIB_DIR}'." unless missing.empty?
+  end
+
+  desc "compile Java source files"
+  javac :compile => [:dependencies, 'processing:configure', classes_dir] do |t|
+    t.classpath << "#{processing_home}/core/library/core.jar"
+    t.classpath << FileList["#{LIB_DIR}/**/*.jar"]
+
+    t.src << Sources[SRC_DIR, "**/*.java"]
+    t.dest = classes_dir
+    t.dest_ver = '1.6'
+  end
+
+  jar lib_jar_file => [:compile, lib_lib_dir] do |t|
+    t.files << JarFiles[classes_dir, "**/*.class"]
+  end
+
+  desc "build library jar file"
+  task :jar => lib_jar_file
+
+  desc "copy library sources to output"
+  task :copy_src => lib_src_dir do
+    opts = %w{
+      --recursive
+      --archive
+      --delete
+      --delete-excluded
+      --exclude=library.properties
+      --verbose
+    }
+
+    puts `rsync #{opts.join(' ')} #{SRC_DIR}/ #{lib_src_dir}/`
+  end
+
+  desc "generate library documentation"
+  task :doc => lib_doc_dir do
+    # TODO: javadoc to build/lib/wonderdome/doc/...
+  end
+
+  desc "build all library components"
+  task :build => [:jar, :copy_src, :doc] do
+    cp "#{SRC_DIR}/library.properties", lib_dir
+  end
+
+  desc "construct a zip of the library for distribution"
+  task :release => :build do
+    `cd #{File.dirname(lib_dir)} && zip -r #{LIBRARY_NAME}.zip #{File.basename(lib_dir)}`
+  end
+
+  desc "link to the compiled library in the user's sketchbook"
+  task :install => :build do
+    sketchbook_lib_dir = "#{SKETCHBOOK_PATH}/libraries"
+    mkdir_p sketchbook_lib_dir
+    ln_sf File.expand_path(lib_dir), "#{sketchbook_lib_dir}/#{LIBRARY_NAME}"
+  end
+
 end
 
-
-desc "compile library Java sources"
-task :compile => [:locate_java, :check_libraries, build_dir] do
-  # compile from src_path to build/classes/...
-end
-
-
-desc "build Processing library"
-task :build => :compile do
-  # build/lib/wonderdome/library.properties
-  # build/lib/wonderdome/library/...
-  # build/lib/wonderdome/src/...
-end
-
-
-# TODO: javadoc to build/lib/wonderdome/doc/...
 
 
 desc "link libraries into the user sketchbook"
@@ -140,10 +182,4 @@ end
 
 ### MISC TASKS ###
 
-desc "remove the build directory"
-task :clean do
-  rm_rf build_dir
-end
-
-
-task :default => [:locate_java, :locate_processing, :check_libraries, build_dir]
+task :default => 'lib:release'
