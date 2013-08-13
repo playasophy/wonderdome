@@ -27,6 +27,7 @@ public class ColorCycle implements Program {
 
     public ColorCycle(PApplet parent) {
         this.parent = parent;
+        parent.colorMode(parent.RGB);
         this.gradient = new ColorGradient(30.0f, 240.0f,
             parent.color(  0,   0,   0),
             parent.color(255,   0, 255),
