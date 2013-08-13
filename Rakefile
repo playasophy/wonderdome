@@ -25,16 +25,31 @@ processing_cmd = nil
 
 ### DEPLOYMENT CONFIG ###
 
-SSH_USER       = "wonder@wonderdome"
-SSH_PORT       = "22"
-RSYNC_DELETE   = true
-RSYNC_ARGS     = ""
-
-DEPLOY_ROOT    = "~"
+SSH_USER    = "wonder@wonderdome"
+SSH_PORT    = "22"
+DEPLOY_ROOT = "~"
 
 
 
 ### UTILITY METHODS ###
+
+# Copy files with rsync.
+def rsync(src, dest, extra_opts={})
+  opts = %w{
+    --recursive
+    --archive
+    --delete
+    --delete-excluded
+    --verbose
+  }
+
+  opts << "--exclude=#{extra_opts[:exclude]}" if extra_opts[:exclude]
+
+  command = "rsync #{opts.join(' ')} #{src} #{dest}"
+  puts command
+  puts `#{command}`
+end
+
 
 # Locates a command and ensures it is executable.
 def locate_command(name, dir=nil, msg="")
@@ -120,16 +135,7 @@ namespace :lib do
 
   desc "copy library sources to output"
   task :copy_src => lib_src_dir do
-    opts = %w{
-      --recursive
-      --archive
-      --delete
-      --delete-excluded
-      --exclude=library.properties
-      --verbose
-    }
-
-    puts `rsync #{opts.join(' ')} #{SRC_DIR}/ #{lib_src_dir}/`
+    rsync "#{SRC_DIR}/", "#{lib_src_dir}/", exclude: 'library.properties'
   end
 
   desc "generate library documentation"
