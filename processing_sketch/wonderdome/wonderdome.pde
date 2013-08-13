@@ -18,16 +18,16 @@ UDP udp;
 
 // Set up the sketch.
 void setup() {
-  
+
   // Initialize the wonderdome object.
   wonderdome = new Wonderdome(this);
-  
+
   // Set up UDP event handling.
   udp = new UDP(this, PORT_RX, HOST_IP);
   udp.log(true);
   udp.listen(true);
   //noLoop();
-  
+
 }
 
 // Rendering loop.
@@ -37,5 +37,11 @@ void draw() {
 
 void receive(byte[] data, String HOST_IP, int PORT_RX){
   String value = new String(data);
-  println(value);
+  if ( value.equals("pause") ) {
+    noLoop();
+  } else if ( value.equals("resume") ) {
+    loop();
+  } else {
+    println("Received UDP command: \"" + value + "\"");
+  }
 }
