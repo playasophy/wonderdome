@@ -136,6 +136,8 @@ namespace :lib do
     t.classpath << FileList["#{LIB_DIR}/**/*.jar"]
 
     t.src << Sources[SRC_DIR, "**/*.java"]
+    t.src_ver  = '1.6'
+
     t.dest = classes_dir
     t.dest_ver = '1.6'
   end
