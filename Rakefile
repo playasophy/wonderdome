@@ -11,30 +11,46 @@ require 'rakejava'
 LIBRARY_NAME = 'wonderdome'
 
 # package directories
-BUILD_DIR = 'build'
-LIB_DIR   = 'lib'
-SRC_DIR   = 'src'
-WEB_DIR   = 'web'
+BUILD_DIR  = 'build'
+LIB_DIR    = 'lib'
+SKETCH_DIR = 'sketches'
+SRC_DIR    = 'src'
+WEB_DIR    = 'web'
 
-# compiler paths
-SKETCHBOOK_PATH = "#{ENV['HOME']}/sketchbook"
-processing_home = "#{ENV['HOME']}/processing"
+# processing paths
+SKETCHBOOK_PATH = ENV['SKETCHBOOK_HOME'] || "#{ENV['HOME']}/sketchbook"
+processing_home = ENV['PROCESSING_HOME'] || "#{ENV['HOME']}/processing"
 processing_cmd = nil
 
 
 
 ### DEPLOYMENT CONFIG ###
 
-SSH_USER       = "wonder@wonderdome"
-SSH_PORT       = "22"
-RSYNC_DELETE   = true
-RSYNC_ARGS     = ""
-
-DEPLOY_ROOT    = "~"
+SSH_USER    = "wonder@wonderdome"
+SSH_PORT    = "22"
+DEPLOY_ROOT = "~"
 
 
 
 ### UTILITY METHODS ###
+
+# Copy files with rsync.
+def rsync(src, dest, extra_opts={})
+  opts = %w{
+    --recursive
+    --archive
+    --delete
+    --delete-excluded
+    --verbose
+  }
+
+  opts << "--exclude=#{extra_opts[:exclude]}" if extra_opts[:exclude]
+
+  command = "rsync #{opts.join(' ')} #{src} #{dest}"
+  puts command
+  puts `#{command}`
+end
+
 
 # Locates a command and ensures it is executable.
 def locate_command(name, dir=nil, msg="")
@@ -56,21 +72,39 @@ end
 
 
 
-### PREPARATION TASKS ###
+### BUILD TASKS ###
 
-# Prepare the build directory.
-#directory BUILD_DIR.to_s
+# 'clobber' should remove all generated files
 CLOBBER << BUILD_DIR
 
 
 namespace :processing do
 
-  desc "locate Processing directory and compiler"
+  sketchbook_lib_dir = "#{SKETCHBOOK_PATH}/libraries"
+
+  # processing directories
+  directory sketchbook_lib_dir
+
+  # desc "locate Processing directory and compiler"
   task :configure do
-    processing_home = ENV['PROCESSING_HOME'] || processing_home
     processing_cmd = locate_command 'processing-java', processing_home, "Please install Processing in your home directory or add it to your $PATH."
     puts "Found Processing compiler: #{processing_cmd}"
     processing_home = File.dirname(processing_cmd)
+  end
+
+  desc "check for required Processing libraries"
+  task :check_libs do
+    libs = ['udp', 'PixelPusher']
+    missing = libs.reject {|lib| File.directory? "#{LIB_DIR}/#{lib}" }
+    fail "Missing Processing libraries: #{missing.join(', ')}. Install them locally in '#{LIB_DIR}'." unless missing.empty?
+  end
+
+  desc "link Processing libraries in user's sketchbook"
+  task :link_libs => [:check_libs, sketchbook_lib_dir] do
+    FileList["#{LIB_DIR}/*"].each do |lib|
+      target = "#{sketchbook_lib_dir}/#{File.basename(lib)}"
+      ln_s File.expand_path(lib), target unless File.exist? target
+    end
   end
 
 end
@@ -94,15 +128,8 @@ namespace :lib do
 
   CLEAN << classes_dir
 
-  desc "check for required Processing libraries"
-  task :dependencies do
-    libs = ['udp', 'PixelPusher']
-    missing = libs.reject {|lib| File.directory? "#{LIB_DIR}/#{lib}" }
-    fail "Missing Processing libraries: #{missing.join(', ')}. Install them locally in '#{LIB_DIR}'." unless missing.empty?
-  end
-
-  desc "compile Java source files"
-  javac :compile => [:dependencies, 'processing:configure', classes_dir] do |t|
+  desc "compile library source files"
+  javac :compile => ['processing:configure', 'processing:check_libs', classes_dir] do |t|
     t.classpath << "#{processing_home}/core/library/core.jar"
     t.classpath << FileList["#{LIB_DIR}/**/*.jar"]
 
@@ -115,21 +142,12 @@ namespace :lib do
     t.files << JarFiles[classes_dir, "**/*.class"]
   end
 
-  desc "build library jar file"
+  # desc "build library jar file"
   task :jar => lib_jar_file
 
-  desc "copy library sources to output"
+  # desc "copy library sources to output"
   task :copy_src => lib_src_dir do
-    opts = %w{
-      --recursive
-      --archive
-      --delete
-      --delete-excluded
-      --exclude=library.properties
-      --verbose
-    }
-
-    puts `rsync #{opts.join(' ')} #{SRC_DIR}/ #{lib_src_dir}/`
+    rsync "#{SRC_DIR}/", "#{lib_src_dir}/", exclude: 'library.properties'
   end
 
   desc "generate library documentation"
@@ -157,19 +175,42 @@ namespace :lib do
 end
 
 
+namespace :sketch do
 
-desc "link libraries into the user sketchbook"
-task :install_libraries => :compile do
-  sketchbook_lib_path = sketchbook_path + 'libraries'
-  mkdir_p sketchbook_lib_path
+  bin_dir = "#{BUILD_DIR}/bin"
+  sketches_build_dir = "#{BUILD_DIR}/sketches"
 
-  lib_path.children.each do |lib_path|
-    target = sketchbook_lib_path + lib_path.basename
-    ln_s lib_path, target
+  # sketch directories
+  directory bin_dir
+  directory sketches_build_dir
+
+  CLEAN << sketches_build_dir
+
+  # TODO: run a sketch
+
+  desc "compile Processing sketches to native applications"
+  task :export => ['processing:configure', 'processing:link_libs', 'lib:install', sketches_build_dir, bin_dir] do
+    compile = %W{
+      #{processing_cmd}
+      --export
+      --platform=linux
+      --bits=32
+      --force
+    }
+
+    FileList["#{SKETCH_DIR}/*"].each do |sketch|
+      sketch_build_dir = "#{sketches_build_dir}/#{File.basename(sketch)}"
+
+      command = "#{compile.join(' ')} --sketch=#{sketch} --output=#{sketch_build_dir}"
+      puts command
+      puts `#{command}`
+
+      sketch_bin = "#{sketch_build_dir}/#{File.basename(sketch)}"
+      fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
+      cp sketch_bin, bin_dir
+    end
   end
 
-  target = sketchbook_lib_path + 'wonderdome'
-  ln_s (build_path + 'lib'), target
 end
 
 
@@ -182,4 +223,4 @@ end
 
 ### MISC TASKS ###
 
-task :default => 'lib:release'
+task :default => ['lib:release', 'sketch:export']
