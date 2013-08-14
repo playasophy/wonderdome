@@ -2,8 +2,8 @@ require 'sinatra/base'
 require 'socket'
 
 class WonderdomeControlServer < Sinatra::Base
-  # FIXME: Don't hardcode port to bind to.
-  set :bind, '192.168.4.244'
+  # FIXME: Get the port from environment config, or some other more robust mechanism.
+  set :bind, ARGV.shift || "localhost"
 
   get '/send/:message' do
     socket = UDPSocket.new
