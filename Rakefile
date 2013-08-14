@@ -186,10 +186,16 @@ namespace :sketch do
 
   CLEAN << sketches_build_dir
 
-  # TODO: run a sketch
+  # common requirements for invoking Processing
+  task :prereqs => ['processing:configure', 'processing:link_libs', 'lib:install', sketches_build_dir]
+
+  desc "Run a Processing sketch."
+  task :run => :prereqs do |t, args|
+    raise "NYI: run a sketch with args: #{args.inspect}" # TODO
+  end
 
   desc "Compile Processing sketches to native applications."
-  task :export => ['processing:configure', 'processing:link_libs', 'lib:install', sketches_build_dir, bin_dir] do
+  task :export => [:prereqs, bin_dir] do
     compile = %W{
       #{processing_cmd}
       --export
@@ -214,13 +220,27 @@ namespace :sketch do
 end
 
 
-# TODO: Build sinatra app(?)
+namespace :web do
+
+  desc "Build the Wonderdome controller app."
+  task :build do
+    puts "NYI: build the webapp" # TODO
+  end
+
+  desc "Run the controller app in a webserver."
+  task :run do
+    raise "NYI: run the webserver" # FIXME
+  end
+
+end
 
 
-# TODO: Deploy via rsync.
+namespace :deploy do
+
+  # TODO: Deploy via rsync.
+  # TODO: restart the running webserver
+
+end
 
 
-
-### MISC TASKS ###
-
-task :default => ['lib:release', 'sketch:export']
+task :default => ['lib:release', 'sketch:export', 'web:build']
