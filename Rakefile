@@ -85,21 +85,21 @@ namespace :processing do
   # processing directories
   directory sketchbook_lib_dir
 
-  # desc "locate Processing directory and compiler"
+  # desc "Locate Processing directory and compiler."
   task :configure do
     processing_cmd = locate_command 'processing-java', processing_home, "Please install Processing in your home directory or add it to your $PATH."
     puts "Found Processing compiler: #{processing_cmd}"
     processing_home = File.dirname(processing_cmd)
   end
 
-  desc "check for required Processing libraries"
+  desc "Check for required Processing libraries."
   task :check_libs do
     libs = ['udp', 'PixelPusher']
     missing = libs.reject {|lib| File.directory? "#{LIB_DIR}/#{lib}" }
     fail "Missing Processing libraries: #{missing.join(', ')}. Install them locally in '#{LIB_DIR}'." unless missing.empty?
   end
 
-  desc "link Processing libraries in user's sketchbook"
+  desc "Link Processing libraries in user's sketchbook."
   task :link_libs => [:check_libs, sketchbook_lib_dir] do
     FileList["#{LIB_DIR}/*"].each do |lib|
       target = "#{sketchbook_lib_dir}/#{File.basename(lib)}"
@@ -128,7 +128,7 @@ namespace :lib do
 
   CLEAN << classes_dir
 
-  desc "compile library source files"
+  desc "Compile library source files."
   javac :compile => ['processing:configure', 'processing:check_libs', classes_dir] do |t|
     t.classpath << "#{processing_home}/core/library/core.jar"
     t.classpath << FileList["#{LIB_DIR}/**/*.jar"]
@@ -142,30 +142,30 @@ namespace :lib do
     t.files << JarFiles[classes_dir, "**/*.class"]
   end
 
-  # desc "build library jar file"
+  # desc "Build library jar file."
   task :jar => lib_jar_file
 
-  # desc "copy library sources to output"
+  # desc "Copy library sources to output."
   task :copy_src => lib_src_dir do
     rsync "#{SRC_DIR}/", "#{lib_src_dir}/", exclude: 'library.properties'
   end
 
-  desc "generate library documentation"
+  desc "Generate library documentation."
   task :doc => lib_doc_dir do
     # TODO: javadoc to build/lib/wonderdome/doc/...
   end
 
-  desc "build all library components"
+  desc "Build all library components."
   task :build => [:jar, :copy_src, :doc] do
     cp "#{SRC_DIR}/library.properties", lib_dir
   end
 
-  desc "construct a zip of the library for distribution"
+  desc "Construct a zip of the library for distribution."
   task :release => :build do
     `cd #{File.dirname(lib_dir)} && zip -r #{LIBRARY_NAME}.zip #{File.basename(lib_dir)}`
   end
 
-  desc "link to the compiled library in the user's sketchbook"
+  desc "Link to the compiled library in the user's sketchbook."
   task :install => :build do
     sketchbook_lib_dir = "#{SKETCHBOOK_PATH}/libraries"
     mkdir_p sketchbook_lib_dir
@@ -188,7 +188,7 @@ namespace :sketch do
 
   # TODO: run a sketch
 
-  desc "compile Processing sketches to native applications"
+  desc "Compile Processing sketches to native applications."
   task :export => ['processing:configure', 'processing:link_libs', 'lib:install', sketches_build_dir, bin_dir] do
     compile = %W{
       #{processing_cmd}
