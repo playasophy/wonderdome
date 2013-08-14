@@ -9,6 +9,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  colorize
   rake
   rakejava
