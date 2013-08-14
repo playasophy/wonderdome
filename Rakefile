@@ -56,12 +56,14 @@ end
 def locate_command(name, dir=nil, msg="")
   command = nil
 
-  if File.directory? dir
+  if dir && File.directory?(dir)
     command = "#{dir}/#{name}"
   else
-    path = `which #{name}`
+    path = `which #{name}`.chomp
     command = path if $?.success?
   end
+
+  command = File.readlink(command) while File.symlink?(command)
 
   fail "Unable to locate '#{name}' command! #{msg}" if command.nil?
   fail "Command does not exist: #{command} #{msg}" unless File.exist? command
