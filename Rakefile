@@ -142,8 +142,10 @@ namespace :processing do
     banner "Locating Processing"
 
     begin
-      processing_cmd = locate_command 'processing-java', processing_home
-      processing_home = File.dirname(processing_cmd)
+      unless processing_home && File.directory?(processing_home)
+        processing_cmd = locate_command 'processing-java', processing_home
+        processing_home = File.dirname(processing_cmd)
+      end
       puts_result :ok, processing_home
     rescue => e
       puts_result :fail, e.message
