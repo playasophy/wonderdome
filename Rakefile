@@ -72,9 +72,10 @@ end
 # Prints a test result message.
 def puts_result(type, message="")
   status = case type
-           when :ok   then " OK ".green
-           when :pass then "PASS".green
-           when :fail then "FAIL".red
+           when :ok   then " OK ".bold.green
+           when :pass then "PASS".bold.green
+           when :warn then "WARN".bold.yellow
+           when :fail then "FAIL".bold.red
            else type.to_s.yellow
            end
 
@@ -142,15 +143,18 @@ namespace :processing do
     banner "Locating Processing"
 
     begin
-      unless processing_home && File.directory?(processing_home)
-        processing_cmd = locate_command 'processing-java', processing_home
-        processing_home = File.dirname(processing_cmd)
-      end
+      processing_cmd = locate_command 'processing-java', processing_home
+      processing_home = File.dirname(processing_cmd)
       puts_result :ok, processing_home
     rescue => e
-      puts_result :fail, e.message
-      fail "Install Processing in your home directory or add it to your $PATH."
+      puts_result :warn, e.message
     end
+
+    if processing_cmd.nil? && processing_home && File.directory?(processing_home)
+      processing_cmd = "#{processing_home}/processing-java"
+    end
+
+    fail "Install Processing in your home directory or add it to your $PATH." unless processing_home && File.directory?(processing_home)
   end
 
   desc "Check for required Processing libraries."
@@ -293,6 +297,7 @@ namespace :lib do
       cd #{File.dirname(lib_dir)}
       &&
       zip
+      --quiet
       --display-globaldots
       --recurse-paths
       #{LIBRARY_NAME}.zip
@@ -326,7 +331,15 @@ namespace :sketch do
   CLEAN << sketches_build_dir
 
   # common requirements for invoking Processing
-  task :prereqs => ['processing:locate', 'processing:link_libs', 'lib:install']
+  task :prereqs => ['processing:locate', 'processing:link_libs', 'lib:install'] do
+    banner "Locating Processing compiler"
+
+    if File.executable? processing_cmd
+      puts_result :ok, processing_cmd
+    else
+      fail "Unable to locate executable Processing command: #{processing_cmd}"
+    end
+  end
 
   desc "Run a Processing sketch."
   task :run => :prereqs do |t, args|
