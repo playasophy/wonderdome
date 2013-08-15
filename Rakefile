@@ -83,7 +83,7 @@ end
 
 
 # Locates a command and ensures it is executable.
-def locate_command(name, dir=nil, msg="")
+def locate_command(name, dir=nil)
   command = nil
 
   if dir && File.directory?(dir)
@@ -95,9 +95,9 @@ def locate_command(name, dir=nil, msg="")
 
   command = File.readlink(command) while command && File.symlink?(command)
 
-  raise "Unable to locate '#{name}' command! #{msg}" if command.nil?
-  raise "Command does not exist: #{command} #{msg}" unless File.exist? command
-  raise "Command is not executable: #{command} #{msg}" unless File.executable? command
+  raise "Unable to locate '#{name}' command!" if command.nil?
+  raise "Command does not exist: #{command}" unless File.exist? command
+  raise "Command is not executable: #{command}" unless File.executable? command
 
   command
 end
