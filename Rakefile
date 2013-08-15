@@ -83,6 +83,14 @@ def puts_result(type, message="")
 end
 
 
+# Ensure the given directory exists.
+def ensure_dir(*paths)
+  paths.each do |path|
+    mkdir_p path unless File.directory? path
+  end
+end
+
+
 # Locates a command and ensures it is executable.
 def locate_command(name, dir=nil)
   command = nil
@@ -178,7 +186,7 @@ namespace :processing do
   task :link_libs => :check_libs do
     banner "Installing Processing libraries"
 
-    mkdir_p SKETCHBOOK_LIB_DIR unless File.directory? SKETCHBOOK_LIB_DIR
+    ensure_dir SKETCHBOOK_LIB_DIR
     FileList["#{LIB_DIR}/*"].each do |lib|
       target = "#{SKETCHBOOK_LIB_DIR}/#{File.basename(lib)}"
       ln_s File.expand_path(lib), target unless File.exist? target
@@ -237,7 +245,7 @@ namespace :lib do
   javac :compile => [:jdk, :classpath] do |t|
     banner "Compiling library sources"
 
-    mkdir_p classes_dir unless File.directory? classes_dir
+    ensure_dir classes_dir
 
     t.classpath = classpath
     t.src << Sources[SRC_DIR, "**/*.java"]
@@ -249,7 +257,7 @@ namespace :lib do
   jar lib_jar_file => [:jdk, :compile] do |t|
     banner "Building library JAR"
 
-    mkdir_p lib_lib_dir unless File.directory? lib_lib_dir
+    ensure_dir lib_lib_dir
 
     t.files << JarFiles[classes_dir, "**/*.class"]
   end
@@ -270,7 +278,7 @@ namespace :lib do
     banner "Generating library documentation"
     # TODO: check timestamps between doc output and source files to determine whether we need to do this
 
-    mkdir_p lib_doc_dir unless File.directory? lib_doc_dir
+    ensure_dir lib_doc_dir
 
     execute %W{
       #{commands[:javadoc]}
@@ -309,7 +317,7 @@ namespace :lib do
   task :install => :build do
     banner "Installing library"
 
-    mkdir_p SKETCHBOOK_LIB_DIR unless File.directory? SKETCHBOOK_LIB_DIR
+    ensure_dir SKETCHBOOK_LIB_DIR
     execute %W{
       ln
       --symbolic
@@ -343,7 +351,7 @@ namespace :sketch do
 
   desc "Run a Processing sketch."
   task :run => :prereqs do |t, args|
-    mkdir_p sketches_build_dir unless File.directory? sketches_build_dir
+    ensure_dir sketches_build_dir
 
     fail "NYI: run a sketch with args: #{args.inspect}" # TODO
   end
@@ -352,8 +360,7 @@ namespace :sketch do
   task :export => :prereqs do
     banner "Exporting Processing sketches"
 
-    mkdir_p bin_dir unless File.directory? bin_dir
-    mkdir_p sketches_build_dir unless File.directory? sketches_build_dir
+    ensure_dir bin_dir, sketches_build_dir
 
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
       sketch_build_dir = "#{sketches_build_dir}/#{File.basename(sketch)}"
