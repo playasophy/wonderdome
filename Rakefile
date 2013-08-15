@@ -59,7 +59,7 @@ end
 
 # Present a banner identifying a task.
 def banner(name)
-  puts "%1$s %2$s" % ['>>>'.cyan, name.bold.white]
+  puts ("%1$s %2$s" % ['>>>'.cyan, name.white]).bold
 end
 
 
@@ -390,14 +390,14 @@ namespace :web do
   task :build do
     banner "Building controller app"
 
-    puts "NYI: build the webapp".yellow # TODO
+    fail "NYI: build the webapp" # TODO
   end
 
   desc "Run the controller app in a webserver."
   task :run do
     banner "Running controller webserver"
 
-    raise "NYI: run the webserver" # FIXME
+    fail "NYI: run the webserver" # TODO
   end
 
 end
@@ -405,10 +405,14 @@ end
 
 namespace :deploy do
 
-  # TODO: Deploy via rsync.
+  desc "Deploy files to the wonderdome with rsync."
+  task :rsync # TODO: ask for confirmation
+
   # TODO: restart the running webserver
+  desc "Restart the currently-running wonderdome process."
+  task :restart # TODO
 
 end
 
 
-task :default => ['lib:release', 'sketch:export', 'web:build']
+task :default => ['lib:release', 'sketch:export']
