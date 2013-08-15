@@ -22,6 +22,7 @@ COMMANDS = {} # TODO
 
 # processing paths
 SKETCHBOOK_PATH = ENV['SKETCHBOOK_HOME'] || "#{ENV['HOME']}/sketchbook"
+SKETCHBOOK_LIB_DIR = "#{SKETCHBOOK_PATH}/libraries"
 processing_home = ENV['PROCESSING_HOME'] || "#{ENV['HOME']}/processing"
 processing_cmd = nil
 
@@ -136,13 +137,8 @@ CLOBBER << BUILD_DIR
 
 namespace :processing do
 
-  sketchbook_lib_dir = "#{SKETCHBOOK_PATH}/libraries"
-
-  # processing directories
-  directory sketchbook_lib_dir
-
   # desc "Locate Processing directory and compiler."
-  task :configure do
+  task :locate do
     banner "Locating Processing"
 
     begin
@@ -173,11 +169,12 @@ namespace :processing do
   end
 
   desc "Link Processing libraries in user's sketchbook."
-  task :link_libs => [:check_libs, sketchbook_lib_dir] do
+  task :link_libs => :check_libs do
     banner "Installing Processing libraries"
 
+    mkdir_p SKETCHBOOK_LIB_DIR unless File.directory? SKETCHBOOK_LIB_DIR
     FileList["#{LIB_DIR}/*"].each do |lib|
-      target = "#{sketchbook_lib_dir}/#{File.basename(lib)}"
+      target = "#{SKETCHBOOK_LIB_DIR}/#{File.basename(lib)}"
       ln_s File.expand_path(lib), target unless File.exist? target
     end
   end
@@ -196,13 +193,6 @@ namespace :lib do
 
   classpath = []
   commands = {}
-
-  # library directories
-  directory classes_dir
-  directory lib_dir
-  directory lib_src_dir
-  directory lib_doc_dir
-  directory lib_lib_dir
 
   CLEAN << classes_dir
 
@@ -227,7 +217,7 @@ namespace :lib do
   end
 
   # desc "Determines the classpath for the library."
-  task :classpath => ['processing:configure', 'processing:check_libs'] do
+  task :classpath => ['processing:locate', 'processing:check_libs'] do
     banner "Calculating library classpath"
 
     classpath << "#{processing_home}/core/library/core.jar"
@@ -238,8 +228,10 @@ namespace :lib do
   end
 
   desc "Compile library source files."
-  javac :compile => [:jdk, :classpath, classes_dir] do |t|
+  javac :compile => [:jdk, :classpath] do |t|
     banner "Compiling library sources"
+
+    mkdir_p classes_dir unless File.directory? classes_dir
 
     t.classpath = classpath
     t.src << Sources[SRC_DIR, "**/*.java"]
@@ -248,8 +240,10 @@ namespace :lib do
     t.dest_ver = '1.6'
   end
 
-  jar lib_jar_file => [:jdk, :compile, lib_lib_dir] do |t|
+  jar lib_jar_file => [:jdk, :compile] do |t|
     banner "Building library JAR"
+
+    mkdir_p lib_lib_dir unless File.directory? lib_lib_dir
 
     t.files << JarFiles[classes_dir, "**/*.class"]
   end
@@ -258,15 +252,19 @@ namespace :lib do
   task :jar => lib_jar_file
 
   # desc "Copy library sources to output."
-  task :copy_src => lib_src_dir do
+  task :copy_src do
     banner "Copying library sources"
 
-    rsync "#{SRC_DIR}/", "#{lib_src_dir}/", exclude: 'library.properties'
+    # TODO: ensure src dir exists?
+    rsync SRC_DIR, lib_src_dir, exclude: 'library.properties'
   end
 
   desc "Generate library documentation."
-  task :doc => [:jdk, :classpath, lib_doc_dir] do
+  task :doc => [:jdk, :classpath] do
     banner "Generating library documentation"
+    # TODO: check timestamps between doc output and source files to determine whether we need to do this
+
+    mkdir_p lib_doc_dir unless File.directory? lib_doc_dir
 
     execute %W{
       #{commands[:javadoc]}
@@ -289,16 +287,30 @@ namespace :lib do
   task :release => :build do
     banner "Packaging library release"
 
-    `cd #{File.dirname(lib_dir)} && zip -r #{LIBRARY_NAME}.zip #{File.basename(lib_dir)}`
+    execute %W{
+      cd #{File.dirname(lib_dir)}
+      &&
+      zip
+      --display-globaldots
+      --recurse-paths
+      #{LIBRARY_NAME}.zip
+      #{File.basename(lib_dir)}
+    }
   end
 
   desc "Link to the compiled library in the user's sketchbook."
   task :install => :build do
     banner "Installing library"
 
-    sketchbook_lib_dir = "#{SKETCHBOOK_PATH}/libraries"
-    mkdir_p sketchbook_lib_dir
-    ln_sf File.expand_path(lib_dir), "#{sketchbook_lib_dir}/#{LIBRARY_NAME}"
+    mkdir_p SKETCHBOOK_LIB_DIR unless File.directory? SKETCHBOOK_LIB_DIR
+    execute %W{
+      ln
+      --symbolic
+      --no-target-directory
+      --force
+      #{File.expand_path(lib_dir)}
+      #{SKETCHBOOK_LIB_DIR}/#{LIBRARY_NAME}
+    }
   end
 
 end
@@ -309,23 +321,24 @@ namespace :sketch do
   bin_dir = "#{BUILD_DIR}/bin"
   sketches_build_dir = "#{BUILD_DIR}/sketches"
 
-  # sketch directories
-  directory bin_dir
-  directory sketches_build_dir
-
   CLEAN << sketches_build_dir
 
   # common requirements for invoking Processing
-  task :prereqs => ['processing:configure', 'processing:link_libs', 'lib:install', sketches_build_dir]
+  task :prereqs => ['processing:locate', 'processing:link_libs', 'lib:install']
 
   desc "Run a Processing sketch."
   task :run => :prereqs do |t, args|
+    mkdir_p sketches_build_dir unless File.directory? sketches_build_dir
+
     fail "NYI: run a sketch with args: #{args.inspect}" # TODO
   end
 
   desc "Compile Processing sketches to native applications."
-  task :export => [:prereqs, bin_dir] do
+  task :export => :prereqs do
     banner "Exporting Processing sketches"
+
+    mkdir_p bin_dir unless File.directory? bin_dir
+    mkdir_p sketches_build_dir unless File.directory? sketches_build_dir
 
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
       sketch_build_dir = "#{sketches_build_dir}/#{File.basename(sketch)}"
@@ -355,7 +368,7 @@ namespace :web do
   task :build do
     banner "Building controller app"
 
-    puts "NYI: build the webapp" # TODO
+    puts "NYI: build the webapp".yellow # TODO
   end
 
   desc "Run the controller app in a webserver."
