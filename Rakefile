@@ -91,6 +91,13 @@ def ensure_dir(*paths)
 end
 
 
+# Return the date of the most recent modification to a set of files.
+def last_modified(paths)
+  paths = FileList["#{paths}/**/*"] if paths.kind_of? String
+  paths && paths.map {|path| File.mtime(path) }.max
+end
+
+
 # Locates a command and ensures it is executable.
 def locate_command(name, dir=nil)
   command = nil
@@ -276,18 +283,26 @@ namespace :lib do
   desc "Generate library documentation."
   task :doc => [:jdk, :classpath] do
     banner "Generating library documentation"
-    # TODO: check timestamps between doc output and source files to determine whether we need to do this
 
-    ensure_dir lib_doc_dir
+    if File.directory? lib_doc_dir
+      src_mtime = last_modified SRC_DIR
+      doc_mtime = last_modified lib_doc_dir
+    else
+      mkdir_p lib_doc_dir
+    end
 
-    execute %W{
-      #{commands[:javadoc]}
-      -classpath #{classpath.join(':')}
-      -sourcepath #{SRC_DIR}
-      -subpackages org.playasophy.wonderdome
-      -doctitle WonderDome
-      -d #{lib_doc_dir}
-    }
+    if src_mtime && doc_mtime && src_mtime <= doc_mtime
+      puts "Javadoc is up to date."
+    else
+      execute %W{
+        #{commands[:javadoc]}
+        -classpath #{classpath.join(':')}
+        -sourcepath #{SRC_DIR}
+        -subpackages org.playasophy.wonderdome
+        -doctitle WonderDome
+        -d #{lib_doc_dir}
+      }
+    end
   end
 
   desc "Build all library components."
@@ -365,19 +380,26 @@ namespace :sketch do
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
       sketch_build_dir = "#{sketches_build_dir}/#{File.basename(sketch)}"
 
-      execute %W{
-        #{processing_cmd}
-        --sketch=#{sketch}
-        --output=#{sketch_build_dir}
-        --export
-        --platform=linux
-        --bits=32
-        --force
-      }
+      sketch_mtime = last_modified sketch
+      build_mtime = last_modified sketch_build_dir
 
-      sketch_bin = "#{sketch_build_dir}/#{File.basename(sketch)}"
-      fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
-      cp sketch_bin, bin_dir
+      if sketch_mtime && build_mtime && sketch_mtime <= build_mtime
+        puts "Exported sketch is up to date."
+      else
+        execute %W{
+          #{processing_cmd}
+          --sketch=#{sketch}
+          --output=#{sketch_build_dir}
+          --export
+          --platform=linux
+          --bits=32
+          --force
+        }
+
+        sketch_bin = "#{sketch_build_dir}/#{File.basename(sketch)}"
+        fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
+        cp sketch_bin, bin_dir
+      end
     end
   end
 
