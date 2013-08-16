@@ -27,14 +27,9 @@ void setup() {
     wonderdome = new Wonderdome(this);
 
     // Initialize output (either to hardware or simulated to the display).
-    DeviceRegistry registry = new DeviceRegistry();
-
-    DeviceObserver devices = new DeviceObserver(this);
-    registry.addObserver(devices);
-
-    // Set the output depending on whether or not hardware is present.
-    if ( devices.present ) {
-        output = new PixelPusherOutput(registry); // FIXME: won't actually work
+    if ( false ) {
+        DeviceRegistry registry = new DeviceRegistry();
+        output = new PixelPusherOutput(registry);
     } else {
         output = new PixelGraphicsOutput(g);
     }

@@ -32,14 +32,13 @@ class PixelPusherOutput implements PixelOutput {
      public PixelPusherOutput(final DeviceRegistry registry) {
 
         this.registry = registry;
-        this.strips = null;
 
         Observer deviceObserver = new Observer() {
             @Override
             public void update(final Observable target, final Object arg) {
                 updateStrips(arg);
             }
-        }
+        };
 
         registry.addObserver(deviceObserver);
 
@@ -51,17 +50,17 @@ class PixelPusherOutput implements PixelOutput {
         synchronized(strips) {
             if ( strips.isEmpty() ) return;
 
-            int numStripsToDraw = Math.min(strips.size(), pixelMatrix.length);
-            for ( int i = 0; i < numStripsToDraw; i++ ) {
-                drawStrip(strips.get(i), pixelMatrix[i]);
+            int count = Math.min(strips.size(), pixels.length);
+            for ( int i = 0; i < count; i++ ) {
+                drawStrip(strips.get(i), pixels[i]);
             }
         }
     }
 
 
     private void drawStrip(Strip strip, int[] pixels) {
-        int numPixelsToDraw = Math.min(strip.getLength(), pixels.length);
-        for ( int i = 0; i < numPixelsToDraw; i++ ) {
+        int count = Math.min(strip.getLength(), pixels.length);
+        for ( int i = 0; i < count; i++ ) {
             drawPixel(strip, i, pixels[i]);
         }
     }
