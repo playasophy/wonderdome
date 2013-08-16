@@ -28,14 +28,15 @@ void setup() {
 
   // Initialize output (either to hardware or simulated to the display).
   DeviceRegistry registry = new DeviceRegistry();
+
   DeviceObserver devices = new DeviceObserver(this);
   registry.addObserver(devices);
 
   // Set the output depending on whether or not hardware is present.
   if ( devices.present ) {
-    output = new HardwarePixelOutput(registry.getStrips(), wonderdome.getPixels());
+    output = new PixelPusherOutput(registry); // FIXME: won't actually work
   } else {
-    output = new SimulatedPixelOutput(this, wonderdome.getPixels());
+    output = new PixelGraphicsOutput(g);
   }
 
   // Set up UDP event handling.
@@ -77,7 +78,7 @@ void draw() {
   if ( cycles > 0 && cycles % PROFILE_UNIT_CYCLE_COUNT == 0 ) {
 
     long profileUnitElapsed = System.currentTimeMillis() - profileUnitStart;
-    
+
     if ( DEBUG ) {
       System.out.printf("cycle %d: ~%d ms/cycle (%.2f cps)\n",
         cycles,
