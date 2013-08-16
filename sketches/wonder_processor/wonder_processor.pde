@@ -31,6 +31,8 @@ void setup() {
         DeviceRegistry registry = new DeviceRegistry();
         output = new PixelPusherOutput(registry);
     } else {
+        // TODO: Don't hardcode the display size.
+        size(140, 520);
         output = new PixelGraphicsOutput(g);
     }
 
