@@ -1,0 +1,3 @@
+interface PixelOutput {
+  void draw();
+}

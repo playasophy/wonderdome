@@ -1,34 +1,35 @@
 package org.playasophy.wonderdome;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
 import processing.core.*;
 
-import com.heroicrobot.dropbit.registry.*;
-import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
-
-import org.playasophy.wonderdome.program.ColorCycle;
-import org.playasophy.wonderdome.program.Program;
+import org.playasophy.wonderdome.mode.ColorCycle;
+import org.playasophy.wonderdome.mode.Mode;
 
 
 public class Wonderdome {
 
-    private final PApplet parent;
-    private DeviceRegistry registry;
-    private DeviceObserver devices;
-    private List<Strip> strips;
-    private SimulatedPixelMatrix simulation;
-    private Program currentProgram;
+    ///// TYPES /////
 
-    // Profiling variables.
-    private int cycles = 0;
-    private int profileCycles = 100;
-    private long gfxElapsed = 0L;
-    private long pixelElapsed = 0L;
-    private long totalElapsed = 0L;
+    private enum State {
+        PAUSED,
+        RUNNING
+    }
+
+
+
+    ///// CONSTANTS /////
+
+    private static final int NUM_STRIPS = 6;
+    private static final int PIXELS_PER_STRIP = 240;
+
+
+
+    ///// PROPERTIES /////
+
+    private final PApplet parent;
+    private int[][] pixels;
+    private Mode currentMode;
+    private State state;
 
 
 
@@ -36,134 +37,53 @@ public class Wonderdome {
 
     public Wonderdome(PApplet parent) {
         this.parent = parent;
-        parent.registerMethod("draw", this);
-        parent.registerMethod("dispose", this);
-        initHardware();
-        simulation = new SimulatedPixelMatrix(parent);
-        // TODO: Don't hardcode the program.
-        currentProgram = new ColorCycle(parent);
+        parent.registerMethod("pre", this);
+        pixels = new int[NUM_STRIPS][PIXELS_PER_STRIP];
+        // TODO: Don't hardcode the mode.
+        currentMode = new ColorCycle(parent);
+        state = State.RUNNING;
     }
 
 
 
     ///// PUBLIC METHODS /////
 
-    public void draw() {
-
-        long totalStart = System.currentTimeMillis();
-        if ( isSimulated() ) {
-            long gfxStart = System.currentTimeMillis();
-            simulation.draw();
-            gfxElapsed += System.currentTimeMillis() - gfxStart;
-        } else {
-            long pixelStart = System.currentTimeMillis();
-            strips = registry.getStrips();
-            pixelElapsed += System.currentTimeMillis() - pixelStart;
-        }
-        totalElapsed += System.currentTimeMillis() - totalStart;
-
-        // TODO: Only perform profiling if requested via environment variable (or some other
-        // runtime-configurable state).
-        updateProfiling();
-
-    }
-
-    public void dispose() {
-        // Anything in here will be called automatically when 
-        // the parent sketch shuts down. For instance, this might
-        // shut down a thread used by this library.
-    }
-
-    public PixelMatrix getPixelMatrix() {
-        if ( isSimulated() ) {
-            return simulation;
-        } else {
-            // TODO: return a hardware PixelMatrix.
-            throw new UnsupportedOperationException("Hardware PixelMatrix not implemented yet");
+    public void pre() {
+        if ( state == State.RUNNING ) {
+            currentMode.update(pixels);
         }
     }
 
-    public Program getProgram() {
-        return currentProgram;
+    public int[][] getPixels() {
+        return pixels;
+    }
+
+    public void handleEvent(String source, String command) {
+        if ( source.equals("admin") ) {
+            handleAdminCommand(command);
+        } else if ( source.equals("control") ) {
+            handleControlCommand(command);
+        }
     }
 
 
 
     ///// PRIVATE METHODS /////
 
-    private void initHardware() {
-        registry = new DeviceRegistry();
-        devices = new DeviceObserver();
-        registry.addObserver(devices);
-    }
-
-    private boolean isSimulated() {
-        return !devices.present;
-    }
-
-    private void updateProfiling() {
-
-        // Report profiling.
-        if ( cycles % profileCycles == 0 ) {
-
-            System.out.printf("cycle %d: ~%d ms/cycle (%.2f cps), %d ms gfx (%.2f%%), %d ms pixels (%.2f%%)\n",
-                cycles,
-                totalElapsed / profileCycles,
-                1000.0 * profileCycles / totalElapsed,
-                gfxElapsed / profileCycles,
-                100.0 * gfxElapsed / totalElapsed,
-                pixelElapsed / profileCycles,
-                100.0 * pixelElapsed / totalElapsed);
-
-            gfxElapsed = 0L;
-            pixelElapsed = 0L;
-            totalElapsed = 0L;
-
+    private void handleAdminCommand(String command) {
+        System.out.println("Handling admin command '" + command + "'");
+        if ( command.equals("pause") ) {
+            state = State.PAUSED;
+        } else if ( command.equals("resume") ) {
+            state = State.RUNNING;
         }
-
-        cycles++;
-
     }
 
-
-
-
-    ///// PRIVATE CLASSES /////
-
-    // Observer class for hardware detection.
-    // TODO: Split out into separate source file? (No good reason for this to be an inner class...)
-    class DeviceObserver implements Observer {
-        public boolean present = false;
-
-        @Override
-        public void update(final Observable target, final Object device) {
-
-            DeviceRegistry registry = (DeviceRegistry) target;
-
-            if ( device != null ) {
-                parent.println("Updated device: " + device);
-
-                if ( !present ) {
-                    parent.println("Initializing device registry and starting pushing");
-                    registry.startPushing();
-                    registry.setExtraDelay(0);
-                    registry.setAutoThrottle(true);
-                }
-
-                present = true;
-            } else {
-                List<Strip> strips = registry.getStrips();
-
-                if ( present && strips.isEmpty() ) {
-                    parent.println("Stopping pushing");
-                    registry.stopPushing();
-                }
-
-                present = !strips.isEmpty();
-            }
-
+    private void handleControlCommand(String command) {
+        System.out.println("Handling control command '" + command + "'");
+        if ( state == State.RUNNING ) {
+            // FIXME: Implement this.
         }
-
     }
 
 }
