@@ -59,7 +59,7 @@ end
 
 # Present a banner identifying a task.
 def banner(name)
-  puts ("%1$s %2$s" % ['>>>'.cyan, name.white]).bold
+  puts "%1$s %2$s" % ['>>>'.bold.cyan, name.bold.white]
 end
 
 
@@ -70,13 +70,13 @@ end
 
 
 # Prints a test result message.
-def puts_result(type, message="")
+def puts_result(type, message, color=:yellow)
   status = case type
            when :ok   then " OK ".bold.green
            when :pass then "PASS".bold.green
            when :warn then "WARN".bold.yellow
            when :fail then "FAIL".bold.red
-           else type.to_s.yellow
+           else type.to_s.upcase.send(color)
            end
 
   puts "  [%4s] %s" % [status, message]
@@ -95,6 +95,17 @@ end
 def last_modified(paths)
   paths = FileList["#{paths}/**/*"] if paths.kind_of? String
   paths && paths.map {|path| File.mtime(path) }.max
+end
+
+
+# Determines whether the input files have been modified since the output files
+# were created. If the time is not available (because one or the other files
+# don't exist) then the method returns false.
+def up_to_date?(inputs, outputs)
+  input_mtime = last_modified inputs
+  output_mtime = last_modified outputs
+
+  input_mtime && output_mtime && input_mtime <= output_mtime
 end
 
 
@@ -195,8 +206,14 @@ namespace :processing do
 
     ensure_dir SKETCHBOOK_LIB_DIR
     FileList["#{LIB_DIR}/*"].each do |lib|
-      target = "#{SKETCHBOOK_LIB_DIR}/#{File.basename(lib)}"
-      ln_s File.expand_path(lib), target unless File.exist? target
+      lib_name = File.basename(lib)
+      target = "#{SKETCHBOOK_LIB_DIR}/#{lib_name}"
+      if File.exist? target
+        puts_result :ok, target
+      else
+        puts_result :link, target
+        ln_s File.expand_path(lib), target
+      end
     end
   end
 
@@ -284,16 +301,10 @@ namespace :lib do
   task :doc => [:jdk, :classpath] do
     banner "Generating library documentation"
 
-    if File.directory? lib_doc_dir
-      src_mtime = last_modified SRC_DIR
-      doc_mtime = last_modified lib_doc_dir
-    else
-      mkdir_p lib_doc_dir
-    end
-
-    if src_mtime && doc_mtime && src_mtime <= doc_mtime
+    if up_to_date? SRC_DIR, lib_doc_dir
       puts "Javadoc is up to date."
     else
+      ensure_dir lib_doc_dir
       execute %W{
         #{commands[:javadoc]}
         -classpath #{classpath.join(':')}
@@ -373,17 +384,15 @@ namespace :sketch do
 
   desc "Compile Processing sketches to native applications."
   task :export => :prereqs do
-    banner "Exporting Processing sketches"
-
     ensure_dir bin_dir, sketches_build_dir
 
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
-      sketch_build_dir = "#{sketches_build_dir}/#{File.basename(sketch)}"
+      sketch_name = File.basename(sketch)
+      banner "Exporting #{sketch_name} sketch"
 
-      sketch_mtime = last_modified sketch
-      build_mtime = last_modified sketch_build_dir
+      sketch_build_dir = "#{sketches_build_dir}/#{sketch_name}"
 
-      if sketch_mtime && build_mtime && sketch_mtime <= build_mtime
+      if up_to_date? sketch, sketch_build_dir
         puts "Exported sketch is up to date."
       else
         execute %W{
