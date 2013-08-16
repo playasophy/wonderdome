@@ -23,72 +23,76 @@ PixelOutput output;
 // Set up the sketch.
 void setup() {
 
-  // Initialize the wonderdome object.
-  wonderdome = new Wonderdome(this);
+    // Initialize the wonderdome object.
+    wonderdome = new Wonderdome(this);
 
-  // Initialize output (either to hardware or simulated to the display).
-  DeviceRegistry registry = new DeviceRegistry();
+    // Initialize output (either to hardware or simulated to the display).
+    DeviceRegistry registry = new DeviceRegistry();
 
-  DeviceObserver devices = new DeviceObserver(this);
-  registry.addObserver(devices);
+    DeviceObserver devices = new DeviceObserver(this);
+    registry.addObserver(devices);
 
-  // Set the output depending on whether or not hardware is present.
-  if ( devices.present ) {
-    output = new PixelPusherOutput(registry); // FIXME: won't actually work
-  } else {
-    output = new PixelGraphicsOutput(g);
-  }
+    // Set the output depending on whether or not hardware is present.
+    if ( devices.present ) {
+        output = new PixelPusherOutput(registry); // FIXME: won't actually work
+    } else {
+        output = new PixelGraphicsOutput(g);
+    }
 
-  // Set up UDP event handling.
-  udp = new UDP(this, PORT_RX, HOST_IP);
-  //udp.log(true);
-  udp.listen(true);
+    // Set up UDP event handling.
+    udp = new UDP(this, PORT_RX, HOST_IP);
+    //udp.log(true);
+    udp.listen(true);
 
 }
+
 
 void receive(byte[] data, String HOST_IP, int PORT_RX){
 
-  String value = new String(data);
+    String value = new String(data);
 
-  // Split the incoming message into parts.
-  // FIXME: Do this more robustly.
-  String[] parts = value.split("\\|");
-  String source = parts[0];
-  String command = null;
-  if ( parts.length > 1 ) {
-    command = parts[1];
-  }
+    // Split the incoming message into parts.
+    // FIXME: Do this more robustly.
+    String[] parts = value.split("\\|");
+    String source = parts[0];
+    String command = null;
+    if ( parts.length > 1 ) {
+        command = parts[1];
+    }
 
-  println("Handling command '" + command + "' from source '" + source + "'");
-  wonderdome.handleEvent(source, command);
+    println("Handling command '" + command + "' from source '" + source + "'");
+    wonderdome.handleEvent(source, command);
 
 }
+
 
 // Profiling variables.
 private int cycles = 0;
 private static final int PROFILE_UNIT_CYCLE_COUNT = 100;
 private long profileUnitStart = System.currentTimeMillis();
 
+
 // Rendering loop.
 void draw() {
 
-  output.draw();
+    output.draw(wonderdome.getPixels());
 
-  // Report profiling if the desired number of cycles has elapsed.
-  if ( cycles > 0 && cycles % PROFILE_UNIT_CYCLE_COUNT == 0 ) {
+    // Report profiling if the desired number of cycles has elapsed.
+    if ( cycles > 0 && cycles % PROFILE_UNIT_CYCLE_COUNT == 0 ) {
 
-    long profileUnitElapsed = System.currentTimeMillis() - profileUnitStart;
+        long profileUnitElapsed = System.currentTimeMillis() - profileUnitStart;
 
-    if ( DEBUG ) {
-      System.out.printf("cycle %d: ~%d ms/cycle (%.2f cps)\n",
-        cycles,
-        profileUnitElapsed / PROFILE_UNIT_CYCLE_COUNT,
-        1000.0 * PROFILE_UNIT_CYCLE_COUNT / profileUnitElapsed);
+        if ( DEBUG ) {
+            System.out.printf("cycle %d: ~%d ms/cycle (%.2f cps)\n",
+                cycles,
+                profileUnitElapsed / PROFILE_UNIT_CYCLE_COUNT,
+                1000.0 * PROFILE_UNIT_CYCLE_COUNT / profileUnitElapsed);
+        }
+
+        profileUnitStart = System.currentTimeMillis();
+
     }
 
-    profileUnitStart = System.currentTimeMillis();
+    cycles++;
 
-  }
-
-  cycles++;
 }

@@ -49,6 +49,8 @@ class PixelPusherOutput implements PixelOutput {
     @Override
     public void draw(final int[][] pixels) {
         synchronized(strips) {
+            if ( strips.isEmpty() ) return;
+
             int numStripsToDraw = Math.min(strips.size(), pixelMatrix.length);
             for ( int i = 0; i < numStripsToDraw; i++ ) {
                 drawStrip(strips.get(i), pixelMatrix[i]);
