@@ -27,16 +27,16 @@ public class ButtonEvent extends ControllerEvent {
     private final Type type;
     public Type getType() { return type; }
 
-    private final Id buttonId;
-    public Id getButtonId() { return buttonId; }
+    private final Id id;
+    public Id getId() { return id; }
 
 
 
     ///// INITIALIZATION /////
 
-    public ButtonEvent(final int controllerId, final Id buttonId, final Type type) {
+    public ButtonEvent(final int controllerId, final Id id, final Type type) {
         super(controllerId);
-        this.buttonId = buttonId;
+        this.id = id;
         this.type = type;
     }
 

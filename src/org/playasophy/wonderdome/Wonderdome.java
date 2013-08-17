@@ -1,9 +1,11 @@
 package org.playasophy.wonderdome;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.*;
 
+import org.playasophy.wonderdome.input.ButtonEvent;
 import org.playasophy.wonderdome.input.InputEvent;
 import org.playasophy.wonderdome.mode.ColorCycle;
 import org.playasophy.wonderdome.mode.Mode;
@@ -32,7 +34,8 @@ public class Wonderdome {
 
     private final PApplet parent;
     private int[][] pixels;
-    private Mode currentMode;
+    private List<Mode> modes;
+    private int currentModeIndex;
     private State state;
     private long lastUpdate;
 
@@ -44,9 +47,10 @@ public class Wonderdome {
         this.parent = parent;
         parent.registerMethod("pre", this);
         pixels = new int[NUM_STRIPS][PIXELS_PER_STRIP];
-        // TODO: Don't hardcode the mode.
-        //currentMode = new ColorCycle(parent);
-        currentMode = new MovementTest(parent);
+        modes = new ArrayList<Mode>();
+        modes.add(new ColorCycle(parent));
+        modes.add(new MovementTest(parent));
+        currentModeIndex = 0;
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
     }
@@ -58,7 +62,7 @@ public class Wonderdome {
     public void pre() {
         if ( state == State.RUNNING ) {
             long dt = System.currentTimeMillis() - lastUpdate;
-            currentMode.update(pixels, dt);
+            getCurrentMode().update(pixels, dt);
         }
         lastUpdate = System.currentTimeMillis();
     }
@@ -68,7 +72,18 @@ public class Wonderdome {
     }
 
     public void handleEvent(InputEvent event) {
-        currentMode.handleEvent(event);
+        boolean consumed = false;
+        if ( event instanceof ButtonEvent ) {
+            ButtonEvent be = (ButtonEvent) event;
+            if ( be.getId() == ButtonEvent.Id.SELECT ) {
+                handleSelectButton(be.getType());
+                consumed = true;
+            }
+        }
+
+        if ( !consumed ) {
+            getCurrentMode().handleEvent(event);
+        }
     }
 
     public void pause() {
@@ -81,6 +96,23 @@ public class Wonderdome {
 
     public void setModeList(List<Mode> modes) {
         // TODO: Implement this.
+    }
+
+
+
+    ///// PRIVATE METHODS /////
+
+    private Mode getCurrentMode() {
+        return modes.get(currentModeIndex);
+    }
+
+    private void handleSelectButton(final ButtonEvent.Type type) {
+        if ( type == ButtonEvent.Type.PRESSED ) {
+            currentModeIndex++;
+            if ( currentModeIndex >= modes.size() ) {
+                currentModeIndex = 0;
+            }
+        }
     }
 
 }

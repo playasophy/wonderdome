@@ -96,7 +96,7 @@ public class MovementTest implements Mode {
             return;
         }
 
-        switch ( event.getButtonId() ) {
+        switch ( event.getId() ) {
             case UP:
                 y -= 1;
                 break;

@@ -73,7 +73,7 @@ public class ColorCycle implements Mode {
     private void handleButtonEvent(ButtonEvent event) {
 
         boolean isPressed = event.getType() == ButtonEvent.Type.PRESSED;
-        switch ( event.getButtonId() ) {
+        switch ( event.getId() ) {
             case A:
                 aPressed = isPressed;
                 speed *= 2;
@@ -90,7 +90,7 @@ public class ColorCycle implements Mode {
             speed = .2f;
         }
 
-        System.err.println("ColorCycle handling button event " + event.getType() + " on button " + event.getButtonId());
+        System.err.println("ColorCycle handling button event " + event.getType() + " on button " + event.getId());
 
     }
 
