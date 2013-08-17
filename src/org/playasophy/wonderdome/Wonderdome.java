@@ -1,9 +1,13 @@
 package org.playasophy.wonderdome;
 
+import java.util.List;
+
 import processing.core.*;
 
+import org.playasophy.wonderdome.input.InputEvent;
 import org.playasophy.wonderdome.mode.ColorCycle;
 import org.playasophy.wonderdome.mode.Mode;
+import org.playasophy.wonderdome.mode.MovementTest;
 
 
 public class Wonderdome {
@@ -30,6 +34,7 @@ public class Wonderdome {
     private int[][] pixels;
     private Mode currentMode;
     private State state;
+    private long lastUpdate;
 
 
 
@@ -40,8 +45,10 @@ public class Wonderdome {
         parent.registerMethod("pre", this);
         pixels = new int[NUM_STRIPS][PIXELS_PER_STRIP];
         // TODO: Don't hardcode the mode.
-        currentMode = new ColorCycle(parent);
+        //currentMode = new ColorCycle(parent);
+        currentMode = new MovementTest(parent);
         state = State.RUNNING;
+        lastUpdate = System.currentTimeMillis();
     }
 
 
@@ -50,40 +57,30 @@ public class Wonderdome {
 
     public void pre() {
         if ( state == State.RUNNING ) {
-            currentMode.update(pixels);
+            long dt = System.currentTimeMillis() - lastUpdate;
+            currentMode.update(pixels, dt);
         }
+        lastUpdate = System.currentTimeMillis();
     }
 
     public int[][] getPixels() {
         return pixels;
     }
 
-    public void handleEvent(String source, String command) {
-        if ( source.equals("admin") ) {
-            handleAdminCommand(command);
-        } else if ( source.equals("control") ) {
-            handleControlCommand(command);
-        }
+    public void handleEvent(InputEvent event) {
+        currentMode.handleEvent(event);
     }
 
-
-
-    ///// PRIVATE METHODS /////
-
-    private void handleAdminCommand(String command) {
-        System.out.println("Handling admin command '" + command + "'");
-        if ( command.equals("pause") ) {
-            state = State.PAUSED;
-        } else if ( command.equals("resume") ) {
-            state = State.RUNNING;
-        }
+    public void pause() {
+        state = State.PAUSED;
     }
 
-    private void handleControlCommand(String command) {
-        System.out.println("Handling control command '" + command + "'");
-        if ( state == State.RUNNING ) {
-            // FIXME: Implement this.
-        }
+    public void resume() {
+        state = State.RUNNING;
+    }
+
+    public void setModeList(List<Mode> modes) {
+        // TODO: Implement this.
     }
 
 }

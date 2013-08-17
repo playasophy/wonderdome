@@ -16,13 +16,43 @@ class WonderdomeControlServer < Sinatra::Base
     erb :control
   end
 
-  post '/control/A' do
-    send_message("control", "A")
+  post '/control/up' do
+    send_message("control", "up")
     redirect '/control'
   end
 
-  post '/control/B' do
-    send_message("control", "B")
+  post '/control/down' do
+    send_message("control", "down")
+    redirect '/control'
+  end
+
+  post '/control/left' do
+    send_message("control", "left")
+    redirect '/control'
+  end
+
+  post '/control/right' do
+    send_message("control", "right")
+    redirect '/control'
+  end
+
+  post '/control/a' do
+    send_message("control", "a")
+    redirect '/control'
+  end
+
+  post '/control/b' do
+    send_message("control", "b")
+    redirect '/control'
+  end
+
+  post '/control/select' do
+    send_message("control", "select")
+    redirect '/control'
+  end
+
+  post '/control/start' do
+    send_message("control", "start")
     redirect '/control'
   end
 

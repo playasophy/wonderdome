@@ -6,17 +6,14 @@
  * @author Kevin Litwack (kevin.litwack@gmail.com)
  */
 
+import hypermedia.net.UDP;
+
 import com.heroicrobot.dropbit.registry.*;
 import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
-
-import hypermedia.net.*;
 
 import org.playasophy.wonderdome.Wonderdome;
 
 final boolean DEBUG = false;
-final int PORT_RX = 50000;
-final String HOST_IP = "localhost";
-UDP udp;
 Wonderdome wonderdome;
 PixelOutput output;
 
@@ -25,6 +22,9 @@ void setup() {
 
     // Initialize the wonderdome object.
     wonderdome = new Wonderdome(this);
+
+    // Set up UDP event handling.
+    UDPInput udp = new UDPInput(wonderdome);
 
     // Initialize output (either to hardware or simulated to the display).
     if ( false ) {
@@ -36,31 +36,8 @@ void setup() {
         output = new PixelGraphicsOutput(g);
     }
 
-    // Set up UDP event handling.
-    udp = new UDP(this, PORT_RX, HOST_IP);
-    //udp.log(true);
-    udp.listen(true);
-
 }
 
-
-void receive(byte[] data, String HOST_IP, int PORT_RX){
-
-    String value = new String(data);
-
-    // Split the incoming message into parts.
-    // FIXME: Do this more robustly.
-    String[] parts = value.split("\\|");
-    String source = parts[0];
-    String command = null;
-    if ( parts.length > 1 ) {
-        command = parts[1];
-    }
-
-    println("Handling command '" + command + "' from source '" + source + "'");
-    wonderdome.handleEvent(source, command);
-
-}
 
 
 // Profiling variables.
