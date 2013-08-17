@@ -43,14 +43,14 @@ public class UDPInput {
 
     }
 
-    private List<String> getParts(String message) {
-        return Arrays.asList(message.split("\\|"));
-    }
 
-    public void receive(byte[] data, String HOST_IP, int PORT_RX) {
+
+    ///// PUBLIC METHODS /////
+
+    public void receive(byte[] data, String hostIp, int receivePort) {
 
         // Split the incoming message into parts.
-        List<String> parts = getParts(new String(data));
+        List<String> parts = unmarshalMessage(new String(data));
         String handler = parts.get(0);
         List<String> arguments = parts.subList(1, parts.size());
 
@@ -61,6 +61,14 @@ public class UDPInput {
             handleControlMessage(arguments);
         }
 
+    }
+
+
+
+    ///// PRIVATE METHODS /////
+
+    private List<String> unmarshalMessage(String message) {
+        return Arrays.asList(message.split("\\|"));
     }
 
     private void handleAdminMessage(List<String> arguments) {

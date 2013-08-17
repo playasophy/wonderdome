@@ -16,43 +16,8 @@ class WonderdomeControlServer < Sinatra::Base
     erb :control
   end
 
-  post '/control/up' do
-    send_message("control", "up")
-    redirect '/control'
-  end
-
-  post '/control/down' do
-    send_message("control", "down")
-    redirect '/control'
-  end
-
-  post '/control/left' do
-    send_message("control", "left")
-    redirect '/control'
-  end
-
-  post '/control/right' do
-    send_message("control", "right")
-    redirect '/control'
-  end
-
-  post '/control/a' do
-    send_message("control", "a")
-    redirect '/control'
-  end
-
-  post '/control/b' do
-    send_message("control", "b")
-    redirect '/control'
-  end
-
-  post '/control/select' do
-    send_message("control", "select")
-    redirect '/control'
-  end
-
-  post '/control/start' do
-    send_message("control", "start")
+  post '/control' do
+    send_message("control", params[:command])
     redirect '/control'
   end
 
@@ -61,16 +26,7 @@ class WonderdomeControlServer < Sinatra::Base
   end
 
   post '/admin' do
-    "Params: #{params.inspect}"
-  end
-
-  post '/admin/pause' do
-    send_message("admin", "pause")
-    redirect '/admin'
-  end
-
-  post '/admin/resume' do
-    send_message("admin", "resume")
+    send_message("admin", params[:command])
     redirect '/admin'
   end
 
