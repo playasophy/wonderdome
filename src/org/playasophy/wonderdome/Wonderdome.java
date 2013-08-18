@@ -11,6 +11,7 @@ import org.playasophy.wonderdome.mode.ColorCycle;
 import org.playasophy.wonderdome.mode.Mode;
 import org.playasophy.wonderdome.mode.MovementTest;
 import org.playasophy.wonderdome.mode.ZackTest;
+import org.playasophy.wonderdome.mode.SimpleMode;
 
 public class Wonderdome {
 
@@ -51,6 +52,7 @@ public class Wonderdome {
         modes.add(new ColorCycle(parent));
         modes.add(new MovementTest(parent));
         modes.add(new ZackTest(parent));
+        modes.add(new SimpleMode(parent));
         currentModeIndex = 0;
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
