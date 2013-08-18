@@ -10,8 +10,7 @@ import org.playasophy.wonderdome.input.InputEvent;
 import org.playasophy.wonderdome.mode.ColorCycle;
 import org.playasophy.wonderdome.mode.Mode;
 import org.playasophy.wonderdome.mode.MovementTest;
-import org.playasophy.wonderdome.mode.ZackTest;
-import org.playasophy.wonderdome.mode.SimpleMode;
+import org.playasophy.wonderdome.mode.LanternMode;
 
 public class Wonderdome {
 
@@ -48,12 +47,19 @@ public class Wonderdome {
         this.parent = parent;
         parent.registerMethod("pre", this);
         pixels = new int[NUM_STRIPS][PIXELS_PER_STRIP];
+        
         modes = new ArrayList<Mode>();
-        modes.add(new ColorCycle(parent));
-        modes.add(new MovementTest(parent));
-        modes.add(new ZackTest(parent));
-        modes.add(new SimpleMode(parent));
-        currentModeIndex = 0;
+        
+        //
+        // List of Modes
+        //
+        modes.add(new ColorCycle(parent));        // Mode 0
+        modes.add(new MovementTest(parent));      // Mode 1
+        modes.add(new LanternMode(parent));       // Mode 2
+        
+        // Initial Mode [Change for ease of use when testing new modes].
+        switchToMode(0);
+        
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
     }
@@ -111,13 +117,27 @@ public class Wonderdome {
 
     private void handleSelectButton(final ButtonEvent.Type type) {
         if ( type == ButtonEvent.Type.PRESSED ) {
-            currentModeIndex++;
-            if ( currentModeIndex >= modes.size() ) {
-                currentModeIndex = 0;
-            }
-            
-            System.out.println("Switching to mode: " + modes.get(currentModeIndex).getClass());
+            cycleModes();
         }
+    }
+    
+    private void switchToMode(int modeIndex)
+    {
+        if (modeIndex >= 0 && modeIndex < modes.size())
+        {
+            currentModeIndex = modeIndex;
+            System.out.println("Now in mode " + currentModeIndex + ": " + modes.get(currentModeIndex).getClass());
+        }
+    }
+    
+    private void cycleModes()
+    {
+        int newMode = currentModeIndex + 1; 
+        if (newMode >= modes.size())
+        {
+            newMode = 0;
+        }
+        switchToMode(newMode);
     }
 
 }
