@@ -17,7 +17,7 @@ import org.playasophy.wonderdome.input.InputEvent;
 //
 //            protected int getPixelColor(int x, int y, long dtMillis)
 //
-//         This will be called for every pixel in the graph and you 
+//         This will be called for every pixel in the graph and you
 //        should return a color value derived from the method:
 //
 //            protected int getColor(int r, int g, int b);
@@ -27,29 +27,29 @@ import org.playasophy.wonderdome.input.InputEvent;
 //        below.
 //
 
-public class SimpleMode implements Mode {
+public abstract class SimpleMode implements Mode {
 
     ///// CONSTANTS /////
     protected static final int MAX_LED_STRIPS = 6;
     protected static final int MAX_LEDS_PER_STRIP = 240;
-    
+
     ///// PROPERTIES /////
     private final PApplet parent;
     protected int[] colors;
-    
+
 
     ///// INITIALIZATION /////
     public SimpleMode(PApplet parent) {
         this.parent = parent;
         parent.colorMode(parent.RGB);
-        
+
         colors = new int[] {
             parent.color(255, 0, 0),
             parent.color(0, 255, 0),
             parent.color(0, 0, 255)
         };
     }
-    
+
     // Helper Method to hide PApplet parent from derived classes.
     int getColor(int r, int g, int b)
     {
@@ -62,24 +62,20 @@ public class SimpleMode implements Mode {
     public void update(int[][] pixels, long dtMillis) {
         // Loop over all pixels and call the potentially overridden method
         // getPixelColor on all indices.
-        for ( int i = 0; i < pixels.length; i++ ) 
+        for ( int i = 0; i < pixels.length; i++ )
         {
-            for ( int j = 0; j < pixels[i].length; j++ ) 
+            for ( int j = 0; j < pixels[i].length; j++ )
             {
                 setPixel(pixels, i, j, getPixelColor(i, j, dtMillis));
             }
         }
     }
-    
+
     //
     // NOTE!!! Derived Classes should override this!
     // This gets called once for each pixel.
     //
-    protected int getPixelColor(int x, int y, long dtMillis)
-    {
-        // Return all purple 
-        return getColor(100, 50, 150);
-    }
+    protected abstract int getPixelColor(int x, int y, long dtMillis);
 
     private void setPixel(int[][] pixels, int x, int y, int color) {
         // If the indices are in range, set the color.
@@ -114,7 +110,7 @@ public class SimpleMode implements Mode {
             }
         }
     }
-    
+
     // Derived Classes should override accordingly.
     protected void UpButtonPressed() {}
     protected void DownButtonPressed() {}
