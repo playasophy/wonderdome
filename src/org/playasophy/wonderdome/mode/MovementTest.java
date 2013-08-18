@@ -18,7 +18,9 @@ public class MovementTest implements Mode {
 
     private final PApplet parent;
     private int x;
+    private int deltaX;
     private int y;
+    private int deltaY;
     private int[] colors;
     private int colorIndex;
     private boolean showCursor;
@@ -32,7 +34,9 @@ public class MovementTest implements Mode {
         this.parent = parent;
         parent.colorMode(parent.RGB);
         x = 1;
+        deltaX = 0;
         y = 1;
+        deltaY = 0;
         colors = new int[] {
             parent.color(255, 0, 0),
             parent.color(0, 255, 0),
@@ -55,6 +59,21 @@ public class MovementTest implements Mode {
         if ( blinkElapsed >= BLINK_DURATION ) {
             showCursor = !showCursor;
             blinkElapsed = 0;
+        }
+
+        // Update x and y, and then correct to be within allowed ranges.
+        x += deltaX;
+        if ( x < 0 ) {
+            x = 5;
+        } else if ( x > 5 ) {
+            x = 0;
+        }
+
+        y += deltaY;
+        if ( y < 0 ) {
+            y = 239;
+        } else if ( y > 239 ) {
+            y = 0;
         }
 
         // Draw box centered on x, y
@@ -92,22 +111,34 @@ public class MovementTest implements Mode {
 
         boolean isPressed = event.getType() == ButtonEvent.Type.PRESSED;
 
-        if ( !isPressed ) {
-            return;
-        }
-
         switch ( event.getId() ) {
             case UP:
-                y -= 1;
+                if ( isPressed ) {
+                    deltaY = -1;
+                } else {
+                    deltaY = 0;
+                }
                 break;
             case DOWN:
-                y += 1;
+                if ( isPressed ) {
+                    deltaY = 1;
+                } else {
+                    deltaY = 0;
+                }
                 break;
             case LEFT:
-                x -= 1;
+                if ( isPressed ) {
+                    deltaX = -1;
+                } else {
+                    deltaX = 0;
+                }
                 break;
             case RIGHT:
-                x += 1;
+                if ( isPressed ) {
+                    deltaX = 1;
+                } else {
+                    deltaX = 0;
+                }
                 break;
             case A:
                 colorIndex += 1;
@@ -115,19 +146,6 @@ public class MovementTest implements Mode {
             case B:
                 colorIndex -= 1;
                 break;
-        }
-
-        // Correct all values to be within allowed ranges.
-        if ( x < 0 ) {
-            x = 5;
-        } else if ( x > 5 ) {
-            x = 0;
-        }
-
-        if ( y < 0 ) {
-            y = 239;
-        } else if ( y > 239 ) {
-            y = 0;
         }
 
         if ( colorIndex < 0 ) {

@@ -17,8 +17,7 @@ class WonderdomeControlServer < Sinatra::Base
   end
 
   post '/control' do
-    send_message("control", params[:command])
-    redirect '/control'
+    send_message("control", params[:type], params[:button])
   end
 
   get '/admin' do
@@ -26,8 +25,7 @@ class WonderdomeControlServer < Sinatra::Base
   end
 
   post '/admin' do
-    send_message("admin", params[:command])
-    redirect '/admin'
+    send_message("admin", params[:button])
   end
 
   get '/send/:message' do

@@ -83,8 +83,18 @@ public class UDPInput {
 
     private void handleControlMessage(List<String> arguments) {
 
-        // TODO: Validate that there is at least one argument.
-        String button = arguments.get(0);
+        // Validate the number of arguments. If it's wrong, just bail.
+        if ( arguments.size() != 2 ) {
+            System.err.println("Expected exactly two arguments to control messag, but got: " + arguments);
+            return;
+        }
+
+        // Get the event type (pressed or released).
+        ButtonEvent.Type type = arguments.get(0).equals("pressed") ?
+            ButtonEvent.Type.PRESSED : ButtonEvent.Type.RELEASED;
+
+        // Get the button name and convert it to an ID.
+        String button = arguments.get(1);
         ButtonEvent.Id id;
         if ( button.equals("up") ) {
             id = ButtonEvent.Id.UP;
@@ -107,10 +117,8 @@ public class UDPInput {
             return;
         }
 
-        ButtonEvent pressed = new ButtonEvent(0, id, ButtonEvent.Type.PRESSED);
-        wonderdome.handleEvent(pressed);
-        ButtonEvent released = new ButtonEvent(0, id, ButtonEvent.Type.RELEASED);
-        wonderdome.handleEvent(released);
+        ButtonEvent event = new ButtonEvent(0, id, type);
+        wonderdome.handleEvent(event);
 
     }
 

@@ -32,7 +32,7 @@ public class LanternMode extends SimpleMode {
     protected int getPixelColor(int x, int y, long dtMillis)
     {
         // Return all white 
-        return getColorRGB(lanternBrightness, lanternBrightness, lanternBrightness);
+        return parent.color(lanternBrightness, lanternBrightness, lanternBrightness);
     }
     
     private void setBrightness(int newBrightness)

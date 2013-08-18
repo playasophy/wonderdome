@@ -7,6 +7,7 @@
  */
 
 import hypermedia.net.UDP;
+import com.codeminders.hidapi.*;
 
 import com.heroicrobot.dropbit.registry.*;
 import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
@@ -16,6 +17,7 @@ import org.playasophy.wonderdome.Wonderdome;
 final boolean DEBUG = false;
 Wonderdome wonderdome;
 PixelOutput output;
+NESControllerInput controller;
 
 // Set up the sketch.
 void setup() {
@@ -25,6 +27,9 @@ void setup() {
 
     // Set up UDP event handling.
     UDPInput udp = new UDPInput(wonderdome);
+
+    // Try to set up a USB NES controller input.
+    controller = NESControllerInput.getController(wonderdome);
 
     // Initialize output (either to hardware or simulated to the display).
     if ( false ) {
@@ -45,9 +50,13 @@ private int cycles = 0;
 private static final int PROFILE_UNIT_CYCLE_COUNT = 100;
 private long profileUnitStart = System.currentTimeMillis();
 
-
 // Rendering loop.
 void draw() {
+
+    // Update the state of the NES controller, if present.
+    if ( controller != null ) {
+        controller.updateState();
+    }
 
     output.draw(wonderdome.getPixels());
 

@@ -52,9 +52,16 @@ public class FlickerMode extends SimpleMode {
     	return pixels[x][y].getColor(dtMillis);
     }
 
+    @Override
+    protected int getColorModeForThisMode()
+    {
+    	return parent.HSB;
+    }
+
     //
     // BEGIN Input Handlers
     //
+    @Override
     protected void UpButtonPressed() 
     {
     	// Increase The Flicker Frequency
@@ -69,6 +76,7 @@ public class FlickerMode extends SimpleMode {
     	System.out.println("Flicker Delay = " + speed);
     }
     
+    @Override
     protected void DownButtonPressed()
     {
     	// Decrease the flicker frequency
@@ -83,6 +91,7 @@ public class FlickerMode extends SimpleMode {
     	System.out.println("Flicker Delay = " + speed);
     }
     
+    @Override
     protected void LeftButtonPressed()
     {
     	// Decrease the Hue
@@ -97,6 +106,7 @@ public class FlickerMode extends SimpleMode {
     	System.out.println("Hue Range Start = " + hueRangeStart);
     }
     
+    @Override
     protected void RightButtonPressed()
     {
     	// Increase the Hue
@@ -111,6 +121,7 @@ public class FlickerMode extends SimpleMode {
     	System.out.println("Hue Range Start = " + hueRangeStart);
     }
     
+    @Override
     protected void AButtonPressed()
     {
     	// Decrease Brightness
@@ -120,6 +131,7 @@ public class FlickerMode extends SimpleMode {
     	System.out.println("Max Brightness = " + maxBrightness);
     }
     
+    @Override
     protected void BButtonPressed()
     {
     	// Increase brightness
@@ -157,7 +169,14 @@ public class FlickerMode extends SimpleMode {
            targetB = rand.nextInt(maxBrightness);
 
            timeSinceTargetSetMillis = 0L;
-           timeToTargetMillis = rand.nextInt(speed - MIN_SPEED) + MIN_SPEED;
+           // FIXME: This line is crashing with the error:
+           // "java.lang.IllegalArgumentException: n must be positive"
+           // Presumably this means speed is sometimes <= 50.
+           int randSpeed = speed - MIN_SPEED;
+           if ( randSpeed <= 0 ) {
+               randSpeed = 1;
+           }
+           timeToTargetMillis = rand.nextInt(randSpeed) + MIN_SPEED;
         }
         
         public int getColor(long dtMillis)
@@ -181,7 +200,7 @@ public class FlickerMode extends SimpleMode {
         		b = interpolate(startB, targetB, percentToTarget);
         	}
         	
-        	return getColorHSB(h,s,b);
+        	return parent.color(h,s,b);
         }
         
         private int interpolate(int start, int target, double percentInterpolated)

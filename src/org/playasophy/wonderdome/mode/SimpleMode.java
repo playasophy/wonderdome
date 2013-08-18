@@ -20,8 +20,12 @@ import org.playasophy.wonderdome.input.InputEvent;
 //         This will be called for every pixel in the graph and you
 //        should return a color value derived from the method:
 //
-//            protected int getColorRGB(int r, int g, int b);
-//            protected int getColorHSB(int h, int s, int b);
+//            parent.color(r, g, b);
+//            parent.color(h, s, b);
+//
+//        Subclasses may override the method getColorModeForThisMode to
+//        set the color mode which will be applied before their
+//        getPixelColor method is invoked.
 //
 //        This class also includes skeleton methods for all button presses
 //        As we add more input methods, add more skeleton methods for those
@@ -34,18 +38,19 @@ public abstract class SimpleMode implements Mode {
     protected static final int MAX_LED_STRIPS = 6;
     protected static final int MAX_LEDS_PER_STRIP = 240;
 
+
+
     ///// PROPERTIES /////
-    private final PApplet parent;
+    protected final PApplet parent;
     protected int[] colors;
-    
-    private boolean bColorModeIsRGB = true;
+
 
 
     ///// INITIALIZATION /////
+
     public SimpleMode(PApplet parent) {
         this.parent = parent;
         parent.colorMode(parent.RGB);
-        bColorModeIsRGB = true;
 
         colors = new int[] {
             parent.color(255, 0, 0),
@@ -53,36 +58,34 @@ public abstract class SimpleMode implements Mode {
             parent.color(0, 0, 255)
         };
     }
-    
-    // 
-    // Get Color Methods
-    //
-    int getColorRGB(int r, int g, int b)
-    {
-        if (!bColorModeIsRGB)
-        {
-            parent.colorMode(parent.RGB);
-            bColorModeIsRGB = true;
-        }
-        
-        return parent.color(r,g,b);
-    }
-    
-    int getColorHSB(int h, int s, int b)
-    {
-        if (bColorModeIsRGB)
-        {
-            parent.colorMode(parent.HSB);
-            bColorModeIsRGB = false;
-        }
 
-        return parent.color(h,s,b);
-    }
+
+
+    ///// ABSTRACT METHODS /////
+
+    //
+    // NOTE!!! Derived Classes should override this!
+    // This gets called once for each pixel.
+    //
+    protected abstract int getPixelColor(int x, int y, long dtMillis);
+
+
 
     ///// Mode METHODS /////
 
     @Override
+    public void handleEvent(InputEvent event) {
+        if ( event instanceof ButtonEvent ) {
+            handleButtonEvent((ButtonEvent) event);
+        }
+    }
+
+    @Override
     public void update(int[][] pixels, long dtMillis) {
+
+        // Set the color mode.
+        parent.colorMode(getColorModeForThisMode());
+
         // Loop over all pixels and call the potentially overridden method
         // getPixelColor on all indices.
         for ( int i = 0; i < pixels.length; i++ )
@@ -94,11 +97,23 @@ public abstract class SimpleMode implements Mode {
         }
     }
 
-    //
-    // NOTE!!! Derived Classes should override this!
-    // This gets called once for each pixel.
-    //
-    protected abstract int getPixelColor(int x, int y, long dtMillis);
+
+
+    ///// PROTECTED METHODS /////
+
+    /**
+     * Determines what color mode this mode operates in. Subclasses should
+     * override this method to change the color mode.
+     *
+     * @return The color mode to use for this mode.
+     */
+    protected int getColorModeForThisMode() {
+        return parent.RGB;
+    }
+
+
+
+    ///// PRIVATE METHODS /////
 
     private void setPixel(int[][] pixels, int x, int y, int color) {
         // If the indices are in range, set the color.
@@ -110,13 +125,6 @@ public abstract class SimpleMode implements Mode {
         else
         {
             System.out.println("SimpleMode.setPixel ERROR: Indices out of Range! [" +  x + ", " + y + "]");
-        }
-    }
-
-    @Override
-    public void handleEvent(InputEvent event) {
-        if ( event instanceof ButtonEvent ) {
-            handleButtonEvent((ButtonEvent) event);
         }
     }
 
@@ -141,4 +149,5 @@ public abstract class SimpleMode implements Mode {
     protected void RightButtonPressed() {}
     protected void AButtonPressed() {}
     protected void BButtonPressed() {}
+
 }

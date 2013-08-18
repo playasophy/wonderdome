@@ -48,9 +48,9 @@ public class Wonderdome {
         this.parent = parent;
         parent.registerMethod("pre", this);
         pixels = new int[NUM_STRIPS][PIXELS_PER_STRIP];
-        
+
         modes = new ArrayList<Mode>();
-        
+
         //
         // List of Modes
         //
@@ -58,10 +58,10 @@ public class Wonderdome {
         modes.add(new MovementTest(parent));      // Mode 1
         modes.add(new LanternMode(parent));       // Mode 2
         modes.add(new FlickerMode(parent));       // Mode 3
-        
+
         // Initial Mode [Change for ease of use when testing new modes].
         switchToMode(3);
-        
+
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
     }
@@ -73,7 +73,20 @@ public class Wonderdome {
     public void pre() {
         if ( state == State.RUNNING ) {
             long dt = System.currentTimeMillis() - lastUpdate;
-            getCurrentMode().update(pixels, dt);
+            try {
+                getCurrentMode().update(pixels, dt);
+            } catch ( Exception e ) {
+                System.err.println(
+                    "Mode '" + getCurrentMode().getClass() +
+                    "' threw exception '" + e.getMessage() +
+                    "' and is being removed from the mode cycle."
+                    );
+                e.printStackTrace();
+
+                modes.remove(currentModeIndex);
+                cycleModes();
+
+            }
         }
         lastUpdate = System.currentTimeMillis();
     }
@@ -122,7 +135,7 @@ public class Wonderdome {
             cycleModes();
         }
     }
-    
+
     private void switchToMode(int modeIndex)
     {
         if (modeIndex >= 0 && modeIndex < modes.size())
@@ -131,10 +144,10 @@ public class Wonderdome {
             System.out.println("Now in mode " + currentModeIndex + ": " + modes.get(currentModeIndex).getClass());
         }
     }
-    
+
     private void cycleModes()
     {
-        int newMode = currentModeIndex + 1; 
+        int newMode = currentModeIndex + 1;
         if (newMode >= modes.size())
         {
             newMode = 0;

@@ -1,12 +1,32 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+    </script>
+    <script>
+      $(document).ready(function(){
+        $("button").mousedown(function(){
+          $.post("/admin",
+          {
+            button:$(this).attr('name'),
+            type:"pressed"
+          });
+        });
+        $("button").mouseup(function(){
+          $.post("/admin",
+          {
+            button:$(this).attr('name'),
+            type:"released"
+          });
+        });
+      });
+    </script>
+  </head>
   <title>Wonderdome Administration</title>
   <body>
     <h1>Wonderdome Administration</h1>
     <p>Welcome to the Wonderdome admin page!</p>
-    <form action="/admin" method="post">
-      <input type="submit" name="command" value="pause"/>
-      <input type="submit" name="command" value="resume"/>
-    </form>
+    <button type="button" name="pause">pause</button>
+    <button type="button" name="resume">resume</button>
   </body>
 </html>
