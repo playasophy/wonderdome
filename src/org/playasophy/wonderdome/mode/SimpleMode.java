@@ -37,11 +37,14 @@ public class SimpleMode implements Mode {
     private final PApplet parent;
     protected int[] colors;
     
+    private bool bColorModeIsRGB = true;
+    
 
     ///// INITIALIZATION /////
     public SimpleMode(PApplet parent) {
         this.parent = parent;
         parent.colorMode(parent.RGB);
+        bColorModeIsRGB = true;
         
         colors = new int[] {
             parent.color(255, 0, 0),
@@ -50,10 +53,29 @@ public class SimpleMode implements Mode {
         };
     }
     
-    // Helper Method to hide PApplet parent from derived classes.
-    int getColor(int r, int g, int b)
+    // 
+    // Get Color Methods
+    //
+    int getColorRGB(int r, int g, int b)
     {
+        if (!bColorModeIsRGB)
+        {
+            parent.colorMode(parent.RGB);
+            bColorModeIsRGB = true;
+        }
+        
         return parent.color(r,g,b);
+    }
+    
+    int getColorHSV(int h, int s, int b)
+    {
+        if (bColorModeIsRGB)
+        {
+            parent.colorMode(parent.HSB);
+            bColorModeIsRGB = false;
+        }
+
+        return parent.color(h,s,b);
     }
 
     ///// Mode METHODS /////
