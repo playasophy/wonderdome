@@ -10,7 +10,7 @@ import org.playasophy.wonderdome.input.InputEvent;
 import org.playasophy.wonderdome.mode.ColorCycle;
 import org.playasophy.wonderdome.mode.Mode;
 import org.playasophy.wonderdome.mode.MovementTest;
-
+import org.playasophy.wonderdome.mode.ZackTest;
 
 public class Wonderdome {
 
@@ -50,6 +50,7 @@ public class Wonderdome {
         modes = new ArrayList<Mode>();
         modes.add(new ColorCycle(parent));
         modes.add(new MovementTest(parent));
+        modes.add(new ZackTest(parent));
         currentModeIndex = 0;
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
@@ -112,6 +113,8 @@ public class Wonderdome {
             if ( currentModeIndex >= modes.size() ) {
                 currentModeIndex = 0;
             }
+            
+            System.out.println("Switching to mode: " + modes.get(currentModeIndex).getClass());
         }
     }
 
