@@ -11,6 +11,7 @@ import org.playasophy.wonderdome.mode.ColorCycle;
 import org.playasophy.wonderdome.mode.Mode;
 import org.playasophy.wonderdome.mode.MovementTest;
 import org.playasophy.wonderdome.mode.LanternMode;
+import org.playasophy.wonderdome.mode.FlickerMode;
 
 public class Wonderdome {
 
@@ -56,9 +57,10 @@ public class Wonderdome {
         modes.add(new ColorCycle(parent));        // Mode 0
         modes.add(new MovementTest(parent));      // Mode 1
         modes.add(new LanternMode(parent));       // Mode 2
+        modes.add(new FlickerMode(parent));       // Mode 3
         
         // Initial Mode [Change for ease of use when testing new modes].
-        switchToMode(0);
+        switchToMode(3);
         
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();

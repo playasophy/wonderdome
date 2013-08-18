@@ -68,7 +68,7 @@ public abstract class SimpleMode implements Mode {
         return parent.color(r,g,b);
     }
     
-    int getColorHSV(int h, int s, int b)
+    int getColorHSB(int h, int s, int b)
     {
         if (bColorModeIsRGB)
         {
