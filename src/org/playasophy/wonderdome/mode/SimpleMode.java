@@ -20,7 +20,8 @@ import org.playasophy.wonderdome.input.InputEvent;
 //         This will be called for every pixel in the graph and you 
 //        should return a color value derived from the method:
 //
-//            protected int getColor(int r, int g, int b);
+//            protected int getColorRGB(int r, int g, int b);
+//            protected int getColorHSB(int h, int s, int b);
 //
 //        This class also includes skeleton methods for all button presses
 //        As we add more input methods, add more skeleton methods for those
@@ -37,7 +38,7 @@ public class SimpleMode implements Mode {
     private final PApplet parent;
     protected int[] colors;
     
-    private bool bColorModeIsRGB = true;
+    private boolean bColorModeIsRGB = true;
     
 
     ///// INITIALIZATION /////
@@ -100,7 +101,7 @@ public class SimpleMode implements Mode {
     protected int getPixelColor(int x, int y, long dtMillis)
     {
         // Return all purple 
-        return getColor(100, 50, 150);
+        return getColorRGB(100, 50, 150);
     }
 
     private void setPixel(int[][] pixels, int x, int y, int color) {
