@@ -6,6 +6,8 @@
  * @author Kevin Litwack (kevin.litwack@gmail.com)
  */
 
+import java.util.Map;
+
 import hypermedia.net.UDP;
 import com.codeminders.hidapi.*;
 
@@ -27,15 +29,23 @@ void setup() {
 
     // Set up UDP event handling.
     UDPInput udp = new UDPInput(wonderdome);
+    System.out.println("UDPInput constructed successfully");
 
     // Try to set up a USB NES controller input.
     controller = NESControllerInput.getController(wonderdome);
+    if ( controller != null ) {
+        System.out.println("NESControllerInput constructed successfully");
+    } else {
+        System.out.println("NESControllerInput not constructed");
+    }
 
-    // Initialize output (either to hardware or simulated to the display).
-    if ( false ) {
+    // Initialize output based on environment variable.
+    if ( System.getenv("WONDERDOME_USE_HARDWARE") != null ) {
+        System.out.println("Attempting to use wonderdome hardware");
         DeviceRegistry registry = new DeviceRegistry();
         output = new PixelPusherOutput(registry);
     } else {
+        System.out.println("Using simulated graphics output");
         // TODO: Don't hardcode the display size.
         size(140, 520);
         output = new PixelGraphicsOutput(g);
