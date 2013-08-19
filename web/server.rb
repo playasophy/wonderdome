@@ -1,8 +1,32 @@
 require 'sinatra/base'
 require 'socket'
 
-$socket = UDPSocket.new
+# Constants
+HEALTH_CHECK_PERIOD = 1
+WONDER_PROCESSOR_COMMAND = "wonder_processor"
 
+$process_id = nil
+def start_process
+  $process_id = Process.spawn(WONDER_PROCESSOR_COMMAND, :pgroup=>true)
+end
+
+# Start the wonderdome process.
+start_process
+
+# Start a thread to check on the status of the wonderdome process.
+# If it has quit, restart it.
+Thread.new do
+  while true do
+    sleep HEALTH_CHECK_PERIOD
+    reaped = Process.wait -$process_id, Process::WNOHANG
+    if !reaped.nil?
+      puts "Reaped process #{reaped} with status #{$?.inspect}; restarting..."
+      start_process
+    end
+  end
+end
+
+$socket = UDPSocket.new
 def send_message(*message)
   $socket.send(message.join("|"), 0, "localhost", 50000)
 end
