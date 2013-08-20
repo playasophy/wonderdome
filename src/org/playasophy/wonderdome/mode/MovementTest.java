@@ -141,10 +141,14 @@ public class MovementTest implements Mode {
                 }
                 break;
             case A:
-                colorIndex += 1;
+                if ( isPressed) {
+                    colorIndex += 1;
+                }
                 break;
             case B:
-                colorIndex -= 1;
+                if ( isPressed) {
+                    colorIndex -= 1;
+                }
                 break;
         }
 
