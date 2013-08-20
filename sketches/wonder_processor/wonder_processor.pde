@@ -42,6 +42,9 @@ void setup() {
     // Initialize output based on environment variable.
     if ( System.getenv("WONDERDOME_USE_HARDWARE") != null ) {
         System.out.println("Attempting to use wonderdome hardware");
+        // Set the graphical display size to a single pixel. This will ensure
+        // minimal resources are spent on rendering the blank canvas.
+        size(1, 1);
         DeviceRegistry registry = new DeviceRegistry();
         output = new PixelPusherOutput(registry);
     } else {
