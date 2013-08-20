@@ -10,7 +10,7 @@ end
 class WonderdomeControlServer < Sinatra::Base
 
   # FIXME: Get the port from environment config, or some other more robust mechanism.
-  set :bind, ARGV.shift || "localhost"
+  set :bind, ARGV.shift || "0.0.0.0"
 
   get '/control' do
     erb :control
@@ -18,6 +18,7 @@ class WonderdomeControlServer < Sinatra::Base
 
   post '/control' do
     send_message("control", params[:type], params[:button])
+    puts params.inspect
   end
 
   get '/admin' do
@@ -26,6 +27,7 @@ class WonderdomeControlServer < Sinatra::Base
 
   post '/admin' do
     send_message("admin", params[:button])
+    puts params.inspect
   end
 
   get '/send/:message' do
