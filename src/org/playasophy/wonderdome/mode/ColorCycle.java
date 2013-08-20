@@ -76,11 +76,11 @@ public class ColorCycle implements Mode {
         switch ( event.getId() ) {
             case A:
                 aPressed = isPressed;
-                speed *= 2;
+                speed *= 1.1f;
                 break;
             case B:
                 bPressed = isPressed;
-                speed /= 2;
+                speed /= 1.1f;
                 break;
         }
 
@@ -89,8 +89,6 @@ public class ColorCycle implements Mode {
         } else if ( speed > .2 ) {
             speed = .2f;
         }
-
-        System.err.println("ColorCycle handling button event " + event.getType() + " on button " + event.getId());
 
     }
 
