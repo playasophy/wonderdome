@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="/jquery.min.js"></script>
+    <%= erb :head %>
     <script>
       $(document).ready(function(){
         $("button").click(function(){
@@ -14,10 +14,17 @@
     </script>
   </head>
   <title>Wonderdome Administration</title>
-  <body>
-    <h1>Wonderdome Administration</h1>
-    <p>Welcome to the Wonderdome admin page!</p>
-    <button type="button" name="pause">pause</button>
-    <button type="button" name="resume">resume</button>
+  <body style="padding-top: 50px">
+
+    <%= erb :navbar %>
+
+    <div class="container">
+      <div class="admin" style="padding:40px 15px;text-align:center">
+        <h1>Wonderdome Administration</h1>
+        <button type="button" class="btn btn-default" name="pause">pause</button>
+        <button type="button" class="btn btn-default" name="resume">resume</button>
+      </div>
+    </div><!-- /.container -->
+
   </body>
 </html>

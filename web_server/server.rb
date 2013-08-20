@@ -12,6 +12,14 @@ class WonderdomeControlServer < Sinatra::Base
   # FIXME: Get the port from environment config, or some other more robust mechanism.
   set :bind, ARGV.shift || "0.0.0.0"
 
+  get '/' do
+    erb :control
+  end
+
+  get '/about' do
+    erb :about
+  end
+
   get '/control' do
     erb :control
   end

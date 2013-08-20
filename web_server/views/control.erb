@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="/jquery.min.js"></script>
+    <%= erb :head %>
     <script>
       $(document).ready(function(){
         $("button").mousedown(function(){
@@ -22,15 +22,23 @@
     </script>
   </head>
   <title>Wonderdome Controls</title>
-  <body>
-    <h1>Wonderdome Controls</h1>
-    <button type="button" name="up">up</button>
-    <button type="button" name="down">down</button>
-    <button type="button" name="left">left</button>
-    <button type="button" name="right">right</button>
-    <button type="button" name="select">select</button>
-    <button type="button" name="start">start</button>
-    <button type="button" name="a">a</button>
-    <button type="button" name="b">b</button>
+  <body style="padding-top: 50px">
+
+    <%= erb :navbar %>
+
+    <div class="container">
+      <div class="control" style="padding:40px 15px;text-align:center">
+        <h1>Wonderdome Controls</h1>
+        <button type="button" class="btn btn-default" name="up">up</button>
+        <button type="button" class="btn btn-default" name="down">down</button>
+        <button type="button" class="btn btn-default" name="left">left</button>
+        <button type="button" class="btn btn-default" name="right">right</button>
+        <button type="button" class="btn btn-default" name="select">select</button>
+        <button type="button" class="btn btn-default" name="start">start</button>
+        <button type="button" class="btn btn-default" name="a">a</button>
+        <button type="button" class="btn btn-default" name="b">b</button>
+      </div>
+    </div><!-- /.container -->
+
   </body>
 </html>
