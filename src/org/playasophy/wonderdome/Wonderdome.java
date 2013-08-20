@@ -76,16 +76,7 @@ public class Wonderdome {
             try {
                 getCurrentMode().update(pixels, dt);
             } catch ( Exception e ) {
-                System.err.println(
-                    "Mode '" + getCurrentMode().getClass() +
-                    "' threw exception '" + e.getMessage() +
-                    "' and is being removed from the mode cycle."
-                    );
-                e.printStackTrace();
-
-                modes.remove(currentModeIndex);
-                cycleModes();
-
+                evictCurrentMode(e);
             }
         }
         lastUpdate = System.currentTimeMillis();
@@ -106,7 +97,11 @@ public class Wonderdome {
         }
 
         if ( !consumed ) {
-            getCurrentMode().handleEvent(event);
+            try {
+                getCurrentMode().handleEvent(event);
+            } catch ( Exception e ) {
+                evictCurrentMode(e);
+            }
         }
     }
 
@@ -128,6 +123,20 @@ public class Wonderdome {
 
     private Mode getCurrentMode() {
         return modes.get(currentModeIndex);
+    }
+
+    private void evictCurrentMode(final Throwable cause) {
+
+        System.err.println(
+            "Mode '" + getCurrentMode().getClass() +
+            "' threw exception '" + cause.getMessage() +
+            "' and is being evicted from the mode cycle."
+            );
+        cause.printStackTrace();
+
+        modes.remove(currentModeIndex);
+        cycleModes();
+
     }
 
     private void handleSelectButton(final ButtonEvent.Type type) {
