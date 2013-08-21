@@ -31,8 +31,8 @@ processing_cmd = nil
 REQUIRED_LIBS = %w{PixelPusher udp usbhid}
 
 # deployment config
-SSH_USER = "wonder"
-SSH_HOST = "wonderdome"
+DEPLOY_USER = "wonder"
+DEPLOY_HOST = "wonderdome"
 DEPLOY_PATH = "~"
 
 
@@ -364,10 +364,7 @@ end
 
 namespace :sketch do
 
-  bin_dir = "#{BUILD_DIR}/bin"
   sketches_build_dir = "#{BUILD_DIR}/sketches"
-
-  CLEAN << sketches_build_dir
 
   # common requirements for invoking Processing
   task :prereqs => ['processing:locate', 'processing:link_libs', 'lib:install'] do
@@ -389,7 +386,7 @@ namespace :sketch do
 
   desc "Compile Processing sketches to native applications."
   task :export => :prereqs do
-    ensure_dir bin_dir, sketches_build_dir
+    ensure_dir sketches_build_dir
 
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
       sketch_name = File.basename(sketch)
@@ -412,7 +409,6 @@ namespace :sketch do
 
         sketch_bin = "#{sketch_build_dir}/#{File.basename(sketch)}"
         fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
-        cp sketch_bin, bin_dir
       end
     end
   end
@@ -421,13 +417,6 @@ end
 
 
 namespace :web do
-
-  desc "Build the Wonderdome controller app."
-  task :build do
-    banner "Building controller app"
-
-    fail "NYI: build the webapp" # TODO
-  end
 
   desc "Run the controller app in a webserver."
   task :run do
@@ -441,20 +430,43 @@ end
 
 namespace :deploy do
 
-  deploy_root = "#{SSH_USER}@#{SSH_HOST}:#{DEPLOY_PATH}"
+  deploy_root = "#{DEPLOY_USER}@#{DEPLOY_HOST}:#{DEPLOY_PATH}/"
 
   desc "Deploy home directory environment configuration."
   task :home do
     banner "Deploying user environment configuration"
 
-    rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), "#{deploy_root}/"
+    rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), deploy_root
   end
 
-  # TODO: restart the running webserver
+  desc "Deploy Processing sketches."
+  task :sketch => 'sketch:export' do
+    sketches_build_dir = "#{BUILD_DIR}/sketches"
+    FileList["#{sketches_build_dir}/*"].each do |sketch|
+      sketch_name = File.basename(sketch)
+      banner "Deploying #{sketch_name} sketch"
+
+      rsync sketch, deploy_root
+    end
+  end
+
+  desc "Deploy controller web app"
+  task :web do
+    banner "Deploying controller web app"
+
+    rsync WEB_DIR, deploy_root
+  end
+
   desc "Restart the currently-running wonderdome process."
-  task :restart # TODO
+  task :restart do
+    banner "Restarting remote web app"
+
+    # TODO: send terminate command to web server
+    puts "curl -X POST http://#{DEPLOY_HOST}/control --data action=terminate".yellow
+  end
 
 end
 
 
 task :default => ['lib:release', 'sketch:export']
+task :deploy => ['deploy:sketch', 'deploy:web', 'deploy:home', 'deploy:restart']
