@@ -7,16 +7,40 @@ WONDER_PROCESSOR_COMMAND = "wonder_processor"
 
 $process_id = nil
 def start_process
+  puts "Spawning new process with command line '#{WONDER_PROCESSOR_COMMAND}'"
   $process_id = Process.spawn(WONDER_PROCESSOR_COMMAND, :pgroup=>true)
+  puts "Process spawned with pid #{$process_id}"
 end
 
-def restart_process
+def kill_process
   puts "Issuing kill signal to process group #{$process_id}"
   Process.kill -9, $process_id
   puts "Kill signal issued, waiting for process group #{$process_id}"
   Process.wait -$process_id
   puts "Process reaped successfully"
+end
+
+def restart_process
+  $run_health_check = false
+  kill_process
   start_process
+  $run_health_check = true
+  "Processing restarted successfully"
+end
+
+def terminate
+  puts "Stopping the health check thread"
+  $run_health_check = false
+  kill_process
+  # Start a thread which will exit after a brief delay, to allow the server
+  # to send the response.
+  puts "Starting delayed exit thread"
+  Thread.new do
+    sleep 0.2
+    puts "Exiting"
+    exit!
+  end
+  "Terminating web server"
 end
 
 # Start the wonderdome process.
@@ -24,9 +48,11 @@ start_process
 
 # Start a thread to check on the status of the wonderdome process.
 # If it has quit, restart it.
+$run_health_check = true
 Thread.new do
   while true do
     sleep HEALTH_CHECK_PERIOD
+    continue unless $run_health_check
     reaped = Process.wait -$process_id, Process::WNOHANG
     if !reaped.nil?
       puts "Reaped process #{reaped} with status #{$?.inspect}; restarting..."
@@ -70,13 +96,8 @@ class WonderdomeControlServer < Sinatra::Base
     puts params.inspect
     if params[:action] == "restart"
       restart_process
-      "Processing restarted successfully"
     elsif params[:action] == "terminate"
-      Thread.new do
-        sleep 0.5
-        exit!
-      end
-      "Terminating web server"
+      terminate
     else
       send_message("admin", params[:action])
     end
