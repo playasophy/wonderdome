@@ -12,6 +12,7 @@ LIBRARY_NAME = 'wonderdome'
 
 # package directories
 BUILD_DIR  = 'build'
+DEPLOY_DIR = 'deploy'
 LIB_DIR    = 'lib'
 SKETCH_DIR = 'sketches'
 SRC_DIR    = 'src'
@@ -27,9 +28,9 @@ processing_home = ENV['PROCESSING_HOME'] || "#{ENV['HOME']}/processing"
 processing_cmd = nil
 
 # deployment config
-SSH_USER    = "wonder@wonderdome"
-SSH_PORT    = "22"
-DEPLOY_ROOT = "~"
+SSH_USER = "wonder"
+SSH_HOST = "wonderdome"
+DEPLOY_PATH = "~"
 
 
 
@@ -143,12 +144,13 @@ def rsync(src, dest, extra_opts={})
   opts = %w{
     --recursive
     --archive
-    --delete
-    --delete-excluded
+    --compress
     --verbose
   }
+  #  --dry-run
 
   opts << "--exclude=#{extra_opts[:exclude]}" if extra_opts[:exclude]
+  opts << "--delete" << "--delete-excluded" if extra_opts[:delete]
 
   execute 'rsync', opts, src, dest
 end
@@ -294,7 +296,7 @@ namespace :lib do
     banner "Copying library sources"
 
     # TODO: ensure src dir exists?
-    rsync SRC_DIR, lib_src_dir, exclude: 'library.properties'
+    rsync SRC_DIR, lib_src_dir, exclude: 'library.properties', delete: true
   end
 
   desc "Generate library documentation."
@@ -436,8 +438,14 @@ end
 
 namespace :deploy do
 
-  desc "Deploy files to the wonderdome with rsync."
-  task :rsync # TODO: ask for confirmation
+  deploy_root = "#{SSH_USER}@#{SSH_HOST}:#{DEPLOY_PATH}"
+
+  desc "Deploy home directory environment configuration."
+  task :home do
+    banner "Deploying user environment configuration"
+
+    rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), "#{deploy_root}/"
+  end
 
   # TODO: restart the running webserver
   desc "Restart the currently-running wonderdome process."
