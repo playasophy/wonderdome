@@ -150,10 +150,10 @@ def rsync(src, dest, extra_opts={})
     --compress
     --verbose
   }
-  #  --dry-run
 
   opts << "--exclude=#{extra_opts[:exclude]}" if extra_opts[:exclude]
   opts << "--delete" << "--delete-excluded" if extra_opts[:delete]
+  opts << "--dry-run" if extra_opts[:dry_run]
 
   execute 'rsync', opts, src, dest
 end
