@@ -10,6 +10,15 @@ def start_process
   $process_id = Process.spawn(WONDER_PROCESSOR_COMMAND, :pgroup=>true)
 end
 
+def restart_process
+  puts "Issuing kill signal to process group #{$process_id}"
+  Process.kill -9, $process_id
+  puts "Kill signal issued, waiting for process group #{$process_id}"
+  Process.wait -$process_id
+  puts "Process reaped successfully"
+  start_process
+end
+
 # Start the wonderdome process.
 start_process
 
@@ -49,8 +58,8 @@ class WonderdomeControlServer < Sinatra::Base
   end
 
   post '/control' do
-    send_message("control", params[:type], params[:button])
     puts params.inspect
+    send_message("control", params[:type], params[:button])
   end
 
   get '/admin' do
@@ -58,8 +67,12 @@ class WonderdomeControlServer < Sinatra::Base
   end
 
   post '/admin' do
-    send_message("admin", params[:button])
     puts params.inspect
+    if params[:action] == "restart"
+      restart_process
+    else
+      send_message("admin", params[:action])
+    end
   end
 
   get '/send/:message' do
