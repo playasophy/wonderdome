@@ -1,5 +1,6 @@
 package org.playasophy.wonderdome.mode;
 
+
 import processing.core.PApplet;
 
 import org.playasophy.wonderdome.input.ButtonEvent;
@@ -11,7 +12,15 @@ public class ColorCycle implements Mode {
 
     ///// CONSTANTS /////
 
-    private static final float DEFAULT_SPEED = 0.05f;
+    // The "speed" determines how fast the mode completes a single cycle
+    // through the color gradient. This is how many cycles it moves per second.
+    private static final float DEFAULT_SPEED = 0.5f;
+    private static final float MIN_SPEED = 0.05f;
+    private static final float MAX_SPEED = 4.00f;
+
+    private static final float DEFAULT_DENSITY = 3.0f;
+    private static final float MIN_DENSITY = 0.5f;
+    private static final float MAX_DENSITY = 12.0f;
 
 
 
@@ -20,9 +29,8 @@ public class ColorCycle implements Mode {
     private final PApplet parent;
     private final ColorGradient gradient;
     private float offset = 0.0f;
+    private float density = DEFAULT_DENSITY;
     private float speed = DEFAULT_SPEED;
-    private boolean aPressed = false;
-    private boolean bPressed = false;
 
 
 
@@ -31,15 +39,14 @@ public class ColorCycle implements Mode {
     public ColorCycle(PApplet parent) {
         this.parent = parent;
         parent.colorMode(parent.RGB);
-        this.gradient = new ColorGradient(parent, 30.0f, 240.0f,
+        this.gradient = new ColorGradient(parent,
             parent.color(  0,   0,   0),
             parent.color(255,   0, 255),
             parent.color(  0, 128, 255),
             parent.color(  0, 255,   0),
             parent.color(255, 128,   0),
             parent.color(255,   0,   0),
-            parent.color(128,   0,   0),
-            parent.color(255, 255, 255)
+            parent.color(128,   0,   0)
         );
     }
 
@@ -48,23 +55,23 @@ public class ColorCycle implements Mode {
     ///// Mode METHODS /////
 
     @Override
-    public void update(int[][] pixels, long dtMillis) {
+    public void update(int[][] pixels, long dt) {
 
         // Iterate over pixels in the matrix and set them to the appropriate spot in gradient.
         for ( int s = 0; s < pixels.length; s++ ) {
             for ( int p = 0; p < pixels[s].length; p++ ) {
-                int color = gradient.getColor(offset + (float)p/pixels[s].length);
-                pixels[s][p] = color;
+                float v = offset + (float)p/pixels[s].length;
+                pixels[s][p] = gradient.getColor(v*density);
             }
         }
 
         // Update state.
-        offset += speed;
+        offset += speed*dt/1000f;
 
     }
 
     @Override
-    public void handleEvent(InputEvent event) {
+    public void handleEvent(final InputEvent event) {
         if ( event instanceof ButtonEvent ) {
             handleButtonEvent((ButtonEvent) event);
         }
@@ -74,21 +81,24 @@ public class ColorCycle implements Mode {
 
         boolean isPressed = event.getType() == ButtonEvent.Type.PRESSED;
         switch ( event.getId() ) {
-            case A:
-                aPressed = isPressed;
+            case UP:
                 speed *= 1.1f;
                 break;
-            case B:
-                bPressed = isPressed;
+            case DOWN:
                 speed /= 1.1f;
+                break;
+            case LEFT:
+                density /= 1.1f;
+                break;
+            case RIGHT:
+                density *= 1.1f;
                 break;
         }
 
-        if ( speed < .01 ) {
-            speed = .01f;
-        } else if ( speed > .2 ) {
-            speed = .2f;
-        }
+        speed = Math.min(Math.max(speed, MIN_SPEED), MAX_SPEED);
+        density = Math.min(Math.max(density, MIN_DENSITY), MAX_DENSITY);
+
+        System.out.printf("Colorcycle speed: %.2f / density: %.2f\n", speed, density);
 
     }
 

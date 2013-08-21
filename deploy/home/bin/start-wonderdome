@@ -1,0 +1,3 @@
+#!/bin/sh
+
+WONDERDOME_USE_HARDWARE=1 ruby $HOME/web/server.rb 2>&1 >> $HOME/log/wonderdome.log

@@ -12,6 +12,7 @@ LIBRARY_NAME = 'wonderdome'
 
 # package directories
 BUILD_DIR  = 'build'
+DEPLOY_DIR = 'deploy'
 LIB_DIR    = 'lib'
 SKETCH_DIR = 'sketches'
 SRC_DIR    = 'src'
@@ -26,10 +27,13 @@ SKETCHBOOK_LIB_DIR = "#{SKETCHBOOK_PATH}/libraries"
 processing_home = ENV['PROCESSING_HOME'] || "#{ENV['HOME']}/processing"
 processing_cmd = nil
 
+# required libraries
+REQUIRED_LIBS = %w{PixelPusher udp usbhid}
+
 # deployment config
-SSH_USER    = "wonder@wonderdome"
-SSH_PORT    = "22"
-DEPLOY_ROOT = "~"
+DEPLOY_USER = "wonder"
+DEPLOY_HOST = "wonderdome"
+DEPLOY_PATH = "~"
 
 
 
@@ -143,12 +147,13 @@ def rsync(src, dest, extra_opts={})
   opts = %w{
     --recursive
     --archive
-    --delete
-    --delete-excluded
+    --compress
     --verbose
   }
 
   opts << "--exclude=#{extra_opts[:exclude]}" if extra_opts[:exclude]
+  opts << "--delete" << "--delete-excluded" if extra_opts[:delete]
+  opts << "--dry-run" if extra_opts[:dry_run]
 
   execute 'rsync', opts, src, dest
 end
@@ -183,12 +188,12 @@ namespace :processing do
     fail "Install Processing in your home directory or add it to your $PATH." unless processing_home && File.directory?(processing_home)
   end
 
-  desc "Check for required Processing libraries."
+  desc "Check for required Processing libraries"
   task :check_libs do
     banner "Checking library dependencies"
 
     missing = false
-    ['PixelPusher', 'udp'].each do |lib|
+    REQUIRED_LIBS.each do |lib|
       if File.directory? "#{LIB_DIR}/#{lib}"
         puts_result :ok, lib
       else
@@ -259,6 +264,7 @@ namespace :lib do
     banner "Calculating library classpath"
 
     classpath << "#{processing_home}/core/library/core.jar"
+    classpath << FileList["#{processing_home}/modes/java/libraries/**/*.jar"]
     classpath << FileList["#{LIB_DIR}/**/*.jar"]
     classpath.flatten!
 
@@ -293,8 +299,7 @@ namespace :lib do
   task :copy_src do
     banner "Copying library sources"
 
-    # TODO: ensure src dir exists?
-    rsync SRC_DIR, lib_src_dir, exclude: 'library.properties'
+    rsync SRC_DIR, lib_src_dir, exclude: 'library.properties', delete: true
   end
 
   desc "Generate library documentation."
@@ -359,13 +364,10 @@ end
 
 namespace :sketch do
 
-  bin_dir = "#{BUILD_DIR}/bin"
   sketches_build_dir = "#{BUILD_DIR}/sketches"
 
-  CLEAN << sketches_build_dir
-
-  # common requirements for invoking Processing
-  task :prereqs => ['processing:locate', 'processing:link_libs', 'lib:install'] do
+  # Locate Processing compiler command.
+  task :compiler => ['processing:locate', 'processing:link_libs', 'lib:install'] do
     banner "Locating Processing compiler"
 
     if File.executable? processing_cmd
@@ -375,24 +377,22 @@ namespace :sketch do
     end
   end
 
-  desc "Run a Processing sketch."
-  task :run => :prereqs do |t, args|
+  desc "Compile Processing sketches to native applications"
+  task :export => :compiler do
     ensure_dir sketches_build_dir
-
-    fail "NYI: run a sketch with args: #{args.inspect}" # TODO
-  end
-
-  desc "Compile Processing sketches to native applications."
-  task :export => :prereqs do
-    ensure_dir bin_dir, sketches_build_dir
 
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
       sketch_name = File.basename(sketch)
       banner "Exporting #{sketch_name} sketch"
 
+      sketch_sources = [
+        FileList["#{sketch}/**/*"],
+        FileList["#{BUILD_DIR}/lib/**/*.jar"]
+      ].flatten
+
       sketch_build_dir = "#{sketches_build_dir}/#{sketch_name}"
 
-      if up_to_date? sketch, sketch_build_dir
+      if up_to_date? sketch_sources, sketch_build_dir
         puts "Exported sketch is up to date."
       else
         execute %W{
@@ -407,7 +407,6 @@ namespace :sketch do
 
         sketch_bin = "#{sketch_build_dir}/#{File.basename(sketch)}"
         fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
-        cp sketch_bin, bin_dir
       end
     end
   end
@@ -417,18 +416,23 @@ end
 
 namespace :web do
 
-  desc "Build the Wonderdome controller app."
-  task :build do
-    banner "Building controller app"
+  desc "Validates the syntax of the Ruby web app"
+  task :syntax do
+    banner "Validating web app Ruby syntax"
 
-    fail "NYI: build the webapp" # TODO
-  end
+    valid = true
+    FileList["#{WEB_DIR}/**/*.rb"].each do |file|
+      output = %x{ruby -c #{file}}
+      if $?.success?
+        puts_result :pass, file
+      else
+        puts_result :fail, file
+        puts output
+        valid = false
+      end
+    end
 
-  desc "Run the controller app in a webserver."
-  task :run do
-    banner "Running controller webserver"
-
-    fail "NYI: run the webserver" # TODO
+    fail "Invalid syntax in web app Ruby code." unless valid
   end
 
 end
@@ -436,14 +440,53 @@ end
 
 namespace :deploy do
 
-  desc "Deploy files to the wonderdome with rsync."
-  task :rsync # TODO: ask for confirmation
+  deploy_root = "#{DEPLOY_USER}@#{DEPLOY_HOST}:#{DEPLOY_PATH}/"
 
-  # TODO: restart the running webserver
-  desc "Restart the currently-running wonderdome process."
-  task :restart # TODO
+  desc "Deploy home directory environment configuration"
+  task :home do
+    banner "Deploying user environment configuration"
+
+    rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), deploy_root
+    rsync ['Gemfile', 'Gemfile.lock'], deploy_root
+  end
+
+  desc "Deploy Processing sketches"
+  task :sketch => 'sketch:export' do
+    sketches_build_dir = "#{BUILD_DIR}/sketches"
+    FileList["#{sketches_build_dir}/*"].each do |sketch|
+      sketch_name = File.basename(sketch)
+      banner "Deploying #{sketch_name} sketch"
+
+      rsync sketch, deploy_root
+    end
+  end
+
+  desc "Deploy controller web app"
+  task :web => 'web:syntax' do
+    banner "Deploying controller web app"
+
+    rsync WEB_DIR, deploy_root
+  end
+
+  desc "Restart the running remote wonderdome process"
+  task :restart do
+    banner "Restarting remote web app"
+
+    # Send terminate command to web server.
+    execute "curl -i -X POST http://#{DEPLOY_HOST}/admin --data action=terminate"
+  end
 
 end
+
+
+desc "Run the Wonderdome stack locally"
+task :run => ['sketch:export', 'web:syntax'] do
+  execute "PATH=\"build/sketches/wonder_processor:$PATH\" ruby web/server.rb" # FIXME: don't hardcode path
+end
+
+
+desc "Build and deploy the full software stack"
+task :deploy => ['deploy:sketch', 'deploy:web', 'deploy:home', 'deploy:restart']
 
 
 task :default => ['lib:release', 'sketch:export']

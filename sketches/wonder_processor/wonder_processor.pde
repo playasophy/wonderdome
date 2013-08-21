@@ -6,6 +6,9 @@
  * @author Kevin Litwack (kevin.litwack@gmail.com)
  */
 
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+
 import java.util.Map;
 
 import hypermedia.net.UDP;
@@ -16,16 +19,39 @@ import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
 
 import org.playasophy.wonderdome.Wonderdome;
 
+
+
+///// GLOBAL STATE /////
+
 final boolean DEBUG = false;
+
 Wonderdome wonderdome;
-PixelOutput output;
+
 NESControllerInput controller;
+
+Minim minim;
+AudioInput audio;
+
+PixelOutput output;
+
+// Profiling variables.
+int cycles = 0;
+static final int PROFILE_UNIT_CYCLE_COUNT = 100;
+long profileUnitStart = System.currentTimeMillis();
+
+
+
+///// LIFECYCLE /////
 
 // Set up the sketch.
 void setup() {
 
+    // Initialize Minim and get an audio input.
+    minim = new Minim(this);
+    //audio = minim.getLineIn();
+
     // Initialize the wonderdome object.
-    wonderdome = new Wonderdome(this);
+    wonderdome = new Wonderdome(this, audio);
 
     // Set up UDP event handling.
     UDPInput udp = new UDPInput(wonderdome);
@@ -57,12 +83,6 @@ void setup() {
 }
 
 
-
-// Profiling variables.
-private int cycles = 0;
-private static final int PROFILE_UNIT_CYCLE_COUNT = 100;
-private long profileUnitStart = System.currentTimeMillis();
-
 // Rendering loop.
 void draw() {
 
@@ -90,5 +110,16 @@ void draw() {
     }
 
     cycles++;
+
+}
+
+
+// Free sketch resources.
+void stop() {
+
+  if ( audio != null ) audio.close();
+  minim.stop();
+
+  super.stop();
 
 }

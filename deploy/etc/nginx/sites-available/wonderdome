@@ -1,0 +1,11 @@
+# Wonderdome NGINX configuration.
+
+server {
+    server_name wonderdome;
+    access_log /home/wonder/log/access.log;
+
+    location / {
+        proxy_pass http://localhost:4567/;
+        proxy_redirect off;
+    }
+}
