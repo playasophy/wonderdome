@@ -62,7 +62,7 @@ public class FlickerMode extends SimpleMode {
     // BEGIN Input Handlers
     //
     @Override
-    protected void UpButtonPressed() 
+    protected void RightButtonPressed() 
     {
     	// Increase The Flicker Frequency
     	if (speed - 100 < MIN_SPEED)
@@ -77,7 +77,7 @@ public class FlickerMode extends SimpleMode {
     }
     
     @Override
-    protected void DownButtonPressed()
+    protected void LeftButtonPressed()
     {
     	// Decrease the flicker frequency
     	if (speed + 100 > MAX_SPEED)
@@ -92,7 +92,7 @@ public class FlickerMode extends SimpleMode {
     }
     
     @Override
-    protected void LeftButtonPressed()
+    protected void AButtonPressed()
     {
     	// Decrease the Hue
     	if (hueRangeStart - 20 < 0)
@@ -107,7 +107,7 @@ public class FlickerMode extends SimpleMode {
     }
     
     @Override
-    protected void RightButtonPressed()
+    protected void BButtonPressed()
     {
     	// Increase the Hue
     	if (hueRangeStart + HUE_RANGE + 20 > 255)
@@ -122,7 +122,7 @@ public class FlickerMode extends SimpleMode {
     }
     
     @Override
-    protected void AButtonPressed()
+    protected void DownButtonPressed()
     {
     	// Decrease Brightness
     	if (maxBrightness - 20 < 0) maxBrightness = 1;
@@ -132,7 +132,7 @@ public class FlickerMode extends SimpleMode {
     }
     
     @Override
-    protected void BButtonPressed()
+    protected void UpButtonPressed()
     {
     	// Increase brightness
     	if (maxBrightness + 20 >= 255) maxBrightness = 255;

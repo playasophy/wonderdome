@@ -12,6 +12,7 @@ import org.playasophy.wonderdome.mode.Mode;
 import org.playasophy.wonderdome.mode.MovementTest;
 import org.playasophy.wonderdome.mode.LanternMode;
 import org.playasophy.wonderdome.mode.FlickerMode;
+import org.playasophy.wonderdome.mode.ShootingStarMode;
 
 public class Wonderdome {
 
@@ -58,9 +59,10 @@ public class Wonderdome {
         modes.add(new MovementTest(parent));      // Mode 1
         modes.add(new LanternMode(parent));       // Mode 2
         modes.add(new FlickerMode(parent));       // Mode 3
+        modes.add(new ShootingStarMode(parent));  // Mode 4
 
         // Initial Mode [Change for ease of use when testing new modes].
-        switchToMode(3);
+        switchToMode(4);
 
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();

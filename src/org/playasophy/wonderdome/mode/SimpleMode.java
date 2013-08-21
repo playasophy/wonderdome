@@ -69,6 +69,11 @@ public abstract class SimpleMode implements Mode {
     //
     protected abstract int getPixelColor(int x, int y, long dtMillis);
 
+    //
+    // Derived Classes should override this if they wish to have a global state update.
+    // This is called once per frame.
+    //
+    protected void updateState(long dtMillis) {}
 
 
     ///// Mode METHODS /////
@@ -85,6 +90,9 @@ public abstract class SimpleMode implements Mode {
 
         // Set the color mode.
         parent.colorMode(getColorModeForThisMode());
+        
+        // Update the State
+        updateState(dtMillis);
 
         // Loop over all pixels and call the potentially overridden method
         // getPixelColor on all indices.
