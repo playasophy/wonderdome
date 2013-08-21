@@ -3,5 +3,5 @@
 xset -dpms s off
 #xsetroot -solid black
 
-# TODO: start the wonderdome web server
-exec xterm
+# launch into the wonderdome code
+exec start-wonderdome
