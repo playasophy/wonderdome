@@ -188,7 +188,7 @@ namespace :processing do
     fail "Install Processing in your home directory or add it to your $PATH." unless processing_home && File.directory?(processing_home)
   end
 
-  desc "Check for required Processing libraries."
+  desc "Check for required Processing libraries"
   task :check_libs do
     banner "Checking library dependencies"
 
@@ -298,7 +298,6 @@ namespace :lib do
   task :copy_src do
     banner "Copying library sources"
 
-    # TODO: ensure src dir exists?
     rsync SRC_DIR, lib_src_dir, exclude: 'library.properties', delete: true
   end
 
@@ -366,8 +365,8 @@ namespace :sketch do
 
   sketches_build_dir = "#{BUILD_DIR}/sketches"
 
-  # common requirements for invoking Processing
-  task :prereqs => ['processing:locate', 'processing:link_libs', 'lib:install'] do
+  # Locate Processing compiler command.
+  task :compiler => ['processing:locate', 'processing:link_libs', 'lib:install'] do
     banner "Locating Processing compiler"
 
     if File.executable? processing_cmd
@@ -377,15 +376,8 @@ namespace :sketch do
     end
   end
 
-  desc "Run a Processing sketch."
-  task :run => :prereqs do |t, args|
-    ensure_dir sketches_build_dir
-
-    fail "NYI: run a sketch with args: #{args.inspect}" # TODO
-  end
-
-  desc "Compile Processing sketches to native applications."
-  task :export => :prereqs do
+  desc "Compile Processing sketches to native applications"
+  task :export => :compiler do
     ensure_dir sketches_build_dir
 
     FileList["#{SKETCH_DIR}/*"].each do |sketch|
@@ -432,7 +424,7 @@ namespace :deploy do
 
   deploy_root = "#{DEPLOY_USER}@#{DEPLOY_HOST}:#{DEPLOY_PATH}/"
 
-  desc "Deploy home directory environment configuration."
+  desc "Deploy home directory environment configuration"
   task :home do
     banner "Deploying user environment configuration"
 
@@ -440,7 +432,7 @@ namespace :deploy do
     rsync ['Gemfile', 'Gemfile.lock'], deploy_root
   end
 
-  desc "Deploy Processing sketches."
+  desc "Deploy Processing sketches"
   task :sketch => 'sketch:export' do
     sketches_build_dir = "#{BUILD_DIR}/sketches"
     FileList["#{sketches_build_dir}/*"].each do |sketch|
@@ -458,7 +450,7 @@ namespace :deploy do
     rsync WEB_DIR, deploy_root
   end
 
-  desc "Restart the currently-running wonderdome process."
+  desc "Restart the running remote wonderdome process"
   task :restart do
     banner "Restarting remote web app"
 
