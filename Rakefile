@@ -264,6 +264,7 @@ namespace :lib do
     banner "Calculating library classpath"
 
     classpath << "#{processing_home}/core/library/core.jar"
+    classpath << FileList["#{processing_home}/modes/java/libraries/**/*.jar"]
     classpath << FileList["#{LIB_DIR}/**/*.jar"]
     classpath.flatten!
 
@@ -475,7 +476,7 @@ end
 
 desc "Run the Wonderdome stack locally"
 task :run => ['sketch:export', 'web:syntax'] do
-  execute "PATH=\"build/sketches/wonder_processor:$PATH\" ruby web/server.rb"
+  execute "PATH=\"build/sketches/wonder_processor:$PATH\" ruby web/server.rb" # FIXME: don't hardcode path
 end
 
 
