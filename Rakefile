@@ -385,9 +385,14 @@ namespace :sketch do
       sketch_name = File.basename(sketch)
       banner "Exporting #{sketch_name} sketch"
 
+      sketch_sources = [
+        FileList["#{sketch}/**/*"],
+        FileList["#{BUILD_DIR}/lib/**/*.jar"]
+      ].flatten
+
       sketch_build_dir = "#{sketches_build_dir}/#{sketch_name}"
 
-      if up_to_date? sketch, sketch_build_dir
+      if up_to_date? sketch_sources, sketch_build_dir
         puts "Exported sketch is up to date."
       else
         execute %W{
