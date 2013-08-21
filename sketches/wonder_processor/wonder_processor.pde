@@ -6,6 +6,9 @@
  * @author Kevin Litwack (kevin.litwack@gmail.com)
  */
 
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+
 import java.util.Map;
 
 import hypermedia.net.UDP;
@@ -16,10 +19,31 @@ import com.heroicrobot.dropbit.devices.pixelpusher.Strip;
 
 import org.playasophy.wonderdome.Wonderdome;
 
+
+
+///// GLOBAL STATE /////
+
 final boolean DEBUG = false;
+
 Wonderdome wonderdome;
-PixelOutput output;
+
 NESControllerInput controller;
+
+Minim minim;
+AudioInput audio;
+FFT fft;
+BeatDetect beats;
+
+PixelOutput output;
+
+// Profiling variables.
+int cycles = 0;
+static final int PROFILE_UNIT_CYCLE_COUNT = 100;
+long profileUnitStart = System.currentTimeMillis();
+
+
+
+///// LIFECYCLE /////
 
 // Set up the sketch.
 void setup() {
@@ -37,6 +61,19 @@ void setup() {
         System.out.println("NESControllerInput constructed successfully");
     } else {
         System.out.println("NESControllerInput not constructed");
+    }
+
+    // Initialize Minim and get an audio input.
+    minim = new Minim(this);
+    audio = minim.getLineIn();
+
+    if ( audio != null ) {
+        System.out.println("Acquired audio input, initializing FFT and beat detection");
+        fft = new FFT(audio.bufferSize(), audio.sampleRate());
+        beats = new BeatDetect();
+        beats.setSensitivity(200);
+    } else {
+        System.out.println("No audio input detected");
     }
 
     // Initialize output based on environment variable.
@@ -57,18 +94,22 @@ void setup() {
 }
 
 
-
-// Profiling variables.
-private int cycles = 0;
-private static final int PROFILE_UNIT_CYCLE_COUNT = 100;
-private long profileUnitStart = System.currentTimeMillis();
-
 // Rendering loop.
 void draw() {
 
     // Update the state of the NES controller, if present.
     if ( controller != null ) {
         controller.updateState();
+    }
+
+    // Perform a Fourier Transform on the audio buffer.
+    if ( fft != null ) {
+        fft.forward(audio.mix);
+    }
+
+    // Run beat detection algorithm.
+    if ( beats != null ) {
+        beats.detect(audio.mix);
     }
 
     output.draw(wonderdome.getPixels());
@@ -90,5 +131,16 @@ void draw() {
     }
 
     cycles++;
+
+}
+
+
+// Free sketch resources.
+void stop() {
+
+  audio.close();
+  minim.stop();
+
+  super.stop();
 
 }
