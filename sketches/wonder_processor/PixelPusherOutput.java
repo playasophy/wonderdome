@@ -39,9 +39,7 @@ class PixelPusherOutput implements PixelOutput {
          // Set logging level for DeviceRegistry.
          // TODO: Control this via properties file rather than code.
          Logger deviceRegistryLogger = Logger.getLogger(DeviceRegistry.class.getName());
-         for ( Handler h : deviceRegistryLogger.getHandlers() ) {
-             h.setLevel(Level.WARNING);
-         }
+         deviceRegistryLogger.setLevel(Level.WARNING);
 
          Observer deviceObserver = new Observer() {
              @Override
