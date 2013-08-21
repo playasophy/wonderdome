@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import processing.core.*;
 
@@ -31,16 +34,23 @@ class PixelPusherOutput implements PixelOutput {
      */
      public PixelPusherOutput(final DeviceRegistry registry) {
 
-        this.registry = registry;
+         this.registry = registry;
 
-        Observer deviceObserver = new Observer() {
-            @Override
-            public void update(final Observable target, final Object arg) {
-                updateStrips(arg);
-            }
-        };
+         // Set logging level for DeviceRegistry.
+         // TODO: Control this via properties file rather than code.
+         Logger deviceRegistryLogger = Logger.getLogger(DeviceRegistry.class.getName());
+         for ( Handler h : deviceRegistryLogger.getHandlers() ) {
+             h.setLevel(Level.WARNING);
+         }
 
-        registry.addObserver(deviceObserver);
+         Observer deviceObserver = new Observer() {
+             @Override
+             public void update(final Observable target, final Object arg) {
+                 updateStrips(arg);
+             }
+         };
+
+         registry.addObserver(deviceObserver);
 
     }
 
