@@ -48,7 +48,7 @@ void setup() {
 
     // Initialize Minim and get an audio input.
     minim = new Minim(this);
-    audio = minim.getLineIn();
+    //audio = minim.getLineIn();
 
     // Initialize the wonderdome object.
     wonderdome = new Wonderdome(this, audio);
@@ -117,7 +117,7 @@ void draw() {
 // Free sketch resources.
 void stop() {
 
-  audio.close();
+  if ( audio != null ) audio.close();
   minim.stop();
 
   super.stop();

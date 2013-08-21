@@ -96,7 +96,7 @@ public class Wonderdome {
         if ( state == State.RUNNING ) {
 
             // Perform audio processing.
-            audio.update();
+            if ( audio != null ) audio.update();
 
             long dt = System.currentTimeMillis() - lastUpdate;
 
