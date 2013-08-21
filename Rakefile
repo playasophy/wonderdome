@@ -462,8 +462,8 @@ namespace :deploy do
   task :restart do
     banner "Restarting remote web app"
 
-    # TODO: send terminate command to web server
-    puts "curl -X POST http://#{DEPLOY_HOST}/control --data action=terminate".yellow
+    # Send terminate command to web server.
+    execute "curl -i -X POST http://#{DEPLOY_HOST}/admin --data action=restart"
   end
 
 end
