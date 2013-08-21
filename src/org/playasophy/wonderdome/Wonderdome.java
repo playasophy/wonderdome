@@ -1,17 +1,21 @@
 package org.playasophy.wonderdome;
 
+
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import processing.core.*;
 
 import org.playasophy.wonderdome.input.ButtonEvent;
 import org.playasophy.wonderdome.input.InputEvent;
-import org.playasophy.wonderdome.mode.ColorCycle;
-import org.playasophy.wonderdome.mode.Mode;
-import org.playasophy.wonderdome.mode.MovementTest;
-import org.playasophy.wonderdome.mode.LanternMode;
-import org.playasophy.wonderdome.mode.FlickerMode;
+import org.playasophy.wonderdome.mode.*;
+import org.playasophy.wonderdome.sdk.AudioContext;
+
+
 
 public class Wonderdome {
 
@@ -26,15 +30,23 @@ public class Wonderdome {
 
     ///// CONSTANTS /////
 
-    private static final int NUM_STRIPS = 6;
-    private static final int PIXELS_PER_STRIP = 240;
+    public static final int NUM_STRIPS = 6;
+    public static final int PIXELS_PER_STRIP = 240;
 
 
 
     ///// PROPERTIES /////
 
+    // Parent applet for graphics interaction.
     private final PApplet parent;
-    private int[][] pixels;
+
+    // Display buffer.
+    private final int[][] pixels;
+
+    // Audio processing components.
+    private final AudioContext audio;
+
+    // Mode management variables.
     private List<Mode> modes;
     private int currentModeIndex;
     private State state;
@@ -44,26 +56,35 @@ public class Wonderdome {
 
     ///// INITIALIZATION /////
 
-    public Wonderdome(PApplet parent) {
+    public Wonderdome(
+            final PApplet parent,
+            final AudioInput input) {
+
         this.parent = parent;
         parent.registerMethod("pre", this);
         pixels = new int[NUM_STRIPS][PIXELS_PER_STRIP];
 
-        modes = new ArrayList<Mode>();
+        if ( input != null ) {
+            System.out.println("Acquired audio input, initializing FFT and beat detection");
+            audio = new AudioContext(input);
+        } else {
+            System.out.println("No audio input detected");
+            audio = null;
+        }
 
-        //
-        // List of Modes
-        //
-        modes.add(new ColorCycle(parent));        // Mode 0
-        modes.add(new MovementTest(parent));      // Mode 1
-        modes.add(new LanternMode(parent));       // Mode 2
-        modes.add(new FlickerMode(parent));       // Mode 3
+        modes = Arrays.asList(
+            new ColorCycle(parent),
+            new MovementTest(parent),
+            new LanternMode(parent),
+            new FlickerMode(parent)
+        );
 
         // Initial Mode [Change for ease of use when testing new modes].
-        switchToMode(3);
+        switchToMode(0);
 
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
+
     }
 
 
@@ -71,20 +92,29 @@ public class Wonderdome {
     ///// PUBLIC METHODS /////
 
     public void pre() {
+
         if ( state == State.RUNNING ) {
+
+            // Perform audio processing.
+            audio.update();
+
             long dt = System.currentTimeMillis() - lastUpdate;
+
             try {
                 getCurrentMode().update(pixels, dt);
             } catch ( Exception e ) {
                 evictCurrentMode(e);
             }
         }
+
         lastUpdate = System.currentTimeMillis();
     }
+
 
     public int[][] getPixels() {
         return pixels;
     }
+
 
     public void handleEvent(InputEvent event) {
         boolean consumed = false;
@@ -105,13 +135,16 @@ public class Wonderdome {
         }
     }
 
+
     public void pause() {
         state = State.PAUSED;
     }
 
+
     public void resume() {
         state = State.RUNNING;
     }
+
 
     public void setModeList(List<Mode> modes) {
         // TODO: Implement this.
@@ -124,6 +157,7 @@ public class Wonderdome {
     private Mode getCurrentMode() {
         return modes.get(currentModeIndex);
     }
+
 
     private void evictCurrentMode(final Throwable cause) {
 
@@ -139,14 +173,15 @@ public class Wonderdome {
 
     }
 
+
     private void handleSelectButton(final ButtonEvent.Type type) {
         if ( type == ButtonEvent.Type.PRESSED ) {
             cycleModes();
         }
     }
 
-    private void switchToMode(int modeIndex)
-    {
+
+    private void switchToMode(int modeIndex) {
         if (modeIndex >= 0 && modeIndex < modes.size())
         {
             currentModeIndex = modeIndex;
@@ -154,8 +189,8 @@ public class Wonderdome {
         }
     }
 
-    private void cycleModes()
-    {
+
+    private void cycleModes() {
         int newMode = currentModeIndex + 1;
         if (newMode >= modes.size())
         {

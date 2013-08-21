@@ -31,8 +31,6 @@ NESControllerInput controller;
 
 Minim minim;
 AudioInput audio;
-FFT fft;
-BeatDetect beats;
 
 PixelOutput output;
 
@@ -48,8 +46,12 @@ long profileUnitStart = System.currentTimeMillis();
 // Set up the sketch.
 void setup() {
 
+    // Initialize Minim and get an audio input.
+    minim = new Minim(this);
+    audio = minim.getLineIn();
+
     // Initialize the wonderdome object.
-    wonderdome = new Wonderdome(this);
+    wonderdome = new Wonderdome(this, audio);
 
     // Set up UDP event handling.
     UDPInput udp = new UDPInput(wonderdome);
@@ -61,19 +63,6 @@ void setup() {
         System.out.println("NESControllerInput constructed successfully");
     } else {
         System.out.println("NESControllerInput not constructed");
-    }
-
-    // Initialize Minim and get an audio input.
-    minim = new Minim(this);
-    audio = minim.getLineIn();
-
-    if ( audio != null ) {
-        System.out.println("Acquired audio input, initializing FFT and beat detection");
-        fft = new FFT(audio.bufferSize(), audio.sampleRate());
-        beats = new BeatDetect();
-        beats.setSensitivity(200);
-    } else {
-        System.out.println("No audio input detected");
     }
 
     // Initialize output based on environment variable.
@@ -100,16 +89,6 @@ void draw() {
     // Update the state of the NES controller, if present.
     if ( controller != null ) {
         controller.updateState();
-    }
-
-    // Perform a Fourier Transform on the audio buffer.
-    if ( fft != null ) {
-        fft.forward(audio.mix);
-    }
-
-    // Run beat detection algorithm.
-    if ( beats != null ) {
-        beats.detect(audio.mix);
     }
 
     output.draw(wonderdome.getPixels());
