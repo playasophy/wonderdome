@@ -27,6 +27,9 @@ SKETCHBOOK_LIB_DIR = "#{SKETCHBOOK_PATH}/libraries"
 processing_home = ENV['PROCESSING_HOME'] || "#{ENV['HOME']}/processing"
 processing_cmd = nil
 
+# required libraries
+REQUIRED_LIBS = %w{PixelPusher udp usbhid}
+
 # deployment config
 SSH_USER = "wonder"
 SSH_HOST = "wonderdome"
@@ -190,7 +193,7 @@ namespace :processing do
     banner "Checking library dependencies"
 
     missing = false
-    ['PixelPusher', 'udp'].each do |lib|
+    REQUIRED_LIBS.each do |lib|
       if File.directory? "#{LIB_DIR}/#{lib}"
         puts_result :ok, lib
       else
