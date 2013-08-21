@@ -70,6 +70,13 @@ class WonderdomeControlServer < Sinatra::Base
     puts params.inspect
     if params[:action] == "restart"
       restart_process
+      "Processing restarted successfully"
+    elsif params[:action] == "terminate"
+      Thread.new do
+        sleep 0.5
+        exit!
+      end
+      "Terminating web server"
     else
       send_message("admin", params[:action])
     end
