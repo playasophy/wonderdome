@@ -437,6 +437,7 @@ namespace :deploy do
     banner "Deploying user environment configuration"
 
     rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), deploy_root
+    rsync ['Gemfile', 'Gemfile.lock'], deploy_root
   end
 
   desc "Deploy Processing sketches."
