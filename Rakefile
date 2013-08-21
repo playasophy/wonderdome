@@ -410,11 +410,23 @@ end
 
 namespace :web do
 
-  desc "Run the controller app in a webserver."
-  task :run do
-    banner "Running controller webserver"
+  desc "Validates the syntax of the Ruby web app"
+  task :syntax do
+    banner "Validating web app Ruby syntax"
 
-    fail "NYI: run the webserver" # TODO
+    valid = true
+    FileList["#{WEB_DIR}/**/*.rb"].each do |file|
+      output = %x{ruby -c #{file}}
+      if $?.success?
+        puts_result :pass, file
+      else
+        puts_result :fail, file
+        puts output
+        valid = false
+      end
+    end
+
+    fail "Invalid syntax in web app Ruby code." unless valid
   end
 
 end
@@ -444,7 +456,7 @@ namespace :deploy do
   end
 
   desc "Deploy controller web app"
-  task :web do
+  task :web => 'web:syntax' do
     banner "Deploying controller web app"
 
     rsync WEB_DIR, deploy_root
@@ -461,5 +473,14 @@ namespace :deploy do
 end
 
 
-task :default => ['lib:release', 'sketch:export']
+desc "Run the Wonderdome stack locally"
+task :run => ['sketch:export', 'web:syntax'] do
+  execute "PATH=\"build/sketches/wonder_processor:$PATH\" ruby web/server.rb"
+end
+
+
+desc "Build and deploy the full software stack"
 task :deploy => ['deploy:sketch', 'deploy:web', 'deploy:home', 'deploy:restart']
+
+
+task :default => ['lib:release', 'sketch:export']
