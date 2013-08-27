@@ -79,6 +79,9 @@ public abstract class SimpleMode implements Mode {
     ///// Mode METHODS /////
 
     @Override
+    public void onShow() { }
+
+    @Override
     public void handleEvent(InputEvent event) {
         if ( event instanceof ButtonEvent ) {
             handleButtonEvent((ButtonEvent) event);

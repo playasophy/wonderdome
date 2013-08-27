@@ -12,6 +12,8 @@ import processing.core.*;
 
 import org.playasophy.wonderdome.input.ButtonEvent;
 import org.playasophy.wonderdome.input.InputEvent;
+import org.playasophy.wonderdome.input.InputEventListener;
+import org.playasophy.wonderdome.input.KonamiCodeListener;
 import org.playasophy.wonderdome.mode.*;
 import org.playasophy.wonderdome.sdk.AudioContext;
 
@@ -48,9 +50,14 @@ public class Wonderdome {
 
     // Mode management variables.
     private List<Mode> modes;
+    private Mode easterEggMode;
+    private boolean easterEggRunning;
     private int currentModeIndex;
     private State state;
     private long lastUpdate;
+
+    // Event management variables.
+    private List<InputEventListener> listeners;
 
 
 
@@ -82,6 +89,13 @@ public class Wonderdome {
 
         // Initial Mode [Change for ease of use when testing new modes].
         switchToMode(0);
+
+        easterEggMode = new SeizureMode(parent);
+        easterEggRunning = false;
+
+        // Initialize event listeners.
+        listeners = new ArrayList<InputEventListener>();
+        listeners.add(new KonamiCodeListener(this));
 
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
@@ -118,15 +132,34 @@ public class Wonderdome {
 
 
     public void handleEvent(InputEvent event) {
+        System.out.println("Handling event '" + event + "'");
+
         boolean consumed = false;
+
+        // First, run through all of the registered event listeners.
+        for ( InputEventListener listener : listeners ) {
+            consumed = listener.handleEvent(event);
+            if ( consumed ) {
+                return;
+            }
+        }
+
+        // If no registered listener consumed the event, process it here.
+        // FIXME: Move this code into one or more additional event listeners.
         if ( event instanceof ButtonEvent ) {
             ButtonEvent be = (ButtonEvent) event;
             if ( be.getId() == ButtonEvent.Id.SELECT ) {
                 handleSelectButton(be.getType());
                 consumed = true;
+            } else if ( be.getId() == ButtonEvent.Id.START ) {
+                if ( be.getType() == ButtonEvent.Type.PRESSED ) {
+                    togglePause();
+                }
+                consumed = true;
             }
         }
 
+        // If nothing else consumed the event, send it to the current mode.
         if ( !consumed ) {
             try {
                 getCurrentMode().handleEvent(event);
@@ -134,16 +167,46 @@ public class Wonderdome {
                 evictCurrentMode(e);
             }
         }
+
+    }
+
+
+    public void togglePause() {
+        System.out.println("togglePause");
+        if ( state == State.RUNNING ) {
+            pause();
+        } else {
+            resume();
+        }
     }
 
 
     public void pause() {
+        System.out.println("pause");
         state = State.PAUSED;
     }
 
 
     public void resume() {
+        System.out.println("resume");
         state = State.RUNNING;
+    }
+
+
+    public void runEasterEgg() {
+        System.out.println("Running easter egg!");
+        easterEggRunning = true;
+        new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(10 * 1000);
+                } catch ( InterruptedException e ) { 
+                    // Do nothing.
+                }
+                easterEggRunning = false;
+                System.out.println("Easter egg stopped");
+            }
+        }.start();
     }
 
 
@@ -156,7 +219,11 @@ public class Wonderdome {
     ///// PRIVATE METHODS /////
 
     private Mode getCurrentMode() {
-        return modes.get(currentModeIndex);
+        if ( easterEggRunning ) {
+            return easterEggMode;
+        } else {
+            return modes.get(currentModeIndex);
+        }
     }
 
 
@@ -186,6 +253,7 @@ public class Wonderdome {
         if (modeIndex >= 0 && modeIndex < modes.size())
         {
             currentModeIndex = modeIndex;
+            getCurrentMode().onShow();
             System.out.println("Now in mode " + currentModeIndex + ": " + modes.get(currentModeIndex).getClass());
         }
     }

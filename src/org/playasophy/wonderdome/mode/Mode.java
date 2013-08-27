@@ -8,4 +8,6 @@ public interface Mode {
 
     void handleEvent(InputEvent event);
 
+    void onShow();
+
 }

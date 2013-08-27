@@ -77,6 +77,9 @@ public class ColorCycle implements Mode {
         }
     }
 
+    @Override
+    public void onShow() { }
+
     private void handleButtonEvent(ButtonEvent event) {
 
         boolean isPressed = event.getType() == ButtonEvent.Type.PRESSED;

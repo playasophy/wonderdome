@@ -34,16 +34,13 @@ public class ColorGradient {
      */
     public int getColor(float v) {
 
-        float t = (v % 1.0f) * (colors.length + 1);
-
-        // as t goes from 0 -> shades
-        // 'color increments per shade'
-        // density increases the 'rate' at which t moves through the color space
+        float t = (v - ((int) v)) * colors.length;
+        //float t = (v % 1.0f) * (colors.length + 1);
 
         int t0 = (int) Math.floor(t);
         int t1 = (int) Math.ceil(t);
 
-        int c0 = ( t0 >= colors.length ) ? colors[colors.length - 1] : colors[t0];
+        int c0 = colors[t0];
         int c1 = ( t1 >= colors.length ) ? colors[0] : colors[t1];
 
         return parent.lerpColor(c0, c1, t - t0);

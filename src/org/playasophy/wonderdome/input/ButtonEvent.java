@@ -40,4 +40,13 @@ public class ButtonEvent extends ControllerEvent {
         this.type = type;
     }
 
+
+
+    ///// Object OVERRIDE METHODS /////
+
+    @Override
+    public String toString() {
+        return "Id:'" + id + "', type:'" + type + "'";
+    }
+
 }
