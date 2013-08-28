@@ -55,6 +55,7 @@ public class Wonderdome {
     private int currentModeIndex;
     private State state;
     private long lastUpdate;
+    private long lastEvent;
 
     // Event management variables.
     private List<InputEventListener> listeners;
@@ -97,6 +98,7 @@ public class Wonderdome {
         // Initialize event listeners.
         listeners = new ArrayList<InputEventListener>();
         listeners.add(new KonamiCodeListener(this));
+        setLastEvent();
 
         state = State.RUNNING;
         lastUpdate = System.currentTimeMillis();
@@ -108,6 +110,12 @@ public class Wonderdome {
     ///// PUBLIC METHODS /////
 
     public void pre() {
+
+        // If no events have occurred in the last 5 minutes, cycle modes.
+        if ( System.currentTimeMillis() - lastEvent > 5 * 60 * 1000) {
+            cycleModes();
+            lastEvent = System.currentTimeMillis();
+        }
 
         if ( state == State.RUNNING ) {
 
@@ -134,6 +142,7 @@ public class Wonderdome {
 
     public void handleEvent(InputEvent event) {
         System.out.println("Handling event '" + event + "'");
+        setLastEvent();
 
         boolean consumed = false;
 
@@ -206,6 +215,7 @@ public class Wonderdome {
                 }
                 easterEggRunning = false;
                 System.out.println("Easter egg stopped");
+                setLastEvent();
             }
         }.start();
     }
@@ -239,6 +249,7 @@ public class Wonderdome {
 
         modes.remove(currentModeIndex);
         cycleModes();
+        setLastEvent();
 
     }
 
@@ -267,6 +278,10 @@ public class Wonderdome {
             newMode = 0;
         }
         switchToMode(newMode);
+    }
+
+    private void setLastEvent() {
+        lastEvent = System.currentTimeMillis();
     }
 
 }
