@@ -84,7 +84,8 @@ public class Wonderdome {
             //new MovementTest(parent),        // Mode 1
             new LanternMode(parent),         // Mode 2
             new FlickerMode(parent),         // Mode 3
-            new ShootingStarMode(parent)     // Mode 4
+            //new ShootingStarMode(parent)     // Mode 4
+            new OpticalAssaultMode(parent)
         );
 
         // Initial Mode [Change for ease of use when testing new modes].
