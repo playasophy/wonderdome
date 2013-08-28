@@ -23,7 +23,7 @@ import org.playasophy.wonderdome.Wonderdome;
 
 ///// GLOBAL STATE /////
 
-final boolean DEBUG = false;
+final boolean DEBUG = true;
 
 Wonderdome wonderdome;
 
@@ -46,8 +46,11 @@ long profileUnitStart = System.currentTimeMillis();
 // Set up the sketch.
 void setup() {
 
+    // Set the frame rate.
+    frameRate(30);
+
     // Initialize Minim and get an audio input.
-    minim = new Minim(this);
+    //minim = new Minim(this);
     //audio = minim.getLineIn();
 
     // Initialize the wonderdome object.

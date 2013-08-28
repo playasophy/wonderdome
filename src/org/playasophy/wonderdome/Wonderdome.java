@@ -81,7 +81,7 @@ public class Wonderdome {
 
         modes = Arrays.asList(
             new ColorCycle(parent),          // Mode 0
-            new MovementTest(parent),        // Mode 1
+            //new MovementTest(parent),        // Mode 1
             new LanternMode(parent),         // Mode 2
             new FlickerMode(parent),         // Mode 3
             new ShootingStarMode(parent)     // Mode 4
