@@ -17,9 +17,9 @@ public class LanternMode extends SimpleMode {
 
     private static final int MAX_BRIGHTNESS = 255;
     private static final int MIN_BRIGHTNESS = 0;
-    private static final int DIMMER_DELTA = 30;
+    private static final int DIMMER_DELTA = 5;
     
-    private int lanternBrightness = 200; 
+    private int lanternBrightness = 200;
     
 
     // C'Tor
