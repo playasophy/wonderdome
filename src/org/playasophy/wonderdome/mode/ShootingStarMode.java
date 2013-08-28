@@ -23,7 +23,7 @@ public class ShootingStarMode extends SimpleMode {
     protected static Random rand = new Random();
     
     // ADJUSTABLE PARAMS//
-    private int baseStarSpeed = 1400;
+    private int baseStarSpeed = 5400;
     private int hue_range = 40;
     private int hue_start = 50;
     //////////////////////
@@ -149,7 +149,7 @@ public class ShootingStarMode extends SimpleMode {
     @Override
     protected void RightButtonPressed() 
     {
-    	int maxSpeed = 10000;
+    	int maxSpeed = 20000;
      	baseStarSpeed += 200;
     	if (baseStarSpeed > maxSpeed) baseStarSpeed = maxSpeed;
     	System.out.println("Speed = " + baseStarSpeed);
@@ -224,7 +224,8 @@ public class ShootingStarMode extends SimpleMode {
     private void AddShootingStar()
     {
     	//System.out.println("Adding Shooting Star...");	
-    	stars.add(new ShootingStar());
+    	if (stars.size() <= 2)
+            stars.add(new ShootingStar());
     }
     
     //
@@ -233,7 +234,7 @@ public class ShootingStarMode extends SimpleMode {
     private class ShootingStar
     {
     	public int row;
-    	private int headSize = 3;
+    	private int headSize = 1;
     	protected int h=0, s=0, b=0;
     	
     	private long timeSinceBirth = 0;
@@ -257,7 +258,7 @@ public class ShootingStarMode extends SimpleMode {
         {
     		this.row = row;
     		
-    		headSize = rand.nextInt(15) + 1;
+    		headSize = 1;//rand.nextInt(15) + 1;
     		timeToFinish = rand.nextInt(700) + baseStarSpeed; 
     		timeToFade = rand.nextInt(1000) + 700 + (int)(baseStarSpeed*0.25); 
     		h = (rand.nextInt(hue_range) + hue_start) % 255;
@@ -291,14 +292,19 @@ public class ShootingStarMode extends SimpleMode {
     		// Light the head.
     		if (fShooting && percentComplete <= 1.0)
     		{
-	    		// Light the head.
+                if (headLocation < MAX_LEDS_PER_STRIP)
+                {
+                    pixels[headLocation].start();
+                }
+
+	    		/*// Light the head.
 	    		for (int i = headLocation; i > headLocation - headSize && i >= 0; i--)
 	    		{
 	    			if (i < MAX_LEDS_PER_STRIP)
 	    			{
 	    				pixels[i].start();
 	    			}
-	    		}
+	    		}   */
 	    		
 	    		
 	    		// Light all the pixels skipped over too.
@@ -317,7 +323,8 @@ public class ShootingStarMode extends SimpleMode {
 	    			fShooting = false;
 	    		}
     		}
-    		
+    	
+            
     		// Update the tails.
     		boolean tailsActive = false;
     		boolean tailExists = headLocation-headSize > 0;
@@ -334,7 +341,9 @@ public class ShootingStarMode extends SimpleMode {
     		{
     			fActive = false;
     		}
-    	}
+    	
+        }
+
     	
     	public int GetColor(int index)
     	{
@@ -345,7 +354,7 @@ public class ShootingStarMode extends SimpleMode {
     	private class ShootingStarPixel
     	{
     		long timeLeftToFade = 0;
-    		long timeToFade = 1000;
+    		long timeToFade = 30;
     		
     		public int h=0, s=0, b=0, initBrightness=0;
     		

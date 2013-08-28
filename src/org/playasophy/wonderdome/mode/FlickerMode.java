@@ -22,9 +22,9 @@ public class FlickerMode extends SimpleMode {
     protected static Random rand = new Random();
     
     // ADJUSTABLE PARAMS//
-    private static final int HUE_RANGE = 30;
-    private static final int MIN_SPEED = 50;
-    private static final int MAX_SPEED = 1500;
+    private static final int HUE_RANGE = 35;
+    private static final int MIN_SPEED = 10;
+    private static final int MAX_SPEED = 3500;
     private int speed = 350;
     private int maxBrightness = 255;
     private int hueRangeStart = 40;
@@ -91,17 +91,19 @@ public class FlickerMode extends SimpleMode {
     	System.out.println("Flicker Delay = " + speed);
     }
     
+    private static final int colorDelta = 12;
     @Override
     protected void AButtonPressed()
     {
-    	// Decrease the Hue
-    	if (hueRangeStart - 20 < 0)
+
+        // Decrease the Hue
+    	if (hueRangeStart - colorDelta < 0)
     	{
     		hueRangeStart = 255 - HUE_RANGE;
     	}
     	else
     	{
-    		hueRangeStart -= 20;
+    		hueRangeStart -= colorDelta;
     	}
     	System.out.println("Hue Range Start = " + hueRangeStart);
     }
@@ -110,13 +112,13 @@ public class FlickerMode extends SimpleMode {
     protected void BButtonPressed()
     {
     	// Increase the Hue
-    	if (hueRangeStart + HUE_RANGE + 20 > 255)
+    	if (hueRangeStart + HUE_RANGE + colorDelta > 255)
     	{
     		hueRangeStart = 0;
     	}
     	else
     	{
-    		hueRangeStart += 20;
+    		hueRangeStart += colorDelta;
     	}
     	System.out.println("Hue Range Start = " + hueRangeStart);
     }
@@ -125,8 +127,8 @@ public class FlickerMode extends SimpleMode {
     protected void DownButtonPressed()
     {
     	// Decrease Brightness
-    	if (maxBrightness - 20 < 0) maxBrightness = 1;
-    	else maxBrightness -= 20;
+    	if (maxBrightness - 7 < 0) maxBrightness = 1;
+    	else maxBrightness -= 7;
     	
     	System.out.println("Max Brightness = " + maxBrightness);
     }
@@ -135,8 +137,8 @@ public class FlickerMode extends SimpleMode {
     protected void UpButtonPressed()
     {
     	// Increase brightness
-    	if (maxBrightness + 20 >= 255) maxBrightness = 255;
-    	else maxBrightness += 20;
+    	if (maxBrightness + 7 >= 255) maxBrightness = 255;
+    	else maxBrightness += 7;
     	
     	System.out.println("Max Brightness = " + maxBrightness);
     }
