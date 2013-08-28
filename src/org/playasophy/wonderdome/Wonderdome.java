@@ -81,18 +81,18 @@ public class Wonderdome {
         }
 
         modes = Arrays.asList(
-            new ColorCycle(parent),          // Mode 0
-            //new MovementTest(parent),        // Mode 1
-            new LanternMode(parent),         // Mode 2
-            new FlickerMode(parent),         // Mode 3
-            //new ShootingStarMode(parent)     // Mode 4
-            new OpticalAssaultMode(parent)
+            new ColorCycle(parent),
+            new FlickerMode(parent),
+            new MovementTest(parent),
+            new LanternMode(parent),
+            new SeizureMode(parent)
+            //new ShootingStarMode(parent)
         );
 
         // Initial Mode [Change for ease of use when testing new modes].
         switchToMode(0);
 
-        easterEggMode = new SeizureMode(parent);
+        easterEggMode = new OpticalAssaultMode(parent);
         easterEggRunning = false;
 
         // Initialize event listeners.
@@ -209,7 +209,7 @@ public class Wonderdome {
         new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(10 * 1000);
+                    Thread.sleep(20 * 1000);
                 } catch ( InterruptedException e ) { 
                     // Do nothing.
                 }

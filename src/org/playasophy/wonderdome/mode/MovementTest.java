@@ -18,7 +18,6 @@ public class MovementTest implements Mode {
 
     private final PApplet parent;
     private int x;
-    private int deltaX;
     private int y;
     private int deltaY;
     private int[] colors;
@@ -34,7 +33,6 @@ public class MovementTest implements Mode {
         this.parent = parent;
         parent.colorMode(parent.RGB);
         x = 1;
-        deltaX = 0;
         y = 1;
         deltaY = 0;
         colors = new int[] {
@@ -61,14 +59,7 @@ public class MovementTest implements Mode {
             blinkElapsed = 0;
         }
 
-        // Update x and y, and then correct to be within allowed ranges.
-        x += deltaX;
-        if ( x < 0 ) {
-            x = 5;
-        } else if ( x > 5 ) {
-            x = 0;
-        }
-
+        // Update y, and then correct to be within allowed ranges.
         y += deltaY;
         if ( y < 0 ) {
             y = 239;
@@ -131,16 +122,12 @@ public class MovementTest implements Mode {
                 break;
             case LEFT:
                 if ( isPressed ) {
-                    deltaX = -1;
-                } else {
-                    deltaX = 0;
+                    x--;
                 }
                 break;
             case RIGHT:
                 if ( isPressed ) {
-                    deltaX = 1;
-                } else {
-                    deltaX = 0;
+                    x++;
                 }
                 break;
             case A:
@@ -153,6 +140,13 @@ public class MovementTest implements Mode {
                     colorIndex -= 1;
                 }
                 break;
+        }
+
+        // Correct x and color index to be within allowed ranges.
+        if ( x < 0 ) {
+            x = 5;
+        } else if ( x > 5 ) {
+            x = 0;
         }
 
         if ( colorIndex < 0 ) {
