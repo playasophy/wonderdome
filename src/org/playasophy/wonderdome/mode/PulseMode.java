@@ -23,9 +23,9 @@ public class PulseMode extends SimpleMode {
     protected static Random rand = new Random();
    
     private static final int HUE_RANGE = 30;
-    private static final int MIN_SPEED = 1000;
-    private static final int MAX_SPEED = 30000;
-    private int speed = 7000;
+    private static final int MIN_SPEED = 50;
+    private static final int MAX_SPEED = 10000;
+    private int speed = 1400;
 
     private int currHue = 200;
     private int currSat = 255;
@@ -51,7 +51,7 @@ public class PulseMode extends SimpleMode {
     @Override
     protected void updateState(long dtMillis)
     {
-    	starManager.update(dtMillis);
+    	//starManager.update(dtMillis);
     	
     	timeToPulse -= dtMillis;
     	if (timeToPulse <= 0)
@@ -123,14 +123,14 @@ public class PulseMode extends SimpleMode {
     @Override
     protected void UpButtonPressed() 
     {
-    	speed -= 500;
+    	speed -= 300;
     	speed = Math.max(MIN_SPEED, speed);
     }
     
     @Override
     protected void DownButtonPressed()
     {
-    	speed += 500;
+    	speed += 300;
     	speed = Math.min(MAX_SPEED, speed);
     }
     
@@ -145,7 +145,7 @@ public class PulseMode extends SimpleMode {
     @Override
     protected void BButtonPressed()
     {
-    	starManager.EngageTwinkleAttack();
+    	//starManager.EngageTwinkleAttack();
     }
     
     @Override
