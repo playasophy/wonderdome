@@ -24,8 +24,8 @@ public class LeftRightMode extends SimpleMode {
    
     private static final int HUE_RANGE = 30;
     private static final int MIN_SPEED = 50;
-    private static final int MAX_SPEED = 1500;
-    private int speed = 500;
+    private static final int MAX_SPEED = 2500;
+    private int speed = 100;
     private int brightness = 255;
     private int nextHue = 100;
 
@@ -47,7 +47,7 @@ public class LeftRightMode extends SimpleMode {
     @Override
     protected void updateState(long dtMillis)
     {
-    	timeToUpdate -= speed;
+    	timeToUpdate -= dtMillis;
     	if (timeToUpdate <= 0)
     	{
     		timeToUpdate = speed;
@@ -68,12 +68,14 @@ public class LeftRightMode extends SimpleMode {
     	}
     	else
     	{
-    		for (int i=0; i < MAX_LED_STRIPS-1; ++i)
+    		
+            for (int i=0; i < MAX_LED_STRIPS-1; ++i)
     		{
     			stripHues[i] = stripHues[i+1];
     		}
     		stripHues[MAX_LED_STRIPS-1] = getNewHue();
-    	}
+    	    
+        }
     }
 
     private int hueDiff = 25;
@@ -82,7 +84,9 @@ public class LeftRightMode extends SimpleMode {
     	int newHue = nextHue;
     	if (!directionReversed) nextHue += hueDiff;
     	else nextHue -= hueDiff;
-    	nextHue %= 255;
+    	
+        if (nextHue > 255) nextHue -= 255;
+        if (nextHue < 0) nextHue += 255;
     	
     	return newHue;
     }

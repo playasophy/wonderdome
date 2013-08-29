@@ -18,7 +18,7 @@ import java.util.Random;
 //
 //		Controls:
 //			Up/Down: Controls the speed of the assault.
-//			Left/Right: Cycles between assault mode (pixels, columns, rows, or entire grid)
+//			Left/Right: 
 //			A: Toggles the brightness down and up (the oh shit button)
 //			B: Starts the countdown again.
 //
@@ -118,6 +118,12 @@ public class OpticalAssaultMode extends SimpleMode {
     		allOutAssault.update(dtMillis);
     		break;
     	};
+            cycleTimer -= dtMillis;
+            if (cycleTimer <= 0)
+            {
+               Cycle();
+            }
+            
     	}
     }
     
@@ -183,7 +189,19 @@ public class OpticalAssaultMode extends SimpleMode {
     @Override
     protected void BButtonPressed()
     {
-    	countdownMode.start();
+    	//countdownMode.start();
+    }
+
+    private int cycleTimer = 500;
+    private void Cycle()
+    {
+        System.out.println("Cycling Modes...");
+        assaultMode++;
+        if (assaultMode >= numModes)
+        {
+            assaultMode = 0;
+        }
+        cycleTimer = 500;
     }
     
     @Override
@@ -277,7 +295,7 @@ public class OpticalAssaultMode extends SimpleMode {
     	private void reset()
     	{
 	    	hue = rand.nextInt(255);
-	    	assaultTimer = rand.nextInt(200) + holyShitFuckTurnItDownSpeed;
+	    	assaultTimer = rand.nextInt(50) + holyShitFuckTurnItDownSpeed;
     	}
     	
     	public void update(long dtMillis)

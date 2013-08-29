@@ -68,14 +68,15 @@ public class PulseMode extends SimpleMode {
     	float percentLeftToPulse = (float)timeToPulse / (float)speed;
     	if (pulsingBrighter)
     	{
-    		currBrightness = box(255 - (int)(percentLeftToPulse * (float)255));
+    		currBrightness = box(maxBrightness - (int)(percentLeftToPulse * (float)maxBrightness));
     	}
     	else
     	{
-    		currBrightness = box((int)(percentLeftToPulse * (float)255));
+    		currBrightness = box((int)(percentLeftToPulse * (float)maxBrightness));
     	}
     }
-    
+   
+    private int maxBrightness = 155;
     private int box(int x)
     {
     	return Math.max(Math.min(255, x), 0);
@@ -137,6 +138,8 @@ public class PulseMode extends SimpleMode {
     protected void AButtonPressed()
     {
     	resetPixels();
+        maxBrightness += 10;
+        maxBrightness %= 255;
     }
     
     @Override

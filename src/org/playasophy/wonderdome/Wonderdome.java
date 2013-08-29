@@ -83,9 +83,11 @@ public class Wonderdome {
         modes = Arrays.asList(
             new ColorCycle(parent),
             new FlickerMode(parent),
+            new PulseMode(parent),
             new MovementTest(parent),
             new LanternMode(parent),
-            new SeizureMode(parent)
+            new SeizureMode(parent),
+            new LeftRightMode(parent)
             //new ShootingStarMode(parent)
         );
 
