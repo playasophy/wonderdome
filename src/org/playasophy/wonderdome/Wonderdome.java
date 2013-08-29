@@ -208,6 +208,7 @@ public class Wonderdome {
     public void runEasterEgg() {
         System.out.println("Running easter egg!");
         easterEggRunning = true;
+        getCurrentMode().onShow();
         new Thread() {
             public void run() {
                 try {
