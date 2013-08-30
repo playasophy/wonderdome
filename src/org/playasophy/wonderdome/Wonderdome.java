@@ -84,17 +84,18 @@ public class Wonderdome {
             new ColorCycle(parent),
             new FlickerMode(parent),
             //new PulseMode(parent),
-            new MovementTest(parent),
+            //new MovementTest(parent),
             new LanternMode(parent),
             new SeizureMode(parent),
-            new LeftRightMode(parent)
+            new LeftRightMode(parent),
+            new OpticalAssaultMode(parent)
             //new ShootingStarMode(parent)
         );
 
         // Initial Mode [Change for ease of use when testing new modes].
         switchToMode(0);
 
-        easterEggMode = new OpticalAssaultMode(parent);
+        easterEggMode = new StrobeMode(parent);
         easterEggRunning = false;
 
         // Initialize event listeners.
