@@ -54,6 +54,7 @@ public class Wonderdome {
     private boolean easterEggRunning;
     private int currentModeIndex;
     private State state;
+    private boolean autoCycle;
     private long lastUpdate;
     private long lastEvent;
 
@@ -104,6 +105,7 @@ public class Wonderdome {
         setLastEvent();
 
         state = State.RUNNING;
+        autoCycle = true;
         lastUpdate = System.currentTimeMillis();
 
     }
@@ -114,8 +116,9 @@ public class Wonderdome {
 
     public void pre() {
 
-        // If no events have occurred in the last 5 minutes, cycle modes.
-        if ( System.currentTimeMillis() - lastEvent > 5 * 60 * 1000) {
+        // If auto-cycling is enabled and no events have occurred in the last
+        // 5 minutes, cycle modes.
+        if ( autoCycle && System.currentTimeMillis() - lastEvent > 5 * 60 * 1000) {
             cycleModes();
             lastEvent = System.currentTimeMillis();
         }
@@ -132,6 +135,13 @@ public class Wonderdome {
             } catch ( Exception e ) {
                 evictCurrentMode(e);
             }
+
+            // If auto-cycling is disabled, indicate it with a single red pixel.
+            if ( !autoCycle ) {
+                parent.colorMode(parent.RGB);
+                pixels[0][PIXELS_PER_STRIP - 1] = parent.color(255, 0, 0);
+            }
+
         }
 
         lastUpdate = System.currentTimeMillis();
@@ -166,7 +176,7 @@ public class Wonderdome {
                 consumed = true;
             } else if ( be.getId() == ButtonEvent.Id.START ) {
                 if ( be.getType() == ButtonEvent.Type.PRESSED ) {
-                    togglePause();
+                    toggleAutoCycle();
                 }
                 consumed = true;
             }
@@ -181,6 +191,11 @@ public class Wonderdome {
             }
         }
 
+    }
+
+
+    public void toggleAutoCycle() {
+        autoCycle = !autoCycle;
     }
 
 
