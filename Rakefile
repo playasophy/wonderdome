@@ -460,7 +460,8 @@ end
 
 desc "Run the Wonderdome stack locally"
 task :run => ['sketch:export', 'web:syntax'] do
-  execute "PATH=\"build/sketches/wonder_processor:$PATH\" ruby web/server.rb" # FIXME: don't hardcode path
+  sketch_build_dir = "#{BUILD_DIR}/#{SKETCH_DIR}"
+  execute "PATH=\"#{sketch_build_dir}:$PATH\" ruby web/server.rb"
 end
 
 

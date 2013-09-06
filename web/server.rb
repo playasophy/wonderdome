@@ -3,7 +3,7 @@ require 'socket'
 
 # Constants
 HEALTH_CHECK_PERIOD = 1
-WONDER_PROCESSOR_COMMAND = "wonder_processor"
+WONDER_PROCESSOR_COMMAND = "wonder"
 
 $process_id = nil
 def start_process
