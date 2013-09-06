@@ -64,7 +64,7 @@ end
 
 # Present a banner identifying a task.
 def banner(name)
-  puts "%1$s %2$s" % ['>>>'.bold.cyan, name.bold.white]
+  puts "\n%s %s" % ['>>>'.bold.cyan, name.bold.blue]
 end
 
 
@@ -190,7 +190,7 @@ namespace :processing do
   end
 
   desc "Check for required Processing libraries"
-  task :check_libs do
+  task :check do
     banner "Checking library dependencies"
 
     missing = false
@@ -207,7 +207,7 @@ namespace :processing do
   end
 
   desc "Link Processing libraries in user's sketchbook."
-  task :link_libs => :check_libs do
+  task :link => :check do
     banner "Installing Processing libraries"
 
     ensure_dir SKETCHBOOK_LIB_DIR
@@ -261,7 +261,7 @@ namespace :lib do
   end
 
   # desc "Determines the classpath for the library."
-  task :classpath => ['processing:locate', 'processing:check_libs'] do
+  task :classpath => ['processing:locate', 'processing:check'] do
     banner "Calculating library classpath"
 
     classpath << "#{processing_home}/core/library/core.jar"
@@ -322,7 +322,7 @@ namespace :lib do
     end
   end
 
-  desc "Build all library components."
+  # desc "Build all library components."
   task :build => [:jar, :copy_src, :doc] do
     banner "Building Library"
 
@@ -366,19 +366,8 @@ end
 
 namespace :sketch do
 
-  # Locate Processing compiler command.
-  task :compiler => ['processing:locate', 'processing:link_libs', 'lib:install'] do
-    banner "Locating Processing compiler"
-
-    if File.executable? processing_cmd
-      puts_result :ok, processing_cmd
-    else
-      fail "Unable to locate executable Processing command: #{processing_cmd}"
-    end
-  end
-
-  desc "Compile Processing sketches to native applications"
-  task :export => :compiler do
+  desc "Export Processing sketch as a packaged application"
+  task :export => ['processing:locate', 'processing:link', 'lib:install'] do
     banner "Exporting #{SKETCH_DIR} sketch"
 
     sketch_sources = [
@@ -391,6 +380,8 @@ namespace :sketch do
     if up_to_date? sketch_sources, sketch_build_dir
       puts "Exported sketch is up to date."
     else
+      fail "Unable to locate executable Processing command: #{processing_cmd}" unless File.executable? processing_cmd
+
       execute %W{
         #{processing_cmd}
         --sketch=#{SKETCH_DIR}
