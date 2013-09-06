@@ -329,9 +329,10 @@ namespace :lib do
     cp "#{SRC_DIR}/library.properties", lib_dir
   end
 
-  desc "Construct a zip of the library for distribution."
+  desc "Package the library for distribution."
   task :release => :build do
-    banner "Packaging library release"
+    version = Time.now.strftime('%Y-%m-%d')
+    banner "Packaging library release #{version}"
 
     execute %W{
       cd #{File.dirname(lib_dir)}
@@ -340,7 +341,7 @@ namespace :lib do
       --quiet
       --display-globaldots
       --recurse-paths
-      #{LIBRARY_NAME}.zip
+      #{LIBRARY_NAME}.#{version}.zip
       #{File.basename(lib_dir)}
     }
   end
