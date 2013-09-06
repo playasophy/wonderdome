@@ -14,9 +14,9 @@ LIBRARY_NAME = 'wonderdome'
 BUILD_DIR  = 'build'
 DEPLOY_DIR = 'deploy'
 LIB_DIR    = 'lib'
-SKETCH_DIR = 'sketches'
 SRC_DIR    = 'src'
 WEB_DIR    = 'web'
+SKETCH_DIR = 'wonder'
 
 # hash of command paths
 COMMANDS = {} # TODO
@@ -34,6 +34,7 @@ REQUIRED_LIBS = %w{PixelPusher udp usbhid}
 DEPLOY_USER = "wonder"
 DEPLOY_HOST = "wonderdome"
 DEPLOY_PATH = "~"
+DEPLOY_ROOT = "#{DEPLOY_USER}@#{DEPLOY_HOST}:#{DEPLOY_PATH}/"
 
 
 
@@ -364,8 +365,6 @@ end
 
 namespace :sketch do
 
-  sketches_build_dir = "#{BUILD_DIR}/sketches"
-
   # Locate Processing compiler command.
   task :compiler => ['processing:locate', 'processing:link_libs', 'lib:install'] do
     banner "Locating Processing compiler"
@@ -379,35 +378,30 @@ namespace :sketch do
 
   desc "Compile Processing sketches to native applications"
   task :export => :compiler do
-    ensure_dir sketches_build_dir
+    banner "Exporting #{SKETCH_DIR} sketch"
 
-    FileList["#{SKETCH_DIR}/*"].each do |sketch|
-      sketch_name = File.basename(sketch)
-      banner "Exporting #{sketch_name} sketch"
+    sketch_sources = [
+      FileList["#{SKETCH_DIR}/**/*"],
+      FileList["#{BUILD_DIR}/lib/**/*.jar"]
+    ].flatten
 
-      sketch_sources = [
-        FileList["#{sketch}/**/*"],
-        FileList["#{BUILD_DIR}/lib/**/*.jar"]
-      ].flatten
+    sketch_build_dir = "#{BUILD_DIR}/#{SKETCH_DIR}"
 
-      sketch_build_dir = "#{sketches_build_dir}/#{sketch_name}"
+    if up_to_date? sketch_sources, sketch_build_dir
+      puts "Exported sketch is up to date."
+    else
+      execute %W{
+        #{processing_cmd}
+        --sketch=#{SKETCH_DIR}
+        --output=#{sketch_build_dir}
+        --export
+        --platform=linux
+        --bits=32
+        --force
+      }
 
-      if up_to_date? sketch_sources, sketch_build_dir
-        puts "Exported sketch is up to date."
-      else
-        execute %W{
-          #{processing_cmd}
-          --sketch=#{sketch}
-          --output=#{sketch_build_dir}
-          --export
-          --platform=linux
-          --bits=32
-          --force
-        }
-
-        sketch_bin = "#{sketch_build_dir}/#{File.basename(sketch)}"
-        fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
-      end
+      sketch_bin = "#{sketch_build_dir}/#{File.basename(SKETCH_DIR)}"
+      fail "Processing export failed to create executable sketch: #{sketch_bin}" unless File.executable? sketch_bin
     end
   end
 
@@ -440,32 +434,25 @@ end
 
 namespace :deploy do
 
-  deploy_root = "#{DEPLOY_USER}@#{DEPLOY_HOST}:#{DEPLOY_PATH}/"
-
   desc "Deploy home directory environment configuration"
   task :home do
     banner "Deploying user environment configuration"
 
-    rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), deploy_root
-    rsync ['Gemfile', 'Gemfile.lock'], deploy_root
+    rsync FileList["#{DEPLOY_DIR}/home/{,.}*"].exclude(/\/\.+$/), DEPLOY_ROOT
+    rsync ['Gemfile', 'Gemfile.lock'], DEPLOY_ROOT
   end
 
   desc "Deploy Processing sketches"
   task :sketch => 'sketch:export' do
-    sketches_build_dir = "#{BUILD_DIR}/sketches"
-    FileList["#{sketches_build_dir}/*"].each do |sketch|
-      sketch_name = File.basename(sketch)
-      banner "Deploying #{sketch_name} sketch"
-
-      rsync sketch, deploy_root
-    end
+    banner "Deploying #{SKETCH_DIR} sketch"
+    rsync "#{BUILD_DIR}/#{SKETCH_DIR}", DEPLOY_ROOT
   end
 
   desc "Deploy controller web app"
   task :web => 'web:syntax' do
     banner "Deploying controller web app"
 
-    rsync WEB_DIR, deploy_root
+    rsync WEB_DIR, DEPLOY_ROOT
   end
 
   desc "Restart the running remote wonderdome process"

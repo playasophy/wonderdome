@@ -4,8 +4,8 @@
 local bin_dir="$HOME/bin"
 [[ -d $bin_dir ]] && path=($bin_dir $path)
 
-# add wonder_processor sketch to the path
-path=($path "$HOME/wonder_processor")
+# add wonder processing sketch to the path
+path=($path "$HOME/wonder")
 
 # ensure path only contains unique entries
 typeset -U path
