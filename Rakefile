@@ -477,4 +477,4 @@ desc "Build and deploy the full software stack"
 task :deploy => ['deploy:sketch', 'deploy:web', 'deploy:home', 'deploy:restart']
 
 
-task :default => ['lib:release', 'sketch:export']
+task :default => ['lib:build', 'sketch:export', 'web:syntax']
