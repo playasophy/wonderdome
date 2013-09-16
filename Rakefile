@@ -170,8 +170,8 @@ CLOBBER << BUILD_DIR
 namespace :processing do
 
   # desc "Locate Processing directory and compiler."
-  task :locate do
-    banner "Locating Processing"
+  task :home do
+    banner "Locating Processing home"
 
     begin
       processing_cmd = locate_command 'processing-java', processing_home
@@ -189,7 +189,7 @@ namespace :processing do
   end
 
   desc "Check for required Processing libraries"
-  task :check do
+  task :libs do
     banner "Checking library dependencies"
 
     missing = false
@@ -243,7 +243,7 @@ namespace :lib do
   end
 
   # desc "Determines the classpath for the library."
-  task :classpath => ['processing:locate', 'processing:check'] do
+  task :classpath => ['processing:home', 'processing:libs'] do
     banner "Calculating library classpath"
 
     # Include standard Processing libraries.
@@ -355,7 +355,7 @@ end
 namespace :sketch do
 
   desc "Export Processing sketch as a packaged application"
-  task :export => ['processing:locate', 'processing:check', 'lib:install'] do
+  task :export => ['processing:home', 'processing:libs', 'lib:install'] do
     banner "Exporting #{SKETCH_DIR} sketch"
 
     sketch_sources = [
