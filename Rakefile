@@ -13,7 +13,6 @@ LIBRARY_NAME = 'wonderdome'
 # package directories
 BUILD_DIR  = 'build'
 DEPLOY_DIR = 'deploy'
-LIB_DIR    = 'lib'
 SRC_DIR    = 'src'
 WEB_DIR    = 'web'
 SKETCH_DIR = 'wonder'
@@ -195,7 +194,7 @@ namespace :processing do
 
     missing = false
     REQUIRED_LIBS.each do |lib|
-      if File.directory? "#{LIB_DIR}/#{lib}"
+      if File.directory? "#{SKETCHBOOK_LIB_DIR}/#{lib}"
         puts_result :ok, lib
       else
         puts_result :fail, lib
@@ -203,24 +202,7 @@ namespace :processing do
       end
     end
 
-    fail "Missing required Processing libraries. Install them locally in '#{LIB_DIR}'." if missing
-  end
-
-  desc "Link Processing libraries in user's sketchbook."
-  task :link => :check do
-    banner "Installing Processing libraries"
-
-    ensure_dir SKETCHBOOK_LIB_DIR
-    FileList["#{LIB_DIR}/*"].each do |lib|
-      lib_name = File.basename(lib)
-      target = "#{SKETCHBOOK_LIB_DIR}/#{lib_name}"
-      if File.exist? target
-        puts_result :ok, target
-      else
-        puts_result :link, target
-        ln_s File.expand_path(lib), target
-      end
-    end
+    fail "Missing required Processing libraries. Install them in '#{SKETCHBOOK_LIB_DIR}'." if missing
   end
 
 end
@@ -264,9 +246,15 @@ namespace :lib do
   task :classpath => ['processing:locate', 'processing:check'] do
     banner "Calculating library classpath"
 
+    # Include standard Processing libraries.
     classpath << "#{processing_home}/core/library/core.jar"
     classpath << FileList["#{processing_home}/modes/java/libraries/**/*.jar"]
-    classpath << FileList["#{LIB_DIR}/**/*.jar"]
+
+    # Add required Processing libraries.
+    REQUIRED_LIBS.each do |lib|
+      classpath << FileList["#{SKETCHBOOK_LIB_DIR}/#{lib}/**/*.jar"]
+    end
+
     classpath.flatten!
 
     puts "CLASSPATH: #{classpath.join(':')}"
@@ -367,7 +355,7 @@ end
 namespace :sketch do
 
   desc "Export Processing sketch as a packaged application"
-  task :export => ['processing:locate', 'processing:link', 'lib:install'] do
+  task :export => ['processing:locate', 'processing:check', 'lib:install'] do
     banner "Exporting #{SKETCH_DIR} sketch"
 
     sketch_sources = [
