@@ -11,11 +11,12 @@ require 'rakejava'
 LIBRARY_NAME = 'wonderdome'
 
 # package directories
-BUILD_DIR  = 'build'
-DEPLOY_DIR = 'deploy'
-SRC_DIR    = 'src'
-WEB_DIR    = 'web'
-SKETCH_DIR = 'wonder'
+BUILD_DIR    = 'build'
+DEPLOY_DIR   = 'deploy'
+RESOURCE_DIR = 'resources'
+SRC_DIR      = 'src'
+WEB_DIR      = 'web'
+SKETCH_DIR   = 'wonder'
 
 # hash of command paths
 COMMANDS = {} # TODO
@@ -288,7 +289,7 @@ namespace :lib do
   task :copy_src do
     banner "Copying library sources"
 
-    rsync SRC_DIR, lib_src_dir, exclude: 'library.properties', delete: true
+    rsync SRC_DIR, lib_dir, delete: true
   end
 
   desc "Generate library documentation."
@@ -314,7 +315,7 @@ namespace :lib do
   task :build => [:jar, :copy_src, :doc] do
     banner "Building Library"
 
-    cp "#{SRC_DIR}/library.properties", lib_dir
+    cp "#{RESOURCE_DIR}/library.properties", lib_dir
   end
 
   desc "Package the library for distribution."
