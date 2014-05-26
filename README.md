@@ -11,3 +11,8 @@ Next is the sketches themselves, which form the various 'modes'.
 
 Finally, a minimal website provides interactive and administrative control
 over the software.
+
+## License
+
+This is free and unencumbered software released into the public domain.
+See the UNLICENSE file for more information.
