@@ -1,8 +1,10 @@
-;; Wonderdome project definition
-(defproject com.mvxcvi/wonderdome "1.0.0-SNAPSHOT"
+(defproject playasophy/wonderdome "1.0.0-SNAPSHOT"
   :description "Control and rendering software for driving an LED strip art project with various visualizations."
-  :url "https://github.com/mvxcvi/wonderdome"
-  :license {:name "MIT License"
-            :url "http://opensource.org/licenses/MIT"}
+  :url "https://github.com/playasophy/wonderdome"
+  :license {:name "Public Domain"
+            :url "http://unlicense.org/"}
 
-  :dependencies [[org.clojure/clojure "1.5.1"]])
+  :target-path "build/lein"
+
+  :dependencies
+  [[org.clojure/clojure "1.6.0"]])
