@@ -7,4 +7,5 @@
   :target-path "build/lein"
 
   :dependencies
-  [[org.clojure/clojure "1.6.0"]])
+  [[quil "2.0.0"]
+   [org.clojure/clojure "1.6.0"]])
