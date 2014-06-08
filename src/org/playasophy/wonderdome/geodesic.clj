@@ -131,6 +131,10 @@
 
 ;;;;; SKETCH CODE ;;;;;
 
+(def dome-faces
+  (split-faces icosahedron 3))
+
+
 (defn setup []
   (background 255)
   (stroke 00))
@@ -141,7 +145,7 @@
   (translate (/ (width) 2) (/ (height) 2) 0)
   (rotate-y (* (frame-count) 0.01))
   ;(rotate-x (* (frame-count) 0.04))
-  (doseq [face (split-faces icosahedron 3)]
+  (doseq [face dome-faces]
     (-> face
         (as-> points
           (map #(vec (map (partial * 100) %)) points)   ; scale the points
