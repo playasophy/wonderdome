@@ -30,16 +30,4 @@
          :event-handlers []}))
 
 
-(defprotocol Display
-  "A protocol for displaying visualization output."
-  (set-pixel! [this pixel color]
-              "Sets the color of a pixel in this display."))
 
-
-(defprotocol Mode
-  "A protocol for visualizations running on the Wonderdome."
-  (update [state dt events]
-          "Computes an updated mode state from the current state, an elapsed
-          time in millseconds, and a sequence of input events.")
-  (render! [state display]
-          "Renders the visualization to the given output display."))
