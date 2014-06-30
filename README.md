@@ -26,8 +26,8 @@ is in the works, as the cubieboard proved itself a bit underpowered in 2013.
 ## Software
 
 There are two main components to the software stack; some JVM code using Clojure
-and Processing to drive the display, and some Ruby code to provide a web
-interface and admin controls.
+and to drive the display, and a Ruby Sinatra app to provide a web interface and
+admin controls.
 
 TODO: more details
 
