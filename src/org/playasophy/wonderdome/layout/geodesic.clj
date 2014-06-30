@@ -1,4 +1,4 @@
-(ns org.playasophy.wonderdome.geodesic
+(ns org.playasophy.wonderdome.layout.geodesic
   (:require
     [quil.core :refer :all]
     [quil.helpers.drawing :refer [line-join-points]]))
@@ -164,6 +164,7 @@
         dorun)))
 
 
+#_
 (defsketch geodesic-dome
   :title "Geodesic Dome"
   :setup setup

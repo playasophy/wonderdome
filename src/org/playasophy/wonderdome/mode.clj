@@ -10,7 +10,7 @@
     millseconds, and a sequence of input events.")
 
   (render-pixel
-    [mode coordinate]
+    [mode coordinates]
     "Queries the mode for the color which should be assigned to a given pixel.
-    The coordinate is a map which gives the strip and pixel index, along with
-    the spherical coordinates assigned to the pixel by the layout."))
+    The coordinates are a map which gives the strip and pixel index, along with
+    the radial coordinates assigned to the pixel by the layout."))
