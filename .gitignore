@@ -1,5 +1,6 @@
 # General ignores
 /build
+/deploy/*.img
 
 # rbenv
 .ruby-version
