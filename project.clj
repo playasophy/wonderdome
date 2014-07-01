@@ -10,11 +10,11 @@
   [[clj-time "0.7.0"]
    [environ "0.5.0"]
    [quil "2.1.0"]
+   [com.stuartsierra/component "0.2.1"]
    [org.clojure/clojure "1.6.0"]]
 
   :profiles
   {:dev
-   {:dependencies
-    [[com.stuartsierra/component "0.2.1"]
-     [org.clojure/tools.namespace "0.2.4"]]
-    :repl-options {:init-ns org.playasophy.wonderdome.simulation}}})
+   {:source-paths ["dev"]
+    :dependencies
+    [[org.clojure/tools.namespace "0.2.4"]]}})

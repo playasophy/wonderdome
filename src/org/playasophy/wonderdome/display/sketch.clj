@@ -69,6 +69,7 @@
   * size     two-element vector giving the width and height of the window
   * layout   function mapping a `[strip pixel]` vector to a radial coordinate
   * pixels   vector of strips, each a vector of pixel colors"
-  ([size layout pixels]
-   (ProcessingDisplay.
-     size layout (atom pixels :validator vector?))))
+  [width height]
+  (ProcessingDisplay.
+    [width height] nil
+    (atom [] :validator vector?)))
