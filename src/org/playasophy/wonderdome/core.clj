@@ -30,4 +30,14 @@
          :event-handlers []}))
 
 
-
+(defn initialize
+  [config]
+  (let [{:keys [layout modes]} config]
+    (component/system-map
+      :layout layout
+      :display (component/using display [:layout])
+      :app nil #_
+      (component/using
+        (example-component config-options)
+        {:database  :db
+         :scheduler :scheduler}))))

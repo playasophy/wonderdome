@@ -11,16 +11,22 @@
     [org.playasophy.wonderdome.core :as wonder]))
 
 
+(def config
+  {:layout nil
+   :modes []})
+
+
 (def system nil)
 
 
-(defn start
+(defn start!
   "Initialize the wonderdome for local development."
   []
-  (alter-var-root #'system (constantly nil)))  ; TODO: init
+  (alter-var-root #'system
+    (constantly (wonder/initialize config))))
 
 
-(defn stop
+(defn stop!
   "Performs side effects to shut down the system and release its resources.
   Returns an updated instance of the system."
   []
@@ -29,5 +35,5 @@
 
 (defn reset
   []
-  (stop)
-  (refresh :after 'user/start))
+  (stop!)
+  (refresh :after 'user/start!))
