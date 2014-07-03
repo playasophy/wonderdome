@@ -41,7 +41,7 @@
     [this]
     (println "Starting Processing display...")
     (assoc this :sketch
-      (sketch
+      (quil/sketch
         :title "Playasophy Wonderdome"
         :setup setup-sketch
         :draw #(draw-pixels this)
@@ -51,7 +51,7 @@
 
   (stop
     [this]
-    (println "Stopping Processing display...")
+    (println "Stopping Processing display..." (pr-str (:sketch this)))
     ; TODO: somehow stop (:sketch this)
     this)
 

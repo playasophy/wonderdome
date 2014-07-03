@@ -1,4 +1,6 @@
-(ns org.playasophy.wonderdome.core)
+(ns org.playasophy.wonderdome.core
+  (:require
+    [com.stuartsierra.component :as component]))
 
 ;; Modes have some state, probably stored in an atom.
 ;; Displays are protocol objects which can be read(?) and written to, but still side effecting?

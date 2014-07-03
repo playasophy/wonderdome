@@ -2,8 +2,9 @@
   (:require
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display])
+  #_
   (:import
-    ;[com.heroicrobot.dropbit.registry *]
+    [com.heroicrobot.dropbit.registry *]
     com.heroicrobot.dropbit.devices.pixelpusher.Strip))
 
 
