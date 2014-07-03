@@ -13,11 +13,16 @@
     [org.playasophy.wonderdome.layout.radial :as radial]))
 
 
+(def dimensions
+  "Geodesic dome and pixel strip dimensions."
+  {:radius 3.688         ; 12.1'
+   :pixel-spacing 0.02   ; 2 cm
+   :strip-pixels 240
+   :strips 6})
+
+
 (def config
-  {:layout (radial/layout {:radius 3.688   ; 12.1'
-                           :spacing 0.02   ; 2 cm
-                           :strips 6
-                           :pixels 240})
+  {:layout (radial/layout dimensions)
    :display (sketch/processing-display 800 450)
    :modes []})
 
