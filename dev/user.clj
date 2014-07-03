@@ -9,11 +9,15 @@
     [environ.core :refer [env]]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.core :as wonder]
-    [org.playasophy.wonderdome.display.sketch :as sketch]))
+    [org.playasophy.wonderdome.display.sketch :as sketch]
+    [org.playasophy.wonderdome.layout.radial :as radial]))
 
 
 (def config
-  {:layout nil
+  {:layout (radial/layout {:radius 3.688   ; 12.1'
+                           :spacing 0.02   ; 2 cm
+                           :strips 6
+                           :pixels 240})
    :display (sketch/processing-display 800 450)
    :modes []})
 
