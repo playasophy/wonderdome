@@ -2,7 +2,8 @@
   (:require
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
-    [quil.core :as quil]))
+    [quil.core :as quil]
+    [quil.applet :as applet]))
 
 
 ;;;;; PROCESSING SKETCH ;;;;;
@@ -39,8 +40,7 @@
 
   (start
     [this]
-    (println "Starting Processing display...")
-    (assoc this :sketch
+    (assoc this :applet
       (quil/sketch
         :title "Playasophy Wonderdome"
         :setup setup-sketch
@@ -51,9 +51,8 @@
 
   (stop
     [this]
-    (println "Stopping Processing display..." (pr-str (:sketch this)))
-    ; TODO: somehow stop (:sketch this)
-    this)
+    (applet/applet-close (:applet this))
+    (dissoc this :applet))
 
 
   display/Display

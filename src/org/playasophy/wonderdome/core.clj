@@ -39,7 +39,7 @@
   (component/system-map
     :layout layout
     :display (component/using display [:layout])
-    :app nil #_
+    #_
     (component/using
       (example-component config-options)
       {:database  :db

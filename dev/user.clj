@@ -18,21 +18,20 @@
    :modes []})
 
 
-(def system nil)
+(def system
+  (wonder/initialize config))
 
 
 (defn start!
   "Initialize the wonderdome for local development."
   []
-  (alter-var-root #'system
-    (constantly (wonder/initialize config))))
+  (alter-var-root #'system component/start))
 
 
 (defn stop!
   "Stops the wonderdome system and closes the display window."
   []
-  ; TODO: implement
-  nil)
+  (alter-var-root #'system component/stop))
 
 
 (defn reload!
