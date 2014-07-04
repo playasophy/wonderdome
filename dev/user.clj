@@ -9,8 +9,8 @@
     [environ.core :refer [env]]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.core :as wonder]
-    [org.playasophy.wonderdome.display.sketch :as sketch]
-    [org.playasophy.wonderdome.layout.radial :as radial]))
+    [org.playasophy.wonderdome.display.processing :as processing]
+    [org.playasophy.wonderdome.layout :as layout]))
 
 
 (def dimensions
@@ -22,8 +22,8 @@
 
 
 (def config
-  {:layout (radial/layout dimensions)
-   :display (sketch/processing-display 800 450)
+  {:layout (layout/star dimensions)
+   :display (processing/display 800 450)
    :modes []})
 
 

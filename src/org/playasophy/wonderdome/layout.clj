@@ -48,3 +48,31 @@
     {:radius radius
      :polar polar'
      :azimuth azimuth'}))
+
+
+
+;;;;; SIMPLE LAYOUTS ;;;;;
+
+(defrecord StarLayout
+  [radius pixel-spacing strips strip-pixels])
+
+(extend-type StarLayout
+  Layout
+
+  (place
+    [this strip pixel]
+    (let [{:keys [radius pixel-spacing strips strip-pixels]} this
+          strip-angle (/ (* 2.0 Math/PI) strips)
+          pixel-angle (* 2.0 (Math/asin (/ pixel-spacing 2.0 radius)))]
+      (when (and (<= 0 strip (dec strips))
+                 (<= 0 pixel (dec strip-pixels)))
+        {:radius  radius
+         :polar   (* pixel-angle (+ pixel 5))
+         :azimuth (* strip-angle strip)}))))
+
+
+(defn star
+  "Constructs a new star layout with the given number of strips and pixels per
+  strip."
+  [dimensions]
+  (map->StarLayout dimensions))

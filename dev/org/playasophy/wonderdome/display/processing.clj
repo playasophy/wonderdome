@@ -1,9 +1,10 @@
-(ns org.playasophy.wonderdome.display.sketch
+(ns org.playasophy.wonderdome.display.processing
   (:require
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
-    [quil.core :as quil]
-    [quil.applet :as applet]))
+    (quil
+      [applet :as applet]
+      [core :as quil])))
 
 
 ;;;;; PROCESSING SKETCH ;;;;;
@@ -63,11 +64,9 @@
     this))
 
 
-(defn processing-display
-  "Creates a new simulation display using Processing.
-  * size     two-element vector giving the width and height of the window
-  * layout   function mapping a `[strip pixel]` vector to a radial coordinate
-  * pixels   vector of strips, each a vector of pixel colors"
+(defn display
+  "Creates a new simulation display using Processing. Takes a width and height
+  in pixels."
   [width height]
   (ProcessingDisplay.
     [width height] nil
