@@ -4,8 +4,6 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
-  :target-path "build/clojure"
-
   :dependencies
   [[clj-time "0.7.0"]
    [environ "0.5.0"]

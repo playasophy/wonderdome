@@ -1,15 +1,18 @@
-# General ignores
+# general ignores
 /build
+
+# deployment files
 /deploy/*.img
 
 # rbenv
 .ruby-version
 
-# leiningen
+# leiningen files
 pom.xml
 pom.xml.asc
-*.jar
-*.class
+/lib/
+/target/
+/checkouts/
 .lein-deps-sum
 .lein-env
 .lein-failures
