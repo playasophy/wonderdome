@@ -34,13 +34,15 @@
 (defn start!
   "Initialize the wonderdome for local development."
   []
-  (alter-var-root #'system component/start))
+  (alter-var-root #'system component/start)
+  :ok)
 
 
 (defn stop!
   "Stops the wonderdome system and closes the display window."
   []
-  (alter-var-root #'system component/stop))
+  (alter-var-root #'system component/stop)
+  :ok)
 
 
 (defn reload!

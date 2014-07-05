@@ -1,17 +1,7 @@
-(ns org.playasophy.wonderdome.layout)
-
-
-;;;;; LAYOUT PROTOCOL ;;;;;
-
-(defprotocol Layout
-  "Layouts map pixels to physical locations in a spherical coordinate system."
-
-  (place
-    [this strip pixel]
-    "Returns a spherical coordinate map for the given strip and pixel indexes.
-    Maps should contain a :radius in meters, and :polar and :azimuth angles in
-    radians."))
-
+(ns org.playasophy.wonderdome.layout
+  "Layouts map pixels to spherical coordinate map for the given strip and pixel
+  indexes. Maps should contain a :radius in meters, and :polar and :azimuth
+  angles in radians.")
 
 
 ;;;;; HELPER FUNCTIONS ;;;;;
@@ -50,29 +40,28 @@
      :azimuth azimuth'}))
 
 
+(defn place-pixels
+  "Takes a placement function and maps it over a number of strips and pixels,
+  returning a vector of vectors of pixel coordinates. The placement function
+  should accept a strip and pixel index as the first and second arguments and
+  return a spherical coordinate map."
+  [strips pixels f]
+  (vec (map (fn [s] (vec (map (fn [p] (merge {:strip s, :pixel p} (f s p)))
+                              (range pixels))))
+            (range strips))))
+
+
 
 ;;;;; SIMPLE LAYOUTS ;;;;;
 
-(defrecord StarLayout
-  [radius pixel-spacing strips strip-pixels])
-
-(extend-type StarLayout
-  Layout
-
-  (place
-    [this strip pixel]
-    (let [{:keys [radius pixel-spacing strips strip-pixels]} this
-          strip-angle (/ (* 2.0 Math/PI) strips)
-          pixel-angle (* 2.0 (Math/asin (/ pixel-spacing 2.0 radius)))]
-      (when (and (<= 0 strip (dec strips))
-                 (<= 0 pixel (dec strip-pixels)))
+(defn star
+  "Constructs a new star layout with the given dimenisons."
+  [{:keys [radius pixel-spacing strips strip-pixels]}]
+  (let [strip-angle (/ TAU strips)
+        pixel-angle (* 2 (Math/asin (/ pixel-spacing 2 radius)))]
+    (place-pixels
+      strips strip-pixels
+      (fn [strip pixel]
         {:radius  radius
          :polar   (* pixel-angle (+ pixel 5))
          :azimuth (* strip-angle strip)}))))
-
-
-(defn star
-  "Constructs a new star layout with the given number of strips and pixels per
-  strip."
-  [dimensions]
-  (map->StarLayout dimensions))
