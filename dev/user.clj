@@ -24,7 +24,7 @@
 ; TODO: dynamically load modes?
 (def config
   {:layout (layout/star dimensions)
-   :display (processing/display 1000 600 (:radius dimensions))
+   :display (processing/display [1000 600] (:radius dimensions))
    :modes []})
 
 
@@ -36,14 +36,14 @@
   "Initialize the wonderdome for local development."
   []
   (alter-var-root #'system component/start)
-  :ok)
+  :started)
 
 
 (defn stop!
   "Stops the wonderdome system and closes the display window."
   []
   (alter-var-root #'system component/stop)
-  :ok)
+  :stopped)
 
 
 (defn reload!

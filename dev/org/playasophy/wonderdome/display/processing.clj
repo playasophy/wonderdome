@@ -13,7 +13,7 @@
 
 (def scale
   "Scale up all coordinates to map meters to screen space."
-  60.0)
+  220.0)
 
 
 (defn- setup-sketch
@@ -24,40 +24,34 @@
 
 (defn- draw-axes
   [length]
-  ; x-axis red
-  (quil/stroke (quil/color 255 0 0))
-  (quil/line [0 0 0] [length 0 0])
-  ; y-axis green
-  (quil/stroke (quil/color 0 255 0))
-  (quil/line [0 0 0] [0 length 0])
-  ; z-axis blue
-  (quil/stroke (quil/color 0 0 255))
-  (quil/line [0 0 0] [0 0 length]))
+  (let [l (* scale length)]
+    ; x-axis red
+    (quil/stroke (quil/color 255 0 0))
+    (quil/line [0 0 0] [l 0 0])
+    ; y-axis green
+    (quil/stroke (quil/color 0 255 0))
+    (quil/line [0 0 0] [0 l 0])
+    ; z-axis blue
+    (quil/stroke (quil/color 0 0 255))
+    (quil/line [0 0 0] [0 0 l])))
 
 
 (defn- draw-ground
   [radius]
-  (let [c (quil/color 210 200 175)]
+  (let [c (quil/color 210 200 175)
+        r (* scale radius)]
     (quil/fill c)
     (quil/stroke c)
-    (quil/ellipse 0 0 radius radius)))
+    (quil/ellipse 0 0 r r)))
 
 
 (defn- draw-dome
   [radius]
   (quil/stroke (quil/color 0))
-  (doseq [face geodesic/dome-faces]
-    (-> face
-        (as-> points
-          ; scale the points
-          (map #(vec (map (partial * scale display) %)) points)
-          (vec points)
-          ; repeat the last point
-          (conj points (first points)))
-        line-join-points
-        (as-> lines
-          (map (partial apply quil/line) lines))
-        dorun)))
+  (doseq [[a b] (geodesic/dome-struts radius 3)]
+    (apply quil/line
+      (concat (map (partial * scale) a)
+              (map (partial * scale) b)))))
 
 
 (defn- render
@@ -65,10 +59,10 @@
   (quil/background 255)
   (quil/translate (* 0.50 (quil/width)) (* 0.55 (quil/height)) 0)
   (quil/rotate-x 1.2)
-  #_(quil/rotate-y (* (quil/frame-count) 0.003))
-  (draw-axes 150)
-  (draw-ground (* scale 20))
-  (draw-dome (:radius display))
+  (quil/rotate-z (* (quil/frame-count) 0.003))
+  (draw-axes 1.0)
+  (draw-ground 4.0)
+  (draw-dome (:dome-radius display))
   ; TODO: render pixels
   )
 
@@ -77,7 +71,7 @@
 ;;;;; WONDERDOME DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
-  [size radius layout pixels])
+  [size dome-radius layout pixels])
 
 (extend-type ProcessingDisplay
   component/Lifecycle
@@ -95,7 +89,8 @@
 
   (stop
     [this]
-    (applet/applet-close (:applet this))
+    (when-let [sketch (:applet this)]
+      (applet/applet-close sketch))
     (dissoc this :applet))
 
 
@@ -108,9 +103,9 @@
 
 
 (defn display
-  "Creates a new simulation display using Processing. Takes a width and height
-  in pixels."
-  [width height radius]
+  "Creates a new simulation display using Processing. Takes a vector giving the
+  width and height in pixels, and a radius of geometric dome to draw."
+  [size radius]
   (ProcessingDisplay.
-    [width height] radius nil
+    size radius nil
     (atom [] :validator vector?)))

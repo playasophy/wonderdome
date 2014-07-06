@@ -68,10 +68,9 @@
 
 
 (defn- split-face
-  "Splits the edges of a triangular face into n smaller segments, then pushes
-  all the new points out to the surface of a sphere with radius r. Returns a
-  set of new faces."
-  [face r n]
+  "Splits the edges of a triangular face into n smaller segments. Returns a set
+  of new faces."
+  [n face]
   (if (<= n 1)
     #{face}
     (let [[a b c] (seq face)]
@@ -88,7 +87,7 @@
           (->>
             [         #{a d f}
              #{f e c} #{f d e} #{d b e}]
-            (mapcat #(split-face % r (/ n 2)))
+            (mapcat (partial split-face (/ n 2)))
             set))
 
         (= 0 (mod n 3))
@@ -110,7 +109,7 @@
             [                  #{a d i}
                       #{i j h} #{i d j} #{d e j}
              #{h g c} #{h j g} #{j f g} #{j e f} #{e f b}]
-            (mapcat #(split-face % r (/ n 3)))
+            (mapcat (partial split-face (/ n 3)))
             set))
 
         :else
@@ -119,28 +118,26 @@
 
 
 (defn- split-faces
-  [shape r n]
-  (set (mapcat #(split-face % r n) shape)))
+  [n shape]
+  (set (mapcat (partial split-face n) shape)))
 
 
-(defn- face->lines
+(defn- face->edges
   "Converts a face (set of three points) into a sequence of edge lines."
   [face]
   (as-> face points
-    (vec points)
-    (conj points (first points))
-    (partition 2 points)))
+    (seq points)
+    (cons (last points) points)
+    (partition 2 1 points)))
 
 
 
 ;;;;; GEODESIC DEFINITION ;;;;;
 
-(defn icosahedron
+(def icosahedron
   "The set of faces making up an icosahedron with unit radius. Each face
   is a set of three coordinate vectors."
-  []
-  (let [phi (/ (+ 1 (Math/sqrt 5.0)) 2)
-        -phi (- phi)
+  (let [-phi (- phi)
         points
         {:A [ 0.0  1.0  phi]
          :B [ 0.0 -1.0  phi]
@@ -162,9 +159,11 @@
     (map-shape points faces)))
 
 
-; TODO: rotate so one vertex is on top
-; TODO: cut off bottom half of sphere
 (defn dome-struts
-  [r]
-  (-> (icosahedron r)
-      (split-faces r 1)))
+  [r n]
+  (->> icosahedron
+       (map-shape (partial rotate-x phi-angle))
+       (split-faces n)
+       (map-shape (partial project-radius r))
+       (mapcat face->edges)
+       (remove (fn [[[_ _ z1] [_ _ z2]]] (or (neg? z1) (neg? z2))))))
