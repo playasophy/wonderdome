@@ -1,8 +1,7 @@
-(ns org.playasophy.wonderdome.layout.geodesic
-  (:require
-    [quil.core :refer :all]
-    [quil.helpers.drawing :refer [line-join-points]]))
+(ns org.playasophy.wonderdome.layout.geodesic)
 
+
+;;;;; CONSTANTS ;;;;;
 
 (def strut-counts-3V
   "Number of each strut needed in a 3V dome."
@@ -18,39 +17,45 @@
    :c 0.41241})
 
 
-(defn- to-unit-radius
+(def phi
+  "The golden ratio."
+  (/ (+ 1 (Math/sqrt 5.0)) 2))
+
+
+(def phi-angle
+  "Angle formed by a 1 x phi rectangle."
+  (Math/asin (/ (Math/sqrt (+ 1 (* phi phi))))))
+
+
+
+;;;;; POINT MANIPULATION ;;;;;
+
+(defn- map-shape
+  "Takes a shape (a set of faces, each of which is a set of points, each of
+  which is a vector of 3 coordinates, and applies a function to each point."
+  [f shape]
+  (set (map (comp set (partial map f)) shape)))
+
+
+(defn- rotate-x
+  "Rotates a point around the X axis."
+  [theta [x y z]]
+  (let [cos (Math/cos theta)
+        sin (Math/sin theta)]
+    [x
+     (- (* y cos) (* z sin))
+     (+ (* y sin) (* z cos))]))
+
+
+(defn- project-radius
   "Projects a point to the same vector on the surface of the unit sphere."
-  [p]
-  (let [m (apply mag p)]
+  [r p]
+  (let [m (Math/sqrt (apply + (map #(* % %) p)))]
     (vec (map #(/ % m) p))))
 
 
-; TODO: find a way to generate this mathematically
-(def icosahedron
-  "The set of faces making up an icosahedron with unit radius. Each face is a
-  set of three coordinate vectors."
-  (let [phi (/ (+ 1 (Math/sqrt 5.0)) 2)
-        -phi (- phi)
-        points
-        {:A [ 0.0  1.0  phi]
-         :B [ 0.0 -1.0  phi]
-         :C [ 0.0 -1.0 -phi]
-         :D [ 0.0  1.0 -phi]
-         :E [ phi  0.0  1.0]
-         :F [-phi  0.0  1.0]
-         :G [-phi  0.0 -1.0]
-         :H [ phi  0.0 -1.0]
-         :I [ 1.0  phi  0.0]
-         :J [-1.0  phi  0.0]
-         :K [-1.0 -phi  0.0]
-         :L [ 1.0 -phi  0.0]}
-        faces
-        [[:A :I :J] [:A :J :F] [:A :F :B] [:A :B :E] [:A :E :I]
-         [:B :F :K] [:B :K :L] [:B :L :E] [:C :D :H] [:C :H :L]
-         [:C :L :K] [:C :K :G] [:C :G :D] [:D :G :J] [:D :J :I]
-         [:D :I :H] [:E :L :H] [:E :H :I] [:F :J :G] [:F :G :K]]]
-    (set (map (comp set (partial map (comp to-unit-radius points))) faces))))
 
+;;;;; SHAPE FUNCTIONS ;;;;;
 
 (defn- midpoint
   "Returns a new point that is a fraction of the distance towards point b
@@ -59,15 +64,14 @@
   (->>
     (map - b a)
     (map (partial * p))
-    (map + a)
-    to-unit-radius))
+    (map + a)))
 
 
-(defn split-face
+(defn- split-face
   "Splits the edges of a triangular face into n smaller segments, then pushes
-  all the new points out to the surface of a unit sphere. Returns a set of new
-  faces."
-  [face n]
+  all the new points out to the surface of a sphere with radius r. Returns a
+  set of new faces."
+  [face r n]
   (if (<= n 1)
     #{face}
     (let [[a b c] (seq face)]
@@ -84,7 +88,7 @@
           (->>
             [         #{a d f}
              #{f e c} #{f d e} #{d b e}]
-            (mapcat #(split-face % (/ n 2)))
+            (mapcat #(split-face % r (/ n 2)))
             set))
 
         (= 0 (mod n 3))
@@ -106,7 +110,7 @@
             [                  #{a d i}
                       #{i j h} #{i d j} #{d e j}
              #{h g c} #{h j g} #{j f g} #{j e f} #{e f b}]
-            (mapcat #(split-face % (/ n 3)))
+            (mapcat #(split-face % r (/ n 3)))
             set))
 
         :else
@@ -114,9 +118,9 @@
                  (str n " is not divisible by any supported prime")))))))
 
 
-(defn split-faces
-  [shape n]
-  (set (mapcat #(split-face % n) shape)))
+(defn- split-faces
+  [shape r n]
+  (set (mapcat #(split-face % r n) shape)))
 
 
 (defn- face->lines
@@ -128,7 +132,39 @@
     (partition 2 points)))
 
 
+
+;;;;; GEODESIC DEFINITION ;;;;;
+
+(defn icosahedron
+  "The set of faces making up an icosahedron with unit radius. Each face
+  is a set of three coordinate vectors."
+  []
+  (let [phi (/ (+ 1 (Math/sqrt 5.0)) 2)
+        -phi (- phi)
+        points
+        {:A [ 0.0  1.0  phi]
+         :B [ 0.0 -1.0  phi]
+         :C [ 0.0 -1.0 -phi]
+         :D [ 0.0  1.0 -phi]
+         :E [ phi  0.0  1.0]
+         :F [-phi  0.0  1.0]
+         :G [-phi  0.0 -1.0]
+         :H [ phi  0.0 -1.0]
+         :I [ 1.0  phi  0.0]
+         :J [-1.0  phi  0.0]
+         :K [-1.0 -phi  0.0]
+         :L [ 1.0 -phi  0.0]}
+        faces
+        [[:A :I :J] [:A :J :F] [:A :F :B] [:A :B :E] [:A :E :I]
+         [:B :F :K] [:B :K :L] [:B :L :E] [:C :D :H] [:C :H :L]
+         [:C :L :K] [:C :K :G] [:C :G :D] [:D :G :J] [:D :J :I]
+         [:D :I :H] [:E :L :H] [:E :H :I] [:F :J :G] [:F :G :K]]]
+    (map-shape points faces)))
+
+
 ; TODO: rotate so one vertex is on top
 ; TODO: cut off bottom half of sphere
-(def dome-faces
-  (split-faces icosahedron 3))
+(defn dome-struts
+  [r]
+  (-> (icosahedron r)
+      (split-faces r 1)))
