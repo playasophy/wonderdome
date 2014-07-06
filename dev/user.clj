@@ -21,9 +21,10 @@
    :strips 6})
 
 
+; TODO: dynamically load modes?
 (def config
   {:layout (layout/star dimensions)
-   :display (processing/display 800 450)
+   :display (processing/display 1000 600 (:radius dimensions))
    :modes []})
 
 

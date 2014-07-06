@@ -2,12 +2,19 @@
   (:require
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
+    [org.playasophy.wonderdome.layout.geodesic :as geodesic]
     (quil
       [applet :as applet]
-      [core :as quil])))
+      [core :as quil])
+    [quil.helpers.drawing :refer [line-join-points]]))
 
 
 ;;;;; PROCESSING SKETCH ;;;;;
+
+(def scale
+  "Scale up all coordinates to map meters to screen space."
+  60.0)
+
 
 (defn- setup-sketch
   []
@@ -15,18 +22,48 @@
   (quil/stroke 0))
 
 
+(defn- draw-axes
+  [length]
+  ; x-axis red
+  (quil/stroke (quil/color 255 0 0))
+  (quil/line [0 0 0] [length 0 0])
+  ; y-axis green
+  (quil/stroke (quil/color 0 255 0))
+  (quil/line [0 0 0] [0 length 0])
+  ; z-axis blue
+  (quil/stroke (quil/color 0 0 255))
+  (quil/line [0 0 0] [0 0 length]))
+
+
+(defn- draw-ground
+  [radius]
+  (let [c (quil/color 210 200 175)]
+    (quil/fill c)
+    (quil/stroke c)
+    (quil/ellipse 0 0 radius radius)))
+
+
 (defn- draw-pixels
   [display]
   (quil/background 255)
-  (quil/translate (/ (quil/width) 2) (/ (quil/height) 2) 0)
-  (quil/rotate-y (* (quil/frame-count) 0.003))
-  (quil/rotate-x (* (quil/frame-count) 0.004))
-  (quil/stroke (quil/color 255 0 0)) (quil/line [0 0 0] [150 0 0])  ; x-axis red
-  (quil/stroke (quil/color 0 255 0)) (quil/line [0 0 0] [0 150 0])  ; y-axis green
-  (quil/stroke (quil/color 0 0 255)) (quil/line [0 0 0] [0 0 150])  ; z-axis blue
+  (quil/translate (* 0.50 (quil/width)) (* 0.55 (quil/height)) 0)
+  (quil/rotate-x 1.2)
+  #_(quil/rotate-y (* (quil/frame-count) 0.003))
+  (draw-axes 150)
+  (draw-ground (* scale 20))
   (quil/stroke (quil/color 0))
   ; TODO: draw geodesic dome outline
   ; TODO: render pixels
+  (doseq [face geodesic/dome-faces]
+    (-> face
+        (as-> points
+          (map #(vec (map (partial * scale (:radius display)) %)) points)   ; scale the points
+          (vec points)
+          (conj points (first points)))                 ; repeat the last point
+        line-join-points
+        (as-> lines
+          (map (partial apply quil/line) lines))
+        dorun))
   )
 
 
@@ -34,7 +71,7 @@
 ;;;;; WONDERDOME DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
-  [size layout pixels])
+  [size radius layout pixels])
 
 (extend-type ProcessingDisplay
   component/Lifecycle
@@ -67,7 +104,7 @@
 (defn display
   "Creates a new simulation display using Processing. Takes a width and height
   in pixels."
-  [width height]
+  [width height radius]
   (ProcessingDisplay.
-    [width height] nil
+    [width height] radius nil
     (atom [] :validator vector?)))

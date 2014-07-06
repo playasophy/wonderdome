@@ -128,46 +128,7 @@
     (partition 2 points)))
 
 
-
-;;;;; SKETCH CODE ;;;;;
-
 ; TODO: rotate so one vertex is on top
 ; TODO: cut off bottom half of sphere
 (def dome-faces
   (split-faces icosahedron 3))
-
-
-(defn setup []
-  (background 255)
-  (stroke 00))
-
-
-(defn draw []
-  (background 255)
-  (translate (/ (width) 2) (/ (height) 2) 0)
-  ;(rotate-x 0.20)
-  (rotate-y (* (frame-count) 0.003))
-  (rotate-x (* (frame-count) 0.004))
-  (stroke (color 255 0 0)) (line [0 0 0] [150 0 0])  ; x-axis red
-  (stroke (color 0 255 0)) (line [0 0 0] [0 150 0])  ; y-axis green
-  (stroke (color 0 0 255)) (line [0 0 0] [0 0 150])  ; z-axis blue
-  (stroke (color 0))
-  (doseq [face dome-faces]
-    (-> face
-        (as-> points
-          (map #(vec (map (partial * 100) %)) points)   ; scale the points
-          (vec points)
-          (conj points (first points)))                 ; repeat the last point
-        line-join-points
-        (as-> lines
-          (map (partial apply line) lines))
-        dorun)))
-
-
-#_
-(defsketch geodesic-dome
-  :title "Geodesic Dome"
-  :setup setup
-  :draw draw
-  :size [500 300]
-  :renderer :opengl)
