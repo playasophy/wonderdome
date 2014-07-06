@@ -43,7 +43,24 @@
     (quil/ellipse 0 0 radius radius)))
 
 
-(defn- draw-pixels
+(defn- draw-dome
+  [radius]
+  (quil/stroke (quil/color 0))
+  (doseq [face geodesic/dome-faces]
+    (-> face
+        (as-> points
+          ; scale the points
+          (map #(vec (map (partial * scale display) %)) points)
+          (vec points)
+          ; repeat the last point
+          (conj points (first points)))
+        line-join-points
+        (as-> lines
+          (map (partial apply quil/line) lines))
+        dorun)))
+
+
+(defn- render
   [display]
   (quil/background 255)
   (quil/translate (* 0.50 (quil/width)) (* 0.55 (quil/height)) 0)
@@ -51,19 +68,8 @@
   #_(quil/rotate-y (* (quil/frame-count) 0.003))
   (draw-axes 150)
   (draw-ground (* scale 20))
-  (quil/stroke (quil/color 0))
-  ; TODO: draw geodesic dome outline
+  (draw-dome (:radius display))
   ; TODO: render pixels
-  (doseq [face geodesic/dome-faces]
-    (-> face
-        (as-> points
-          (map #(vec (map (partial * scale (:radius display)) %)) points)   ; scale the points
-          (vec points)
-          (conj points (first points)))                 ; repeat the last point
-        line-join-points
-        (as-> lines
-          (map (partial apply quil/line) lines))
-        dorun))
   )
 
 
@@ -82,7 +88,7 @@
       (quil/sketch
         :title "Playasophy Wonderdome"
         :setup setup-sketch
-        :draw #(draw-pixels this)
+        :draw #(render this)
         :size (:size this)
         :renderer :opengl)))
 
