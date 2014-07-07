@@ -1,21 +1,7 @@
-(ns org.playasophy.wonderdome.layout.geodesic)
+(ns org.playasophy.wonderdome.geodesic)
 
 
 ;;;;; CONSTANTS ;;;;;
-
-(def strut-counts-3V
-  "Number of each strut needed in a 3V dome."
-  {:a 30
-   :b 40
-   :c 50})
-
-
-(def strut-ratios-3V
-  "The ratio of each strut length to the radius."
-  {:a 0.34862
-   :b 0.40355
-   :c 0.41241})
-
 
 (def phi
   "The golden ratio."
@@ -123,12 +109,15 @@
 
 
 (defn- face->edges
-  "Converts a face (set of three points) into a sequence of edge lines."
+  "Converts a face (set of three points) into a sequence of edge lines. Each
+  edge will be sorted such that the 'lower' point comes first in the vector."
   [face]
-  (as-> face points
-    (seq points)
-    (cons (last points) points)
-    (partition 2 1 points)))
+  (let [points (seq face)]
+    (->>
+      points
+      (cons (last points))
+      (partition 2 1)
+      (map (comp vec sort)))))
 
 
 
@@ -159,11 +148,22 @@
     (map-shape points faces)))
 
 
-(defn dome-struts
+(defn edges
+  "Calculates a seq of edges forming a geodesic sphere with the given radius
+  and tesselation number."
   [r n]
   (->> icosahedron
        (map-shape (partial rotate-x phi-angle))
        (split-faces n)
        (map-shape (partial project-radius r))
-       (mapcat face->edges)
-       (remove (fn [[[_ _ z1] [_ _ z2]]] (or (neg? z1) (neg? z2))))))
+       (mapcat face->edges)))
+
+
+(defn slice
+  "Cuts off the bottom of a sphere by removing edges which extend below the
+  horizontal plane."
+  [edges]
+  (remove
+    (fn [[[_ _ z1] [_ _ z2]]]
+      (or (neg? z1) (neg? z2)))
+    edges))

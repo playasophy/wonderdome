@@ -2,11 +2,10 @@
   (:require
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
-    [org.playasophy.wonderdome.layout.geodesic :as geodesic]
+    [org.playasophy.wonderdome.geodesic :as geodesic]
     (quil
       [applet :as applet]
-      [core :as quil])
-    [quil.helpers.drawing :refer [line-join-points]]))
+      [core :as quil])))
 
 
 ;;;;; PROCESSING SKETCH ;;;;;
@@ -25,6 +24,7 @@
 (defn- draw-axes
   [length]
   (let [l (* scale length)]
+    (quil/stroke-weight 1)
     ; x-axis red
     (quil/stroke (quil/color 255 0 0))
     (quil/line [0 0 0] [l 0 0])
@@ -46,9 +46,10 @@
 
 
 (defn- draw-dome
-  [radius]
-  (quil/stroke (quil/color 0))
-  (doseq [[a b] (geodesic/dome-struts radius 3)]
+  [edges]
+  (quil/stroke (quil/color 96 128))
+  (quil/stroke-weight 3)
+  (doseq [[a b] edges]
     (apply quil/line
       (concat (map (partial * scale) a)
               (map (partial * scale) b)))))
@@ -56,13 +57,13 @@
 
 (defn- render
   [display]
-  (quil/background 255)
+  (quil/background 0)
   (quil/translate (* 0.50 (quil/width)) (* 0.55 (quil/height)) 0)
   (quil/rotate-x 1.2)
   (quil/rotate-z (* (quil/frame-count) 0.003))
-  (draw-axes 1.0)
-  (draw-ground 4.0)
-  (draw-dome (:dome-radius display))
+  (draw-axes 0.5)
+  ;(draw-ground 4.0)
+  (draw-dome (:dome display))
   ; TODO: render pixels
   )
 
@@ -71,7 +72,7 @@
 ;;;;; WONDERDOME DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
-  [size dome-radius layout pixels])
+  [size dome layout pixels])
 
 (extend-type ProcessingDisplay
   component/Lifecycle
@@ -106,6 +107,7 @@
   "Creates a new simulation display using Processing. Takes a vector giving the
   width and height in pixels, and a radius of geometric dome to draw."
   [size radius]
-  (ProcessingDisplay.
-    size radius nil
-    (atom [] :validator vector?)))
+  (let [dome (-> radius (geodesic/edges 3) geodesic/slice set)]
+    (ProcessingDisplay.
+      size dome nil
+      (atom [] :validator vector?))))
