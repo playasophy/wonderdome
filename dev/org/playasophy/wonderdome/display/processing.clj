@@ -72,14 +72,14 @@
 ;;;;; WONDERDOME DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
-  [size dome layout pixels])
+  [size dome layout colors])
 
 (extend-type ProcessingDisplay
   component/Lifecycle
 
   (start
     [this]
-    (assoc this :applet
+    (assoc this :sketch
       (quil/sketch
         :title "Playasophy Wonderdome"
         :setup setup-sketch
@@ -90,17 +90,17 @@
 
   (stop
     [this]
-    (when-let [sketch (:applet this)]
+    (when-let [sketch (:sketch this)]
       (applet/applet-close sketch))
-    (dissoc this :applet))
+    (dissoc this :sketch))
 
 
   display/Display
 
-  (set-pixels!
-    [this pixels]
-    (swap! (:pixels this) (constantly pixels))
-    this))
+  (set-colors!
+    [this colors]
+    (swap! (:colors this) (constantly colors))
+    nil))
 
 
 (defn display

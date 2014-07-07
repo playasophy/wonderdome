@@ -9,7 +9,7 @@
 
 
 (def phi-angle
-  "Angle formed by a 1 x phi rectangle."
+  "Angle formed by a golden rectangle."
   (Math/asin (/ (Math/sqrt (+ 1 (* phi phi))))))
 
 
@@ -34,7 +34,8 @@
 
 
 (defn- project-radius
-  "Projects a point to the same vector on the surface of the unit sphere."
+  "Projects a point to the same vector on the surface of a sphere with the
+  given radius."
   [r p]
   (let [m (Math/sqrt (apply + (map #(* % %) p)))]
     (vec (map #(/ % m) p))))

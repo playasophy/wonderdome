@@ -32,10 +32,10 @@
 
   display/Display
 
-  (set-pixels!
-    [this pixels]
+  (set-colors!
+    [this colors]
     ; TODO: implementation
-    this))
+    nil))
 
 
 (defn pixel-pusher-display
