@@ -3,7 +3,6 @@
 # Author:: Greg Look
 
 require 'rake/clean'
-require 'rakejava'
 
 
 ### BUILD CONFIG ###
@@ -17,9 +16,6 @@ RESOURCE_DIR = 'resources'
 SRC_DIR      = 'src'
 WEB_DIR      = 'web'
 SKETCH_DIR   = 'wonder'
-
-# hash of command paths
-COMMANDS = {} # TODO
 
 # processing paths
 SKETCHBOOK_PATH = ENV['SKETCHBOOK_HOME'] || "#{ENV['HOME']}/sketchbook"
