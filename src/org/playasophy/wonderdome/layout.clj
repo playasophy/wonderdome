@@ -40,6 +40,15 @@
      :azimuth azimuth'}))
 
 
+(defn sphere->cartesian
+  "Converts a spherical coordinate map to cartesian [x y z] vector coordinates.
+  Assumes the coordinate is normalized."
+  [{:keys [radius polar azimuth]}]
+  [(* radius (Math/sin polar) (Math/cos azimuth))
+   (* radius (Math/sin polar) (Math/sin azimuth))
+   (* radius (Math/cos polar))])
+
+
 (defn place-pixels
   "Takes a placement function and maps it over a number of strips and pixels,
   returning a vector of vectors of pixel coordinates. The placement function

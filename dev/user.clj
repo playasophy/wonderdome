@@ -9,6 +9,7 @@
     [environ.core :refer [env]]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.core :as wonder]
+    [org.playasophy.wonderdome.display :as display]
     [org.playasophy.wonderdome.display.processing :as processing]
     [org.playasophy.wonderdome.layout :as layout]))
 

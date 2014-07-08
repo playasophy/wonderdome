@@ -38,7 +38,7 @@
   given radius."
   [r p]
   (let [m (Math/sqrt (apply + (map #(* % %) p)))]
-    (vec (map #(/ % m) p))))
+    (vec (map #(* % (/ r m)) p))))
 
 
 

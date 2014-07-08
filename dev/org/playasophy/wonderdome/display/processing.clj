@@ -3,21 +3,32 @@
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
     [org.playasophy.wonderdome.geodesic :as geodesic]
+    [org.playasophy.wonderdome.layout :as layout]
     (quil
       [applet :as applet]
       [core :as quil])))
 
 
-;;;;; PROCESSING SKETCH ;;;;;
+;;;;; HELPER FUNCTIONS ;;;;;
 
 (def scale
   "Scale up all coordinates to map meters to screen space."
-  220.0)
+  70.0)
+
+
+(defn- scale-point
+  "Scales up a point vector to screen space."
+  [p]
+  (vec (map (partial * scale) p)))
+
+
+
+;;;;; PROCESSING SKETCH ;;;;;
 
 
 (defn- setup-sketch
   []
-  (quil/background 255)
+  (quil/background 0)
   (quil/stroke 0))
 
 
@@ -50,22 +61,53 @@
   (quil/stroke (quil/color 96 128))
   (quil/stroke-weight 3)
   (doseq [[a b] edges]
-    (apply quil/line
-      (concat (map (partial * scale) a)
-              (map (partial * scale) b)))))
+    (quil/line
+      (scale-point a)
+      (scale-point b))))
+
+
+(defn- draw-strip
+  "Draws a line representing the path of a pixel strip. Strip should be a vector
+  of spherical coordinate maps."
+  [strip]
+  (quil/stroke-weight 1)
+  (quil/stroke 0 64 196)
+  (doseq [[a b] (partition 2 1 strip)]
+    (quil/line
+      (scale-point (layout/sphere->cartesian a))
+      (scale-point (layout/sphere->cartesian b)))))
+
+
+(defn- draw-pixel
+  "Draws a single pixel with the given color. The pixel should be a spherical
+  coordinate map."
+  [coordinate color]
+  (quil/stroke-weight 5)
+  (quil/stroke (quil/color 255))
+  (->> coordinate
+       layout/sphere->cartesian
+       scale-point
+       (apply quil/point)))
+
+
+(defn- draw-pixel-strips
+  [layout colors]
+  (dorun (map draw-strip layout))
+  (dorun (map #(dorun (map draw-pixel %1 %2)) layout colors)))
 
 
 (defn- render
   [display]
   (quil/background 0)
-  (quil/translate (* 0.50 (quil/width)) (* 0.55 (quil/height)) 0)
+  (quil/translate (* 0.50 (quil/width)) (* 0.60 (quil/height)) 0)
   (quil/rotate-x 1.2)
   (quil/rotate-z (* (quil/frame-count) 0.003))
   (draw-axes 0.5)
   ;(draw-ground 4.0)
   (draw-dome (:dome display))
-  ; TODO: render pixels
-  )
+  (draw-pixel-strips
+    (:layout display)
+    @(:colors display)))
 
 
 
@@ -107,7 +149,7 @@
   "Creates a new simulation display using Processing. Takes a vector giving the
   width and height in pixels, and a radius of geometric dome to draw."
   [size radius]
-  (let [dome (-> radius (geodesic/edges 3) geodesic/slice set)]
+  (let [dome (-> radius (+ 0.05) (geodesic/edges 3) geodesic/slice set)]
     (ProcessingDisplay.
       size dome nil
       (atom [] :validator vector?))))
