@@ -37,6 +37,15 @@
   "Initialize the wonderdome for local development."
   []
   (alter-var-root #'system component/start)
+  (display/set-colors!
+    (:display system)
+    (let [[r g b] [255 255 0]
+          argb (+ (bit-shift-left 255 24)
+                  (bit-shift-left r 16)
+                  (bit-shift-left g 8)
+                  b)
+          color (unchecked-int argb)]
+      (repeat 6 (repeat 240 color))))
   :started)
 
 
