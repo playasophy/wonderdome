@@ -10,6 +10,9 @@
    [com.stuartsierra/component "0.2.1"]
    [org.clojure/clojure "1.6.0"]]
 
+  :hiera
+  {:cluster-depth 4}
+
   :profiles
   {:dev
    {:source-paths ["dev"]
