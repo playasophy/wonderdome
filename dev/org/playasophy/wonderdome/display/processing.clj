@@ -82,8 +82,8 @@
   "Draws a single pixel with the given color. The pixel should be a spherical
   coordinate map."
   [coordinate color]
-  (quil/stroke-weight 5)
-  (quil/stroke (quil/color 255))
+  (quil/stroke-weight 3)
+  (quil/stroke color)
   (->> coordinate
        layout/sphere->cartesian
        scale-point
@@ -152,4 +152,4 @@
   (let [dome (-> radius (+ 0.05) (geodesic/edges 3) geodesic/slice set)]
     (ProcessingDisplay.
       size dome nil
-      (atom [] :validator vector?))))
+      (atom []))))
