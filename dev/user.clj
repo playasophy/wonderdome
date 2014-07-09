@@ -8,10 +8,12 @@
     [clojure.tools.namespace.repl :refer [refresh]]
     [environ.core :refer [env]]
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.core :as wonder]
-    [org.playasophy.wonderdome.display :as display]
-    [org.playasophy.wonderdome.display.processing :as processing]
-    [org.playasophy.wonderdome.layout :as layout]))
+    (org.playasophy.wonderdome
+      [core :as wonder]
+      [display :as display]
+      [layout :as layout]
+      [util :refer [color]])
+    [org.playasophy.wonderdome.display.processing :as processing]))
 
 
 (def dimensions
@@ -39,13 +41,7 @@
   (alter-var-root #'system component/start)
   (display/set-colors!
     (:display system)
-    (let [[r g b] [255 255 0]
-          argb (+ (bit-shift-left 255 24)
-                  (bit-shift-left r 16)
-                  (bit-shift-left g 8)
-                  b)
-          color (unchecked-int argb)]
-      (repeat 6 (repeat 240 color))))
+    (repeat 6 (repeat 240 (color 255 255 0))))
   :started)
 
 
