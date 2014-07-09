@@ -1,7 +1,8 @@
-(ns org.playasophy.wonderdome.geodesic)
+(ns org.playasophy.wonderdome.geometry.geodesic
+  (:require
+    (org.playasophy.wonderdome.geometry
+      [cartesian :as cartesian])))
 
-
-;;;;; CONSTANTS ;;;;;
 
 (def phi
   "The golden ratio."
@@ -14,44 +15,13 @@
 
 
 
-;;;;; POINT MANIPULATION ;;;;;
+;;;;; SHAPE FUNCTIONS ;;;;;
 
 (defn- map-shape
   "Takes a shape (a set of faces, each of which is a set of points, each of
   which is a vector of 3 coordinates, and applies a function to each point."
   [f shape]
   (set (map (comp set (partial map f)) shape)))
-
-
-(defn- rotate-x
-  "Rotates a point around the X axis."
-  [theta [x y z]]
-  (let [cos (Math/cos theta)
-        sin (Math/sin theta)]
-    [x
-     (- (* y cos) (* z sin))
-     (+ (* y sin) (* z cos))]))
-
-
-(defn- project-radius
-  "Projects a point to the same vector on the surface of a sphere with the
-  given radius."
-  [r p]
-  (let [m (Math/sqrt (apply + (map #(* % %) p)))]
-    (vec (map #(* % (/ r m)) p))))
-
-
-
-;;;;; SHAPE FUNCTIONS ;;;;;
-
-(defn- midpoint
-  "Returns a new point that is a fraction of the distance towards point b
-  from point a."
-  [p a b]
-  (->>
-    (map - b a)
-    (map (partial * p))
-    (map + a)))
 
 
 (defn- split-face
@@ -68,9 +38,9 @@
         ;     f---d
         ;    / \ / \
         ;   c---e---b
-        (let [d (midpoint 1/2 a b)
-              e (midpoint 1/2 b c)
-              f (midpoint 1/2 c a)]
+        (let [d (cartesian/midpoint 1/2 a b)
+              e (cartesian/midpoint 1/2 b c)
+              f (cartesian/midpoint 1/2 c a)]
           (->>
             [         #{a d f}
              #{f e c} #{f d e} #{d b e}]
@@ -85,13 +55,13 @@
         ;   h---j---e
         ;  / \ / \ / \
         ; c---g---f---b
-        (let [d (midpoint 1/3 a b)
-              e (midpoint 2/3 a b)
-              f (midpoint 1/3 b c)
-              g (midpoint 2/3 b c)
-              h (midpoint 1/3 c a)
-              i (midpoint 2/3 c a)
-              j (midpoint 1/2 h e)]
+        (let [d (cartesian/midpoint 1/3 a b)
+              e (cartesian/midpoint 2/3 a b)
+              f (cartesian/midpoint 1/3 b c)
+              g (cartesian/midpoint 2/3 b c)
+              h (cartesian/midpoint 1/3 c a)
+              i (cartesian/midpoint 2/3 c a)
+              j (cartesian/midpoint 1/2 h e)]
           (->>
             [                  #{a d i}
                       #{i j h} #{i d j} #{d e j}
@@ -154,13 +124,13 @@
   and tesselation number."
   [r n]
   (->> icosahedron
-       (map-shape (partial rotate-x phi-angle))
+       (map-shape (partial cartesian/rotate-x phi-angle))
        (split-faces n)
-       (map-shape (partial project-radius r))
+       (map-shape (partial cartesian/project-to r))
        (mapcat face->edges)))
 
 
-(defn slice
+(defn ground-slice
   "Cuts off the bottom of a sphere by removing edges which extend below the
   horizontal plane."
   [edges]

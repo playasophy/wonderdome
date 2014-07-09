@@ -2,8 +2,9 @@
   (:require
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
-    [org.playasophy.wonderdome.geodesic :as geodesic]
-    [org.playasophy.wonderdome.layout :as layout]
+    (org.playasophy.wonderdome.geometry
+      [geodesic :as geodesic]
+      [sphere :as sphere])
     (quil
       [applet :as applet]
       [core :as quil])))
@@ -74,8 +75,8 @@
   (quil/stroke 0 64 196)
   (doseq [[a b] (partition 2 1 strip)]
     (quil/line
-      (scale-point (layout/sphere->cartesian a))
-      (scale-point (layout/sphere->cartesian b)))))
+      (scale-point (sphere/->cartesian a))
+      (scale-point (sphere/->cartesian b)))))
 
 
 (defn- draw-pixel
@@ -85,7 +86,7 @@
   (quil/stroke-weight 3)
   (quil/stroke color)
   (->> coordinate
-       layout/sphere->cartesian
+       sphere/->cartesian
        scale-point
        (apply quil/point)))
 
@@ -149,7 +150,7 @@
   "Creates a new simulation display using Processing. Takes a vector giving the
   width and height in pixels, and a radius of geometric dome to draw."
   [size radius]
-  (let [dome (-> radius (+ 0.05) (geodesic/edges 3) geodesic/slice set)]
+  (let [dome (-> radius (+ 0.05) (geodesic/edges 3) geodesic/ground-slice set)]
     (ProcessingDisplay.
       size dome nil
       (atom []))))
