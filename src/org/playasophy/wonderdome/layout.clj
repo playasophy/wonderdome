@@ -3,7 +3,9 @@
   indexes. Maps should contain a :radius in meters, and :polar and :azimuth
   angles in radians."
   (:require
-    [org.playasophy.wonderdome.geometry.sphere :refer [tau]]))
+    (org.playasophy.wonderdome.geometry
+      [cartesian :as cartesian]
+      [sphere :as sphere :refer [tau]])))
 
 
 ;;;;; HELPER FUNCTIONS ;;;;;
@@ -12,11 +14,33 @@
   "Takes a placement function and maps it over a number of strips and pixels,
   returning a vector of vectors of pixel coordinates. The placement function
   should accept a strip and pixel index as the first and second arguments and
-  return a spherical coordinate vector."
+  return a map with either a :sphere coordinate vector or a cartesian :coord
+  vector. The other vector will be generated, and the strip and pixel indices
+  added."
   [strips pixels f]
-  (vec (map (fn [s] (vec (map (fn [p] {:strip s, :pixel p, :sphere (f s p)})
-                              (range pixels))))
-            (range strips))))
+  (let [range-mapvec (fn [r g] (vec (map g (range r))))]
+    (range-mapvec strips
+      (fn [s]
+        (range-mapvec pixels
+          (fn [p]
+            (let [place (f s p)]
+              (cond
+                (:sphere place)
+                (assoc place
+                  :strip s
+                  :pixel p
+                  :coord (sphere/->cartesian (:sphere place)))
+
+                (:coord place)
+                (assoc place
+                  :strip s
+                  :pixel p
+                  :sphere (cartesian/->sphere (:coord place)))
+
+                :else
+                (throw (IllegalStateException.
+                         (str "Placement function did not return either a cartesian or spherical coordinate: "
+                              (pr-str place))))))))))))
 
 
 
@@ -30,6 +54,7 @@
     (place-pixels
       strips strip-pixels
       (fn [strip pixel]
-        [radius
-         (* pixel-angle (+ pixel 5))
-         (* strip-angle strip)]))))
+        {:sphere
+         [radius
+          (* pixel-angle (+ pixel 5))
+          (* strip-angle strip)]}))))

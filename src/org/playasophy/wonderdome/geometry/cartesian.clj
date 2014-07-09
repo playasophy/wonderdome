@@ -9,6 +9,15 @@
   (Math/sqrt (apply + (map #(* % %) p))))
 
 
+(defn ->sphere
+  "Converts a cartesian coordinate to a spherical coordinate vector."
+  [[x y z :as p]]
+  (let [r (magnitude p)]
+    [r
+     (Math/acos (/ z r))
+     (Math/atan (/ y x))]))
+
+
 (defn project-to
   "Projects a point to the same vector on the surface of a sphere with the
   given radius."

@@ -3,8 +3,7 @@
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display :as display]
     (org.playasophy.wonderdome.geometry
-      [geodesic :as geodesic]
-      [sphere :as sphere])
+      [geodesic :as geodesic])
     (quil
       [applet :as applet]
       [core :as quil])))
@@ -75,8 +74,8 @@
   (quil/stroke 0 64 196)
   (doseq [[a b] (partition 2 1 strip)]
     (quil/line
-      (scale-point (sphere/->cartesian a))
-      (scale-point (sphere/->cartesian b)))))
+      (-> a :coord scale-point)
+      (-> b :coord scale-point))))
 
 
 (defn- draw-pixel
@@ -86,7 +85,7 @@
   (quil/stroke-weight 3)
   (quil/stroke color)
   (->> coordinate
-       sphere/->cartesian
+       :coord
        scale-point
        (apply quil/point)))
 
