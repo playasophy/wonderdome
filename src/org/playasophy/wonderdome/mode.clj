@@ -4,13 +4,13 @@
 (defprotocol Mode
   "A protocol for visualizations running on the Wonderdome."
 
-  (update!
+  (update
     [mode dt events]
-    "Computes an updated mode state from the current state, an elapsed time in
-    millseconds, and a sequence of input events.")
+    "Computes an updated mode state from an elapsed time in millseconds and a
+    sequence of input events. Returns the new state.")
 
-  (render-pixel
-    [mode coordinates]
+  (render
+    [mode pixel]
     "Queries the mode for the color which should be assigned to a given pixel.
-    The coordinates are a map which gives the strip and pixel index, along with
-    the radial coordinates assigned to the pixel by the layout."))
+    The pixel is a map which gives the strip and pixel index, along with the
+    spherical and cartesian coordinates assigned to the pixel by the layout."))
