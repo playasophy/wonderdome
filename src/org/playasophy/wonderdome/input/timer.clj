@@ -30,6 +30,7 @@
     (println (str "Starting " this "..."))
     (when-not (:out this)
       (throw (IllegalStateException. "Cannot start TimerInput without output channel")))
+    ; TODO: create sliding-buffer and mix into output?
     (if (:thread this)
       (do
         (println (str this " is already running"))
