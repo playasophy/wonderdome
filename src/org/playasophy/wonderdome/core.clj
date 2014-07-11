@@ -1,66 +1,80 @@
 (ns org.playasophy.wonderdome.core
   (:require
-    [com.stuartsierra.component :as component]))
+    [clojure.core.async :as async]
+    [com.stuartsierra.component :as component]
+    [org.playasophy.wonderdome.mode :as mode]))
 
 
-#_
-(def wonderdome-state
-  "Example representation of the current wonderdome state."
-  {:state :running
-   :last-autocycle #inst "2014-07-07T11:03:42Z"
-   :playlist [:colorcycle  ; queue is probably better
-              :sweep
-              :twinkle
-              :marqee]
-   :modes {:colorcycle {:speed 0.1
-                        :density 2.6
-                        :offset 0.3208}
-           :sweep {:offset "..."}}
-   ; instead of explicit handlers, use functional composition
-   :event-handlers []})
-
-
-; Core wonderdome system has an event loop which is running on a separate
-; thread at some interval. Main 'update' mechanism gets a dt and sequence of
-; events, should return an updated system.
-
-
-(defn handler
+(defn identity-handler
   "Simple identity handler function."
-  [system dt events]
-  system)
+  [state input]
+  state)
 
 
 ; Autocycle handler:
-; Sets :autocycle/at property, when receiving control events resets the timer
+; Sets :autocycle/at property, when receiving control inputs resets the timer
 ; to :autocycle/period seconds in the future. If current time passes the
 ; threshold, rotates to the next mode in the playlist.
 
 
 ; Konami code handler:
-; Watches button inputs, keeping track of the last sequence of events; if the
-; last event was too far in the past, clears the buffer. If the sequence matches
+; Watches button inputs, keeping track of the sequence of input events; if the
+; last input was too far in the past, clears the buffer. If the sequence matches
 ; the code, changes the current mode to the easter-egg mode. Probably lets the
 ; autocycle or manual mode change handle switching out of it.
 
 
 ; Mode handler:
-; Passes the dt and events to the current mode via mode/update and returns the
+; Passes the dt and inputs to the current mode via mode/update and returns the
 ; system with an updated mode state.
+
+
+#_
+(defn render
+  "Takes the current mode, maps it over the pixels in the layout, and calls
+  set-colors! on the display. Modes should not have any mutable internal
+  state."
+  [mode layout display]
+  (set-colors! display
+    (map (partial map (partial mode/render mode))
+         layout)))
 
 
 (defn initialize
   [{:keys [layout display modes]
-    ; TODO: defaults?
+    :defaults {:timer-ms 30}
     :as config}]
   (component/system-map
+    ; Layout is a pre-computed collection of strips of pixel coordinates.
     :layout layout
-    ; display is responsible for running its own rendering thread.
-    :display (component/using display [:layout])
-    ; input event queue?
-    ; http server?
+
+    ; Display is responsible for running its own rendering thread if necessary.
+    ; Processing does, pixel-pusher doesn't.
+    :display display
+
+    ; Ideally use separate channels merged together, because we're probably only
+    ; ever interested in the last 1-2 audio frames, but never want to lose
+    ; button presses.
+    #_ :input-channel #_ (async/chan 5)
+
+    ; Input sources run whatever threads are necessary and stick input events into
+    ; the channel/queue for consumption by the system.
+    ; TODO: http server
+    ; TODO: usb input
+    ; TODO: audio parser
+    ; TODO: timer?
+
+    ; Handler functions recieve the current state of the system, a time delta,
+    ; and a collection of input events, and return the updated system state.
     #_
-    (component/using
-      (example-component config-options)
-      {:database  :db
-       :scheduler :scheduler})))
+    :handler
+
+    ; The current system state is wrapped in an agent, which continuously sends
+    ; itself an update function. The update pulls input off the queue, calls the
+    ; handler to update the state, and recurs with a new last-updated time.
+    ; Configuration changes (such as pausing, changing the mode playlist, etc)
+    ; can be accomplished by sending assoc's which alter the necessary
+    ; configuration state.
+    #_
+    :state
+    ))
