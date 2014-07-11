@@ -111,7 +111,7 @@
 
 
 
-;;;;; WONDERDOME DISPLAY ;;;;;
+;;;;; PROCESSING DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
   [size dome layout colors])
@@ -147,9 +147,10 @@
 
 (defn display
   "Creates a new simulation display using Processing. Takes a vector giving the
-  width and height in pixels, and a radius of geometric dome to draw."
+  width and height in pixels, and a radius of geometric dome to draw. The pixel
+  layout must be injected at runtime before starting the display."
   [size radius]
   (let [dome (-> radius (+ 0.05) (geodesic/edges 3) geodesic/ground-slice set)]
-    (ProcessingDisplay.
-      size dome nil
-      (atom []))))
+    (component/using
+      (ProcessingDisplay. size dome nil (atom []))
+      [:layout])))
