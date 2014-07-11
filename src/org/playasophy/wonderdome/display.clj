@@ -6,6 +6,6 @@
 
   (set-colors!
     [display colors]
-    "Sets the color of the pixels in the display. The colors should be a vector
-    of strips, where each strip is a vector of colors to set at each pixel
-    index (or nil to leave the color unchanged)."))
+    "Sets the color of the pixels in the display. The colors should be a
+    sequence of strips, where each strip is a sequence of colors to set at each
+    pixel index (or nil to leave the color unchanged)."))
