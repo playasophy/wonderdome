@@ -1,4 +1,4 @@
-(ns org.playasophy.wonderdome.display)
+(ns org.playasophy.wonderdome.display.core)
 
 
 (defprotocol Display

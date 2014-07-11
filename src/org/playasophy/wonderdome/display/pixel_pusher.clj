@@ -1,7 +1,7 @@
 (ns org.playasophy.wonderdome.display.pixel-pusher
   (:require
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.display :as display])
+    [org.playasophy.wonderdome.display.core :as display])
   #_
   (:import
     [com.heroicrobot.dropbit.registry *]

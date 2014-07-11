@@ -3,8 +3,8 @@
     [clojure.core.async :as async]
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
-      [display :as display]
-      [mode :as mode])))
+      [mode :as mode])
+    [org.playasophy.wonderdome.display.core :as display]))
 
 
 ; The current system state is wrapped in an agent, which the processor

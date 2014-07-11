@@ -1,7 +1,7 @@
 (ns org.playasophy.wonderdome.display.processing
   (:require
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.display :as display]
+    [org.playasophy.wonderdome.display.core :as display]
     (org.playasophy.wonderdome.geometry
       [geodesic :as geodesic])
     (quil

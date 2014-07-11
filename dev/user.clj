@@ -10,10 +10,11 @@
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
       [core :as wonder]
-      [display :as display]
       [layout :as layout]
       [util :refer [color]])
-    [org.playasophy.wonderdome.display.processing :as processing]))
+    (org.playasophy.wonderdome.display
+      [core :as display]
+      [processing :as processing])))
 
 
 (def dimensions
