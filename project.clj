@@ -12,7 +12,8 @@
    [org.clojure/core.async "0.1.303.0-886421-alpha"]]
 
   :hiera
-  {:cluster-depth 4}
+  {:cluster-depth 4
+   :ignore-ns #{com.stuartsierra}}
 
   :profiles
   {:dev

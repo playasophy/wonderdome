@@ -6,7 +6,7 @@
 
 (defn identity-handler
   "Simple identity handler function."
-  [state input]
+  [state event]
   state)
 
 

@@ -29,11 +29,11 @@
 (defn rotate-x
   "Rotates a point around the X axis by theta radians."
   [theta [x y z]]
-  (let [cos (Math/cos theta)
-        sin (Math/sin theta)]
+  (let [cos-t (Math/cos theta)
+        sin-t (Math/sin theta)]
     [x
-     (- (* y cos) (* z sin))
-     (+ (* y sin) (* z cos))]))
+     (- (* y cos-t) (* z sin-t))
+     (+ (* y sin-t) (* z cos-t))]))
 
 
 (defn midpoint
