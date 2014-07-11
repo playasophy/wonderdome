@@ -5,9 +5,9 @@
   "A protocol for visualizations running on the Wonderdome."
 
   (update
-    [mode dt events]
-    "Computes an updated mode state from an elapsed time in millseconds and a
-    sequence of input events. Returns the new state.")
+    [mode event]
+    "Computes an updated mode state from an input event. Events may be button
+    presses, time-deltas, audio frames, etc. Returns the new mode state.")
 
   (render
     [mode pixel]

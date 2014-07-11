@@ -6,7 +6,8 @@
 
 (defn- timer-loop
   "Constructs a new runnable looping function which puts an event on the given
-  output channel every period milliseconds."
+  output channel every period milliseconds. The loop can be terminated by
+  interrupting the thread."
   [period channel]
   (fn []
     (try
@@ -37,7 +38,7 @@
         this)
       (let [run (timer-loop (:period this) (:out this))]
         (assoc this :thread
-          (doto (Thread. run "TimerInput")
+          (doto (Thread. ^Runnable run "TimerInput")
             (.setDaemon true)
             (.start))))))
 

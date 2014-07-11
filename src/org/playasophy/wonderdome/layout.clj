@@ -1,7 +1,7 @@
 (ns org.playasophy.wonderdome.layout
-  "Layouts map pixels to spherical coordinate map for the given strip and pixel
-  indexes. Maps should contain a :radius in meters, and :polar and :azimuth
-  angles in radians."
+  "Layouts map pixels to spatial coordinates for the given strip and pixel
+  indexes. Both cartesian [x y z] and spherical [r p a] coordinates are
+  supported."
   (:require
     (org.playasophy.wonderdome.geometry
       [cartesian :as cartesian]
@@ -47,7 +47,7 @@
 ;;;;; SIMPLE LAYOUTS ;;;;;
 
 (defn star
-  "Constructs a new star layout with the given dimenisons."
+  "Constructs a new star layout with the given dimensions."
   [{:keys [radius pixel-spacing strips strip-pixels]}]
   (let [strip-angle (/ tau strips)
         pixel-angle (* 2 (Math/asin (/ pixel-spacing 2 radius)))]
