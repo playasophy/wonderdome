@@ -1,0 +1,48 @@
+// Wonderdome system graph
+
+digraph components {
+    node [shape=ellipse];
+
+    /*
+    subgraph cluster_legend {
+        thread [shape=ellipse];
+        queue [shape=box];
+        function [shape=diamond];
+        component [shape=hexagon];
+    }
+    */
+
+    // Components
+    layout [shape=box];
+    display [shape=box];
+
+    // Channels
+    input_channel [label="input channel",shape=hexagon];
+    render_channel [label="render channel",shape=hexagon];
+
+    // Input sources
+    timer_input [label="timer"];
+    audio_input [label="audio"];
+    button_input [label="NES controller"];
+
+    // System consumer
+    input_processor [label="state processor"];
+    event_handler [label="handler",shape=diamond];
+    state_agent [label="state agent"];
+
+    // Rendering process
+    render_watch [label="watch",shape=diamond];
+    render_process [label="renderer"];
+
+    // Web server
+    ring_server [label="ring server"];
+
+    // Data flows
+    timer_input -> input_channel;
+    audio_input -> input_channel;
+    button_input -> input_channel;
+    input_channel -> input_processor -> event_handler -> state_agent;
+    ring_server -> state_agent;
+    layout -> render_process;
+    state_agent -> render_watch -> render_channel -> render_process -> display;
+}
