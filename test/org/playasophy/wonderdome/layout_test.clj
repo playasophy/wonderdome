@@ -1,7 +1,7 @@
 (ns org.playasophy.wonderdome.layout-test
   (:require
     [clojure.test :refer :all]
-    [org.playasophy.wonderdome.layout :as layout]))
+    [org.playasophy.wonderdome.geometry.layout :as layout]))
 
 
 ; FIXME: broken test
