@@ -2,12 +2,16 @@
   (:require
     [clojure.core.async :as async]
     [com.stuartsierra.component :as component]
+    [org.playasophy.wonderdome.renderer :refer [renderer]]
+    [org.playasophy.wonderdome.state :refer [input-processor]]
     [org.playasophy.wonderdome.input.timer :refer [timer]]))
 
 
 (defn initialize
-  [{:keys [layout display modes timer-ms handler state]
-    :or {timer-ms 30}}]
+  [{:keys [layout display modes timer-ms handler initial-state]
+    :or {timer-ms 30
+         handler identity
+         initial-state {}}}]
   (component/system-map
     ; Layout is a pre-computed collection of strips of pixel coordinates.
     :layout layout
@@ -22,7 +26,7 @@
     ; TODO: use a mix channel instead?
     :input-channel (async/chan 5)
 
-    :timer
+    :timer-input
     (component/using
       (timer timer-ms)
       {:output :input-channel})
@@ -36,18 +40,17 @@
     ; The current system state is wrapped in an agent. Configuration changes
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
-    :state-agent (agent state)
+    :state-agent (agent initial-state)
 
-    #_
-    :processor #_
+    ; The input processor pulls events off the input channel and sends updates
+    ; to the state agent.
+    :processor
     (component/using
       (input-processor handler)
-      [:layout :display :state])
+      [:input-channel :state-agent])
 
-    #_
-    :renderer #_
+    :renderer
     (component/using
-      (renderer/renderer (async/chan (async/sliding-buffer 5)))
+      (renderer (async/chan (async/sliding-buffer 5)))
       [:state-agent :layout :display])
-
     ))

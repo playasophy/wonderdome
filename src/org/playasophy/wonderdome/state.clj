@@ -1,16 +1,7 @@
 (ns org.playasophy.wonderdome.state
   (:require
-    [clojure.core.async :as async]
+    [clojure.core.async :as async :refer [<!]]
     [com.stuartsierra.component :as component]))
-
-
-; The current system state is wrapped in an agent, which the processor
-; continuously sends an update function. The function pulls input off the
-; queue and sends it to the agent handler 
-
-; Configuration changes (such as pausing, changing the mode playlist, etc)
-; can be accomplished by sending assoc's which alter the necessary
-; configuration state.
 
 
 (defn current-mode
@@ -19,25 +10,34 @@
   (get (:modes state) (:current-mode state)))
 
 
+(defrecord InputProcessor
+  [handler input-channel state-agent process]
 
-(defrecord StateProcessor
-  [state-agent handler input-channel layout display])
-
-(extend-type StateProcessor
   component/Lifecycle
 
   (start
     [this]
-    ; ...
-    this)
+    (when-not input-channel
+      (throw (IllegalStateException.
+               "InputProcessor can't be started without an input channel")))
+    (when-not state-agent
+      (throw (IllegalStateException.
+               "InputProcessor can't be started without a state-agent")))
+    (if process
+      this
+      (assoc this :process
+        (async/go-loop []
+          (send state-agent handler (<! input-channel))))))
 
 
   (stop
     [this]
-    ; ...
-    this))
+    (when process
+      (async/close! process))
+    (assoc this :process nil)))
 
 
-(defn processor
+(defn input-processor
   [handler]
-  (StateProcessor. nil handler nil nil nil))
+  {:pre [(fn? handler)]}
+  (InputProcessor. handler nil nil nil))
