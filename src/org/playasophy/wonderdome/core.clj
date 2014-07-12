@@ -6,9 +6,8 @@
 
 
 (defn initialize
-  [{:keys [layout display modes timer-ms handler]
-    :defaults {:timer-ms 30}
-    :as config}]
+  [{:keys [layout display modes timer-ms handler state]
+    :or {timer-ms 30}}]
   (component/system-map
     ; Layout is a pre-computed collection of strips of pixel coordinates.
     :layout layout
@@ -37,13 +36,18 @@
     ; The current system state is wrapped in an agent. Configuration changes
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
-    #_
-    :state #_ (agent ...)
+    :state-agent (agent state)
 
     #_
     :processor #_
     (component/using
-      (processor handler)
+      (input-processor handler)
       [:layout :display :state])
+
+    #_
+    :renderer #_
+    (component/using
+      (renderer/renderer (async/chan (async/sliding-buffer 5)))
+      [:state-agent :layout :display])
 
     ))
