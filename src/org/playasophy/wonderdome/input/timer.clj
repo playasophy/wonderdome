@@ -8,6 +8,7 @@
   "Constructs a new runnable looping function which puts an event on the given
   output channel every period milliseconds. The loop can be terminated by
   interrupting the thread."
+  ^Runnable
   [period channel]
   (fn []
     (try
@@ -21,32 +22,28 @@
 
 
 (defrecord TimerInput
-  [period out thread])
+  [^long period output ^Thread thread]
 
-(extend-type TimerInput
   component/Lifecycle
 
   (start
     [this]
     (println (str "Starting " this "..."))
-    (when-not (:out this)
+    (when-not output
       (throw (IllegalStateException. "Cannot start TimerInput without output channel")))
     ; TODO: create sliding-buffer and mix into output?
-    (if (:thread this)
-      (do
-        (println (str this " is already running"))
-        this)
-      (let [run (timer-loop (:period this) (:out this))]
-        (assoc this :thread
-          (doto (Thread. ^Runnable run "TimerInput")
-            (.setDaemon true)
-            (.start))))))
+    (if thread
+      this
+      (assoc this :thread
+        (doto (Thread. (timer-loop period output) "TimerInput")
+          (.setDaemon true)
+          (.start)))))
 
 
   (stop
     [this]
     (println (str "Stopping " this "..."))
-    (when-let [^Thread thread (:thread this)]
+    (when thread
       (.interrupt thread)
       (.join thread 1000))
     (assoc this :thread nil)))
@@ -55,7 +52,6 @@
 (defn timer
   "Creates a new timer that will put an event on the output channel every period
   milliseconds."
-  ([period]
-   (TimerInput. period nil nil))
-  ([period out]
-   (TimerInput. period out nil)))
+  [period]
+  {:pre [(pos? period)]}
+  (TimerInput. period nil nil))
