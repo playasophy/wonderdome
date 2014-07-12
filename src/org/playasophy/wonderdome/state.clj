@@ -1,13 +1,23 @@
 (ns org.playasophy.wonderdome.state
   (:require
     [clojure.core.async :as async :refer [<!]]
-    [com.stuartsierra.component :as component]))
+    [com.stuartsierra.component :as component]
+    [org.playasophy.wonderdome.mode :as mode]))
 
 
 (defn current-mode
   "Determines the current mode from the system state map."
   [state]
   (get (:modes state) (:current-mode state)))
+
+
+(defn update-mode
+  "Passes the input event to the current mode and returns the map with an
+  updated mode state."
+  [state event]
+  (if-let [current (:current-mode state)]
+    (update-in state [:modes current] mode/update event)
+    state))
 
 
 (defrecord InputProcessor

@@ -1,29 +1,8 @@
-(ns org.playasophy.wonderdome.handler
-  (:require
-    [org.playasophy.wonderdome.mode :as mode]))
+(ns org.playasophy.wonderdome.input.middleware)
 
-
-;;;;; EVENT HANDLERS ;;;;;
 
 ; Handler functions recieve the current state of the system and an input event
 ; and return the updated system state.
-
-(defn identity-handler
-  "Simple identity handler function."
-  [state event]
-  state)
-
-
-; TODO: move to state ns?
-(defn mode-handler
-  "Passes the input event to the current mode and returns the map with an
-  updated mode state."
-  [state event]
-  (update-in state [:modes (:current-mode state)] mode/update event))
-
-
-
-;;;;; HANDLER MIDDLEWARE ;;;;;
 
 ; Middleware wraps a handler function to produce a new handler with some extra
 ; logic. This is very similar to Ring middlewares.

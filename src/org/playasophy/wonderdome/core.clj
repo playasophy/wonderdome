@@ -8,10 +8,10 @@
 
 
 (defn initialize
-  [{:keys [layout display modes timer-ms handler initial-state]
+  [{:keys [layout display modes timer-ms handler]
     :or {timer-ms 30
          handler identity
-         initial-state {}}}]
+         modes {}}}]
   (component/system-map
     ; Layout is a pre-computed collection of strips of pixel coordinates.
     :layout layout
@@ -23,7 +23,7 @@
     ; Ideally use separate channels mixed together, because we're probably only
     ; ever interested in the last 1-2 audio frames, but never want to lose
     ; button presses.
-    ; TODO: use a mix channel instead?
+    ; TODO: use a mix channel instead
     :input-channel (async/chan 5)
 
     :timer-input
@@ -47,7 +47,9 @@
     ; The current system state is wrapped in an agent. Configuration changes
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
-    :state-agent (agent initial-state)
+    :state-agent
+    (agent {:modes modes
+            :current-mode (first (keys modes))})
 
     :renderer
     (component/using

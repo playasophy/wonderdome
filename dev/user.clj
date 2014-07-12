@@ -9,11 +9,15 @@
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
       [core :as wonder]
-      [handler :as handler]
+      [state :as state]
       [util :refer [color]])
     (org.playasophy.wonderdome.display
       [core :as display]
       [processing :as processing])
+    (org.playasophy.wonderdome.input
+      [middleware :as middleware])
+    (org.playasophy.wonderdome.mode
+      [strobe :refer [strobe]])
     [org.playasophy.wonderdome.geometry.layout :as layout]))
 
 
@@ -29,10 +33,11 @@
 (def config
   {:layout (layout/star dimensions)
    :display (processing/display [1000 600] (:radius dimensions))
-   :timer-ms 5000
-   :handler (-> handler/identity-handler
-                handler/print-events)
-   :modes {}})
+   :timer-ms 1000
+   :handler (-> state/update-mode
+                (middleware/print-events (comp #{} :type)))
+   :modes
+   {:strobe (strobe [(color 255 0 0) (color 0 255 0) (color 0 0 255)])}})
 
 
 (def system
