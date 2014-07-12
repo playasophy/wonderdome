@@ -1,4 +1,4 @@
-(ns org.playasophy.wonderdome.layout
+(ns org.playasophy.wonderdome.geometry.layout
   "Layouts map pixels to spatial coordinates for the given strip and pixel
   indexes. Both cartesian [x y z] and spherical [r p a] coordinates are
   supported."
