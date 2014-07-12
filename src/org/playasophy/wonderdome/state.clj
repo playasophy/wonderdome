@@ -27,7 +27,8 @@
       this
       (assoc this :process
         (async/go-loop []
-          (send state-agent handler (<! input-channel))))))
+          (send state-agent handler (<! input-channel))
+          (recur)))))
 
 
   (stop
