@@ -28,6 +28,18 @@
 ; Middleware wraps a handler function to produce a new handler with some extra
 ; logic. This is very similar to Ring middlewares.
 
+(defn print-events
+  "Debugging middleware which prints out events as they pass through the
+  handler stack. A predicate function may be provided to filter the events
+  shown."
+  ([handler]
+   (print-events handler (constantly true)))
+  ([handler pred]
+   (fn [state event]
+     (when (pred event)
+       (prn event))
+     (handler state event))))
+
 
 ; Autocycle middleware:
 ; Sets :autocycle/at property, when receiving control inputs resets the timer
