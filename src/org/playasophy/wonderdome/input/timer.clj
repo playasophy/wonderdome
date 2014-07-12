@@ -1,6 +1,6 @@
 (ns org.playasophy.wonderdome.input.timer
   (:require
-    [clojure.core.async :as async]
+    [clojure.core.async :as async :refer [>!!]]
     [com.stuartsierra.component :as component]))
 
 
@@ -15,14 +15,14 @@
       (loop [t (System/currentTimeMillis)]
         (Thread/sleep period)
         (let [now (System/currentTimeMillis)]
-          (async/>!! channel {:type :dt, :elapsed (- now t)})
+          (>!! channel {:type :dt, :elapsed (- now t)})
           (recur now)))
       (catch InterruptedException e
         nil))))
 
 
 (defrecord TimerInput
-  [^long period output ^Thread thread]
+  [^long period ^Thread thread output]
 
   component/Lifecycle
 

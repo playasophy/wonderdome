@@ -16,7 +16,7 @@
     ; Processing does, pixel-pusher doesn't.
     :display display
 
-    ; Ideally use separate channels merged together, because we're probably only
+    ; Ideally use separate channels mixed together, because we're probably only
     ; ever interested in the last 1-2 audio frames, but never want to lose
     ; button presses.
     ; TODO: use a mix channel instead?
@@ -25,7 +25,7 @@
     :timer
     (component/using
       (timer timer-ms)
-      {:out :input-channel})
+      {:output :input-channel})
 
     ; Input sources run whatever threads are necessary and stick input events into
     ; the channel/queue for consumption by the system.
