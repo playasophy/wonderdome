@@ -12,37 +12,45 @@ digraph components {
     }
     */
 
-    // Components
+    // Basic components
+    state_agent [label="state agent"];
     layout [shape=box];
     display [shape=box];
-
-    // Channels
-    input_channel [label="input channel",shape=hexagon];
-    render_channel [label="render channel",shape=hexagon];
-
-    // Input sources
-    timer_input [label="timer"];
-    audio_input [label="audio"];
-    button_input [label="NES controller"];
-
-    // System consumer
-    input_processor [label="state processor"];
-    event_handler [label="handler",shape=diamond];
-    state_agent [label="state agent"];
+    layout -> display [style="dashed"];
 
     // Rendering process
-    render_watch [label="watch",shape=diamond];
+    render_channel [label="mode channel",shape=hexagon];
     render_process [label="renderer"];
+    render_channel -> render_process;
+    layout -> render_process -> display;
+    state_agent -> render_channel [label="watch"];
+
+    // Input channel
+    input_mix [label="mix",shape=circle];
+    input_channel [label="input channel",shape=hexagon];
+    input_mix -> input_channel;
+
+    // Timer input
+    timer_input [label="timer"];
+    timer_buffer [label="sliding-buffer",shape=hexagon];
+    timer_input -> timer_buffer -> input_mix;
+
+    // Button input
+    button_input [label="NES controller"];
+    button_buffer [label="dropping-buffer",shape=hexagon];
+    button_input -> button_buffer -> input_mix;
+
+    // Audio input
+    audio_input [label="audio"];
+    audio_buffer [label="sliding-buffer",shape=hexagon];
+    audio_input -> audio_buffer -> input_mix;
+
+    // Input processor
+    input_processor [label="input processor",style=dashed];
+    input_channel -> input_processor;
+    input_processor -> state_agent [label="handler"];
 
     // Web server
     ring_server [label="ring server"];
-
-    // Data flows
-    timer_input -> input_channel;
-    audio_input -> input_channel;
-    button_input -> input_channel;
-    input_channel -> input_processor -> event_handler -> state_agent;
-    ring_server -> state_agent;
-    layout -> render_process;
-    state_agent -> render_watch -> render_channel -> render_process -> display;
+    ring_server -> state_agent [label="updates"];
 }
