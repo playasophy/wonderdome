@@ -28,7 +28,6 @@
 
   (start
     [this]
-    (println (str "Starting " this "..."))
     (when-not output
       (throw (IllegalStateException. "Cannot start TimerInput without output channel")))
     ; TODO: create sliding-buffer and mix into output?
@@ -42,7 +41,6 @@
 
   (stop
     [this]
-    (println (str "Stopping " this "..."))
     (when thread
       (.interrupt thread)
       (.join thread 1000))

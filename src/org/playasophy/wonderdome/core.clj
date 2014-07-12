@@ -37,17 +37,17 @@
     ; TODO: usb input
     ; TODO: audio parser
 
-    ; The current system state is wrapped in an agent. Configuration changes
-    ; (such as pausing, changing the mode playlist, etc) can be accomplished by
-    ; sending assoc's which alter the necessary configuration state.
-    :state-agent (agent initial-state)
-
     ; The input processor pulls events off the input channel and sends updates
     ; to the state agent.
     :processor
     (component/using
       (input-processor handler)
       [:input-channel :state-agent])
+
+    ; The current system state is wrapped in an agent. Configuration changes
+    ; (such as pausing, changing the mode playlist, etc) can be accomplished by
+    ; sending assoc's which alter the necessary configuration state.
+    :state-agent (agent initial-state)
 
     :renderer
     (component/using
