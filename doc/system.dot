@@ -1,32 +1,34 @@
 // Wonderdome system graph
 
-digraph components {
+digraph wonderdome_components {
     node [shape=ellipse];
 
-    /*
-    subgraph cluster_legend {
-        thread [shape=ellipse];
-        queue [shape=box];
-        function [shape=diamond];
-        component [shape=hexagon];
-    }
-    */
-
     // Basic components
-    state_agent [label="state agent"];
     layout [shape=box];
     display [shape=box];
-    layout -> display [style="dashed"];
+    layout -> display [style=dotted];
+
+    {
+        rank = same;
+
+        // Agent
+        state_agent [label="state agent"];
+
+        // Web server
+        ring_server [label="ring server"];
+        state_agent -> ring_server [label="reads"];
+        ring_server -> state_agent [label="updates"];
+    }
 
     // Rendering process
     render_channel [label="mode channel",shape=hexagon];
-    render_process [label="renderer"];
+    render_process [label="renderer",style=dashed];
     render_channel -> render_process;
     layout -> render_process -> display;
     state_agent -> render_channel [label="watch"];
 
     // Input channel
-    input_mix [label="mix",shape=circle];
+    input_mix [label="mix",shape=circle,style=dashed];
     input_channel [label="input channel",shape=hexagon];
     input_mix -> input_channel;
 
@@ -49,8 +51,4 @@ digraph components {
     input_processor [label="input processor",style=dashed];
     input_channel -> input_processor;
     input_processor -> state_agent [label="handler"];
-
-    // Web server
-    ring_server [label="ring server"];
-    ring_server -> state_agent [label="updates"];
 }
