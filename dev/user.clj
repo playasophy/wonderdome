@@ -1,5 +1,6 @@
 (ns user
   (:require
+    [clojure.core.async :as async :refer [<! <!! >! >!!]]
     [clojure.java.io :as io]
     [clojure.pprint :refer [pprint]]
     [clojure.repl :refer :all]
