@@ -5,14 +5,13 @@
             :url "http://unlicense.org/"}
 
   :dependencies
-  [[clj-time "0.7.0"]
-   [environ "0.5.0"]
-   [com.stuartsierra/component "0.2.1"]
+  [[com.stuartsierra/component "0.2.1"]
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]]
 
   :hiera
   {:cluster-depth 4
+   :vertical? false
    :ignore-ns #{com.stuartsierra}}
 
   :profiles
