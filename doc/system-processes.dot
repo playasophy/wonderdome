@@ -29,8 +29,8 @@ digraph wonderdome_components {
 
     // Input channel
     input_mix [label="mix",shape=circle,style=dashed];
-    input_channel [label="input channel",shape=hexagon];
-    input_mix -> input_channel;
+    event_channel [label="event channel",shape=hexagon];
+    input_mix -> event_channel;
 
     // Timer input
     timer_input [label="timer"];
@@ -49,6 +49,6 @@ digraph wonderdome_components {
 
     // Input processor
     input_processor [label="input processor",style=dashed];
-    input_channel -> input_processor;
+    event_channel -> input_processor;
     input_processor -> state_agent [label="handler"];
 }

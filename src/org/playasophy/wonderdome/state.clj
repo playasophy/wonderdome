@@ -21,13 +21,13 @@
 
 
 (defrecord InputProcessor
-  [handler input-channel state-agent process]
+  [handler input state-agent process]
 
   component/Lifecycle
 
   (start
     [this]
-    (when-not input-channel
+    (when-not input
       (throw (IllegalStateException.
                "InputProcessor can't be started without an input channel")))
     (when-not state-agent
@@ -37,7 +37,7 @@
       this
       (assoc this :process
         (async/go-loop []
-          (send state-agent handler (<! input-channel))
+          (send state-agent handler (<! input))
           (recur)))))
 
 
