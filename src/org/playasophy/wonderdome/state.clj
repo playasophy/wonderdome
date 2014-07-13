@@ -2,7 +2,7 @@
   (:require
     [clojure.core.async :as async :refer [<!]]
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.mode :as mode]))
+    [org.playasophy.wonderdome.mode.core :as mode]))
 
 
 (defn current-mode
@@ -15,8 +15,8 @@
   "Passes the input event to the current mode and returns the map with an
   updated mode state."
   [state event]
-  (if-let [current (:current-mode state)]
-    (update-in state [:modes current] mode/update event)
+  (if (current-mode state)
+    (update-in state [:modes (:current-mode state)] mode/update event)
     state))
 
 

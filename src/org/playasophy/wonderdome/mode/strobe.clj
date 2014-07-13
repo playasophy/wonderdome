@@ -1,6 +1,6 @@
 (ns org.playasophy.wonderdome.mode.strobe
   (:require
-    [org.playasophy.wonderdome.mode :as mode]))
+    [org.playasophy.wonderdome.mode.core :as mode]))
 
 
 (defrecord StrobeMode

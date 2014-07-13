@@ -2,7 +2,7 @@
   (:require
     [clojure.core.async :as async :refer [<! <!! >! >!!]]
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.mode :as mode]
+    [org.playasophy.wonderdome.mode.core :as mode]
     [org.playasophy.wonderdome.state :as state]
     [org.playasophy.wonderdome.display.core :as display]))
 

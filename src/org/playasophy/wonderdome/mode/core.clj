@@ -1,4 +1,4 @@
-(ns org.playasophy.wonderdome.mode)
+(ns org.playasophy.wonderdome.mode.core)
 
 
 (defprotocol Mode
