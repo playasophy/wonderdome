@@ -41,14 +41,6 @@
 
 ;;;;; SYSTEM INITIALIZATION ;;;;;
 
-(defn- initial-state
-  "Builds the initial system state map from the given configuration."
-  [{:keys [modes]
-    :or {modes {}}}]
-  {:modes modes
-   :current-mode (first (keys modes))})
-
-
 (defn add-input
   "Associates a new input source component into a system map. The input
   function should take an output channel as the first argument."
@@ -59,7 +51,7 @@
 
 
 (defn initialize
-  [{:keys [layout display handler]
+  [{:keys [layout display handler state]
     :as config}]
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
@@ -88,7 +80,7 @@
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
     :state-agent
-    (agent (initial-state config))
+    (agent state)
 
     :mode-channel
     (async/chan (async/sliding-buffer 3))

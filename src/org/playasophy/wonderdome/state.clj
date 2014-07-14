@@ -5,10 +5,18 @@
     [org.playasophy.wonderdome.mode.core :as mode]))
 
 
+(defn initialize
+  "Builds the initial system state map from the given configuration."
+  [modes]
+  {:mode/map modes
+   :mode/playlist (keys modes)
+   :mode/current (first (keys modes))})
+
+
 (defn current-mode
   "Returns the current mode record from the state map."
   [state]
-  (get (:modes state) (:current-mode state)))
+  (get (:mode/map state) (:mode/current state)))
 
 
 (defn update-mode
@@ -16,7 +24,7 @@
   updated mode state."
   [state event]
   (if (current-mode state)
-    (update-in state [:modes (:current-mode state)] mode/update event)
+    (update-in state [:mode/map (:mode/current state)] mode/update event)
     state))
 
 

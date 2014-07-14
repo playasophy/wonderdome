@@ -49,7 +49,7 @@
          :display (processing/display [1000 600] (:radius dimensions))
          :handler (-> state/update-mode
                       #_ (middleware/print-events (comp #{:dt} :type)))
-         :modes modes}
+         :state (state/initialize modes)}
         system/initialize
         (system/add-input :timer timer
           (async/chan (async/dropping-buffer 3))
