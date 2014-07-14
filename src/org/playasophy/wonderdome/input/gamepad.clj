@@ -20,10 +20,10 @@
   ^HIDDevice
   [vendor-id product-id]
   (try
-    (clojure.lang.RT/loadLibrary "hidapi-jni")
+    (clojure.lang.RT/loadLibrary "hidapi-jni-64")
     (-> (HIDManager/getInstance)
         (.openById vendor-id product-id nil))
-    #_ (catch UnsatisfiedLinkError e
+    (catch UnsatisfiedLinkError e
       (println "Failed to load USB library:" e)
       nil)
     (catch RuntimeException e

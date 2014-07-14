@@ -4,8 +4,8 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
-  :java-source-paths ["java"]
   :native-path "target/native"
+  :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
 
   :dependencies
   [[com.codeminders/hidapi "1.1"]
@@ -21,7 +21,6 @@
   :profiles
   {:dev
    {:source-paths ["dev"]
-    :jvm-opts ^:replace ["-Djava.library.path=target/native/linux" "-verbose:jni"]
     :dependencies
     [[quil "2.1.0"]
      [org.clojure/tools.namespace "0.2.4"]]}})
