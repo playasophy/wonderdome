@@ -1,4 +1,8 @@
 (ns org.playasophy.wonderdome.renderer
+  "The rendering component attaches a watch function to the state agent which
+  forwards the new mode value onto the channel any time the current mode state
+  changes. The process then maps the mode over the pixels in the layout to set
+  the display colors."
   (:require
     [clojure.core.async :as async :refer [<! <!! >! >!!]]
     [com.stuartsierra.component :as component]
@@ -18,7 +22,6 @@
         (>!! channel new-mode)))))
 
 
-; TODO: move to display.core?
 (defn- render!
   "Takes the given mode state, maps it over the pixels in the layout, and calls
   set-colors! on the display. The mode should not have any mutable internal

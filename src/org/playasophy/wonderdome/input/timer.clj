@@ -1,4 +1,7 @@
 (ns org.playasophy.wonderdome.input.timer
+  "Timer inputs periodically fire a :dt event after a certain number of
+  milliseconds. The event will contain the number of milliseconds since the
+  last event as an :elapsed value."
   (:require
     [clojure.core.async :as async :refer [>!!]]
     [com.stuartsierra.component :as component]))

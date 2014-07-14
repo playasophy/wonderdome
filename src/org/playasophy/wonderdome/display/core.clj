@@ -1,4 +1,7 @@
-(ns org.playasophy.wonderdome.display.core)
+(ns org.playasophy.wonderdome.display.core
+  "Displays are pixel color outputs. A display may run its own thread to show
+  output; Processing runs a rendering loop, and pixel-pusher runs a UDP
+  broadcast thread.")
 
 
 (defprotocol Display
