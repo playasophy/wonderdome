@@ -25,34 +25,31 @@
 
 
 (defrecord TimerInput
-  [^long period ^Thread thread output]
+  [^long period channel ^Thread process]
 
   component/Lifecycle
 
   (start
     [this]
-    (when-not output
-      (throw (IllegalStateException. "Cannot start TimerInput without output channel")))
-    ; TODO: create sliding-buffer and mix into output?
-    (if thread
+    (if process
       this
-      (assoc this :thread
-        (doto (Thread. (timer-loop period output) "TimerInput")
+      (assoc this :process
+        (doto (Thread. (timer-loop period channel) "TimerInput")
           (.setDaemon true)
           (.start)))))
 
 
   (stop
     [this]
-    (when thread
-      (.interrupt thread)
-      (.join thread 1000))
-    (assoc this :thread nil)))
+    (when process
+      (.interrupt process)
+      (.join process 1000))
+    (assoc this :process nil)))
 
 
 (defn timer
   "Creates a new timer that will put an event on the output channel every period
   milliseconds."
-  [period]
-  {:pre [(pos? period)]}
-  (TimerInput. period nil nil))
+  [channel period]
+  {:pre [(some? channel) (pos? period)]}
+  (TimerInput. period channel nil))

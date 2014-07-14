@@ -1,42 +1,83 @@
-(ns org.playasophy.wonderdome.core
+(ns org.playasophy.wonderdome.system
   (:require
     [clojure.core.async :as async]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.renderer :refer [renderer]]
-    [org.playasophy.wonderdome.state :refer [input-processor]]
-    [org.playasophy.wonderdome.input.timer :refer [timer]]))
+    [org.playasophy.wonderdome.state :refer [input-processor]]))
+
+
+
+;;;;; CHANNEL MIXER ;;;;;
+
+(defrecord ChannelMixer
+  [inputs output mix]
+
+  component/Lifecycle
+
+  (start
+    [this]
+    (when-not output
+      (throw (IllegalStateException.
+               "ChannelMixer can't be started without an output channel")))
+    (let [mix (or (:mix this) (async/mix output))]
+      (doall (map (partial async/admix mix) inputs))
+      (assoc this :mix mix)))
+
+
+  (stop
+    [this]
+    (doall (map (partial async/unmix mix) inputs))
+    (assoc this :mix nil)))
+
+
+(defn mixer
+  "Creates a new component which will set up a channel mixer to put multiple
+  input channels onto the given output channel."
+  [& {:keys [inputs output]}]
+  (ChannelMixer. (set inputs) output nil))
+
+
+
+;;;;; SYSTEM INITIALIZATION ;;;;;
+
+(defn- initial-state
+  "Builds the initial system state map from the given configuration."
+  [{:keys [modes]
+    :or {modes {}}}]
+  {:modes modes
+   :current-mode (first (keys modes))})
+
+
+(defn add-input
+  "Associates a new input source component into a system map. The input
+  function should take an output channel as the first argument."
+  [system k input-fn channel & args]
+  (-> system
+      (update-in [:mixer :inputs] conj channel)
+      (assoc k (apply input-fn channel args))))
 
 
 (defn initialize
-  [{:keys [layout display modes timer-ms handler]
-    :or {timer-ms 30
-         modes {}}}]
+  [{:keys [layout display timer-ms handler]
+    :or {timer-ms 30}
+    :as config}]
   (component/system-map
-    ; Layout is a pre-computed collection of strips of pixel coordinates.
-    :layout layout
+    ; Input sources run whatever processes are necessary and stick input events
+    ; into a channel which is mixed into a common event channel. Use 'add-input'
+    ; to update the system with new input components.
 
-    ; Display runs its own thread to show pixel colors. Processing runs a
-    ; rendering loop, pixel-pusher runs a UDP broadcast thread.
-    :display display
-
-    ; Input components mix their output into a common input channel. This is
-    ; useful because we're probably only ever interested in the last 1-2
-    ; audio frames, but never want to lose button presses.
-    :event-channel (async/chan 5)
-
-    ; Input sources run whatever threads are necessary and stick input events into
-    ; the channel/queue for consumption by the system.
-    ; TODO: http server
-    ; TODO: usb input
-    ; TODO: audio parser
-
-    :timer-input
+    ; The input mixer manages independently-buffered channels from each input
+    ; source and mixes them into the common event channel.
+    :mixer
     (component/using
-      (timer timer-ms)
+      (mixer)
       {:output :event-channel})
 
+    :event-channel
+    (async/chan 25)
+
     ; The input processor pulls events off the input channel and sends updates
-    ; to the state agent.
+    ; to the state agent via the event handler function.
     :processor
     (component/using
       (input-processor handler)
@@ -47,11 +88,20 @@
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
     :state-agent
-    (agent {:modes modes
-            :current-mode (first (keys modes))})
+    (agent (initial-state config))
 
+    :mode-channel
+    (async/chan (async/sliding-buffer 3))
+
+    ; The rendering process watches for changes to the current mode value and
+    ; renders new modes over the layout to set the display colors.
     :renderer
     (component/using
-      (renderer (async/chan (async/sliding-buffer 5)))
-      [:state-agent :layout :display])
+      (renderer)
+      [:mode-channel :state-agent :layout :display])
+
+    :layout layout
+    :display display
+
+    ; TODO: http server
     ))

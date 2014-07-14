@@ -16,7 +16,8 @@
     (org.playasophy.wonderdome.geometry
       [layout :as layout])
     (org.playasophy.wonderdome.input
-      [middleware :as middleware])
+      [middleware :as middleware]
+      [timer :refer [timer]])
     (org.playasophy.wonderdome.mode
       [strobe :refer [strobe]])))
 
@@ -33,7 +34,6 @@
 (def config
   {:layout (layout/star dimensions)
    :display (processing/display [1000 600] (:radius dimensions))
-   :timer-ms 1000
    :handler (-> state/update-mode
                 (middleware/print-events (comp #{} :type)))
    :modes
@@ -41,7 +41,14 @@
 
 
 (def system
-  (system/initialize config))
+  (-> config
+      system/initialize
+      (system/add-input :timer timer
+        (async/chan (async/dropping-buffer 3))
+        100)
+      ; TODO: usb input
+      ; TODO: audio parser
+      ))
 
 
 (defn start!
