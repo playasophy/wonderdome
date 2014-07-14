@@ -4,8 +4,12 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
+  :java-source-paths ["java"]
+  :native-path "target/native"
+
   :dependencies
-  [[com.stuartsierra/component "0.2.1"]
+  [[com.codeminders/hidapi "1.1"]
+   [com.stuartsierra/component "0.2.1"]
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]]
 
@@ -17,6 +21,7 @@
   :profiles
   {:dev
    {:source-paths ["dev"]
+    :jvm-opts ^:replace ["-Djava.library.path=target/native/linux" "-verbose:jni"]
     :dependencies
     [[quil "2.1.0"]
      [org.clojure/tools.namespace "0.2.4"]]}})
