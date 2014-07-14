@@ -6,7 +6,7 @@
 
 
 (defn current-mode
-  "Determines the current mode from the system state map."
+  "Returns the current mode record from the state map."
   [state]
   (get (:modes state) (:current-mode state)))
 
