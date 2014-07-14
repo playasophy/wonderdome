@@ -10,7 +10,7 @@
 ;;;;; CHANNEL MIXER ;;;;;
 
 (defrecord ChannelMixer
-  [inputs output mix]
+  [inputs output mixer]
 
   component/Lifecycle
 
@@ -19,15 +19,16 @@
     (when-not output
       (throw (IllegalStateException.
                "ChannelMixer can't be started without an output channel")))
-    (let [mix (or (:mix this) (async/mix output))]
+    (let [mix (or (:mixer this) (async/mix output))]
       (doall (map (partial async/admix mix) inputs))
-      (assoc this :mix mix)))
+      (assoc this :mixer mix)))
 
 
   (stop
     [this]
-    (doall (map (partial async/unmix mix) inputs))
-    (assoc this :mix nil)))
+    (when mixer
+      (dorun (map (partial async/unmix mixer) inputs)))
+    (assoc this :mixer nil)))
 
 
 (defn mixer
