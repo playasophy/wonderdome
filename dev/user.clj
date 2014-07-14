@@ -9,8 +9,7 @@
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
       [state :as state]
-      [system :as system]
-      [util :refer [color]])
+      [system :as system])
     (org.playasophy.wonderdome.display
       [processing :as processing])
     (org.playasophy.wonderdome.geometry
@@ -19,6 +18,7 @@
       [middleware :as middleware]
       [timer :refer [timer]])
     (org.playasophy.wonderdome.mode
+      [core :refer [color]]
       [strobe :refer [strobe]])))
 
 
@@ -35,9 +35,11 @@
   {:layout (layout/star dimensions)
    :display (processing/display [1000 600] (:radius dimensions))
    :handler (-> state/update-mode
-                (middleware/print-events (comp #{} :type)))
+                #_ (middleware/print-events (comp #{:dt} :type)))
    :modes
-   {:strobe (strobe [(color 255 0 0) (color 0 255 0) (color 0 0 255)])}})
+   {:strobe (strobe [(color 255 0 0)
+                     (color 0 255 0)
+                     (color 0 0 255)])}})
 
 
 (def system

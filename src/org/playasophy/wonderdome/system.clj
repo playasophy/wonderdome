@@ -58,8 +58,7 @@
 
 
 (defn initialize
-  [{:keys [layout display timer-ms handler]
-    :or {timer-ms 30}
+  [{:keys [layout display handler]
     :as config}]
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
