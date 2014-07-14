@@ -12,7 +12,7 @@
   :hiera
   {:cluster-depth 4
    :vertical? false
-   :ignore-ns #{com.stuartsierra}}
+   :ignore-ns #{com.stuartsierra quil}}
 
   :profiles
   {:dev
