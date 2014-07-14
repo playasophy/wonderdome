@@ -30,44 +30,61 @@
    :strips 6})
 
 
-; TODO: dynamically load modes?
-(def config
-  {:layout (layout/star dimensions)
-   :display (processing/display [1000 600] (:radius dimensions))
-   :handler (-> state/update-mode
-                #_ (middleware/print-events (comp #{:dt} :type)))
-   :modes
-   {:strobe (strobe [(color 255 0 0)
-                     (color 0 255 0)
-                     (color 0 0 255)])}})
+(def modes
+  "Map of mode values."
+  ; TODO: dynamically load modes?
+  {:strobe (strobe [(color 255 0 0) (color 0 255 0) (color 0 0 255)])})
 
 
-(def system
-  (-> config
-      system/initialize
-      (system/add-input :timer timer
-        (async/chan (async/dropping-buffer 3))
-        100)
-      ; TODO: usb input
-      ; TODO: audio parser
-      ))
+(def system nil)
+
+
+(defn init!
+  "Initialize the wonderdome system for local development."
+  []
+  (alter-var-root #'system
+    (constantly
+      (->
+        {:layout (layout/star dimensions)
+         :display (processing/display [1000 600] (:radius dimensions))
+         :handler (-> state/update-mode
+                      #_ (middleware/print-events (comp #{:dt} :type)))
+         :modes modes}
+        system/initialize
+        (system/add-input :timer timer
+          (async/chan (async/dropping-buffer 3))
+          100)
+        ; TODO: usb input
+        ; TODO: audio parser
+        )))
+  :init)
 
 
 (defn start!
-  "Initialize the wonderdome for local development."
+  "Starts the wonderdome system running."
   []
-  (alter-var-root #'system component/start)
-  :started)
+  (when system
+    (alter-var-root #'system component/start))
+  :start)
+
+
+(defn go!
+  "Initializes and starts the wonderdome system."
+  []
+  (init!)
+  (start!))
 
 
 (defn stop!
   "Stops the wonderdome system and closes the display window."
   []
-  (alter-var-root #'system component/stop)
-  :stopped)
+  (when system
+    (alter-var-root #'system component/stop))
+  :stop)
 
 
 (defn reload!
+  "Reloads all changed namespaces to update code, then re-launches the system."
   []
   (stop!)
-  (refresh :after 'user/start!))
+  (refresh :after 'user/go!))
