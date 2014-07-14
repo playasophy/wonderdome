@@ -8,17 +8,17 @@
     [clojure.tools.namespace.repl :refer [refresh]]
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
-      [core :as wonder]
       [state :as state]
+      [system :as system]
       [util :refer [color]])
     (org.playasophy.wonderdome.display
-      [core :as display]
       [processing :as processing])
+    (org.playasophy.wonderdome.geometry
+      [layout :as layout])
     (org.playasophy.wonderdome.input
       [middleware :as middleware])
     (org.playasophy.wonderdome.mode
-      [strobe :refer [strobe]])
-    [org.playasophy.wonderdome.geometry.layout :as layout]))
+      [strobe :refer [strobe]])))
 
 
 (def dimensions
@@ -41,16 +41,13 @@
 
 
 (def system
-  (wonder/initialize config))
+  (system/initialize config))
 
 
 (defn start!
   "Initialize the wonderdome for local development."
   []
   (alter-var-root #'system component/start)
-  (display/set-colors!
-    (:display system)
-    (repeat 6 (repeat 240 (color 255 255 0))))
   :started)
 
 
