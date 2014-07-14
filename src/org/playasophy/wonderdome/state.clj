@@ -27,12 +27,6 @@
 
   (start
     [this]
-    (when-not input
-      (throw (IllegalStateException.
-               "InputProcessor can't be started without an input channel")))
-    (when-not state-agent
-      (throw (IllegalStateException.
-               "InputProcessor can't be started without a state-agent")))
     (if process
       this
       (assoc this :process
@@ -49,6 +43,6 @@
 
 
 (defn input-processor
-  [handler]
+  [handler & {:keys [input state-agent]}]
   {:pre [(fn? handler)]}
-  (InputProcessor. handler nil nil nil))
+  (InputProcessor. handler input state-agent nil))

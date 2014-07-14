@@ -33,42 +33,31 @@
 
 
 (defrecord DisplayRenderer
-  [channel layout display state-agent process]
+  [mode-channel layout display state-agent process]
 
   component/Lifecycle
 
   (start
     [this]
-    (when-not state-agent
-      (throw (IllegalStateException.
-               "DisplayRenderer can't be started without a state-agent")))
-    (when-not layout
-      (throw (IllegalStateException.
-               "DisplayRenderer can't be started without a layout")))
-    (when-not display
-      (throw (IllegalStateException.
-               "DisplayRenderer can't be started without a display")))
-    (add-watch state-agent :renderer (mode-watcher channel))
+    (add-watch state-agent :renderer (mode-watcher mode-channel))
     (if process
       this
       (assoc this :process
         (async/go-loop []
-          (render! (<! channel) layout display)
+          (render! (<! mode-channel) layout display)
           (recur)))))
 
 
   (stop
     [this]
-    (when state-agent
-      (remove-watch state-agent :renderer))
+    (remove-watch state-agent :renderer)
     (when process
       (async/close! process))
     (assoc this :process nil)))
 
 
 (defn renderer
-  "Creates a new display renderer which will pull mode states from the given
-  channel."
-  [channel]
-  {:pre [(some? channel)]}
-  (DisplayRenderer. channel nil nil nil nil))
+  "Creates a new display renderer which will pull mode values from a channel
+  and render the layout to a display."
+  [& {:keys [channel layout display state-agent]}]
+  (DisplayRenderer. channel layout display state-agent nil))
