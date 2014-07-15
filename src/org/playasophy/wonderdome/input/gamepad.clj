@@ -20,8 +20,7 @@
 
 
 (defn- button-events
-  "Determines button press and release events from old and new state maps.
-  Returns a seq of button events."
+  "Calculates button press and release events. Returns a seq of events."
   [buttons old-state new-state]
   (for [button buttons]
     (let [old-val (get old-state button)
@@ -35,12 +34,17 @@
 
 
 (defn- repeat-events
-  "Builds a function which will repeatedly fire events every period ms if their
-  value differs from the default given."
-  [defaults period]
-  ; TODO: implement repeat events function
-  ; probably store 'last repeat time' in an atom
-  (constantly nil))
+  "Calculates repeated button 'hold' events, where the value differs from some
+  default value. Sends an event with the button and the elapsed ms it has been
+  pressed for."
+  [defaults state elapsed]
+  (for [[button default] defaults]
+    (let [value (get state button)]
+      (when (and (some? value) (not= value default))
+        {:type :gamepad/repeat
+         :button button
+         :value value
+         :elapsed elapsed}))))
 
 
 
@@ -94,12 +98,12 @@
 
 (defn- snes-state-events
   [old-state new-state elapsed]
-  (when (not= old-state new-state)
-    (prn elapsed "ms:" new-state))
-  (let [buttons (remove #{:x-axis :y-axis} (keys new-state))
-        events (button-events buttons old-state new-state)]
-    (dorun (map prn events))
-    events))
+  (let [axes {:x-axis 0.0, :y-axis 0.0}
+        buttons (remove (keys axes) (keys new-state))]
+    (remove nil?
+      (concat
+        (repeat-events axes old-state elapsed)
+        (button-events buttons old-state new-state)))))
 
 
 (defn snes
