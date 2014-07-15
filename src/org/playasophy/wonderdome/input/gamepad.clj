@@ -19,6 +19,17 @@
     (- 1.0)))
 
 
+(defn- read-buttons
+  "Takes in a definition map from button keys to a vector of [byte bit-pos] and
+  a buffer, and returns a map of button keys to booleans."
+  [buttons ^bytes buffer]
+  (->>
+    buttons
+    (map (fn [[k [b n]]]
+           [k (bit-test (aget buffer b) n)]))
+    (into {})))
+
+
 (defn- button-events
   "Calculates button press and release events. Returns a seq of events."
   [buttons old-state new-state]
@@ -68,6 +79,17 @@
 (def ^:const snes-product-id 0xd015)
 
 
+(def ^:private snes-buttons
+  {:X      [3 0]
+   :A      [3 1]
+   :B      [3 2]
+   :Y      [3 3]
+   :L      [3 4]
+   :R      [3 5]
+   :select [4 0]
+   :start  [4 1]})
+
+
 (defn- snes-read-state
   "SNES controller state is read 8 bytes at a time:
     byte 0: x-axis [00 7F FF] (FF is right)
@@ -80,16 +102,10 @@
   (if (< len 8)
     (println "Incomplete data read from SNES controller:"
              (apply str (map (partial format "%02X") (take len buffer))))
-    {:x-axis (byte-axis (aget buffer 0))
-     :y-axis (- (byte-axis (aget buffer 1)))
-     :X (bit-test (aget buffer 3) 0)
-     :A (bit-test (aget buffer 3) 1)
-     :B (bit-test (aget buffer 3) 2)
-     :Y (bit-test (aget buffer 3) 3)
-     :L (bit-test (aget buffer 3) 4)
-     :R (bit-test (aget buffer 3) 5)
-     :select (bit-test (aget buffer 4) 0)
-     :start  (bit-test (aget buffer 4) 1)}))
+    (assoc
+      (read-buttons snes-buttons buffer)
+      :x-axis (byte-axis (aget buffer 0))
+      :y-axis (- (byte-axis (aget buffer 1))))))
 
 
 (defn- snes-state-events
