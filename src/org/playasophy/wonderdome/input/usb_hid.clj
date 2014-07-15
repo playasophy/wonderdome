@@ -47,15 +47,16 @@
       (try
         (loop [start (System/currentTimeMillis)
                old-state nil]
-          (let [len (.readTimeout device buffer 100)
-                new-state (if (pos? len)
-                            (read-state buffer len)
-                            old-state)
-                now (System/currentTimeMillis)
-                elapsed (- now start)
-                events (state-events old-state new-state elapsed)]
-            (dorun (map (partial >!! channel) (remove nil? events)))
-            (recur now new-state)))
+          (when-not (Thread/interrupted)
+            (let [len (.readTimeout device buffer 100)
+                  new-state (if (pos? len)
+                              (read-state buffer len)
+                              old-state)
+                  now (System/currentTimeMillis)
+                  elapsed (- now start)
+                  events (state-events old-state new-state elapsed)]
+              (dorun (map (partial >!! channel) (remove nil? events)))
+              (recur now new-state))))
         (catch InterruptedException e
           nil)))))
 
