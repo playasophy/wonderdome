@@ -50,11 +50,15 @@
 
 ;;;;; NES CONTROLLER ;;;;;
 
+; Wait, why are these the same as the SNES controller?
 (def ^:const nes-vendor-id  0x12bd)
 (def ^:const nes-product-id 0xd015)
 
 
 ; TODO: implementation
+; Looks like buffer bytes 0 and 1 are the same x and y axis values
+; byte 3 gives A and B as the first two bits
+; byte 4 gives select and start as the fist two bits
 
 
 
@@ -69,18 +73,10 @@
     byte 0: x-axis [00 7F FF] (FF is right)
     byte 1: y-axis [00 7F FF] (FF is down)
     byte 2: always 00
-    byte 3:
-      01 X
-      02 A
-      04 B
-      08 Y
-      10 left shoulder
-      20 right shoulder
-    byte 4:
-      01 select
-      02 start
+    byte 3: X, A, B, Y, L, R
+    byte 4: select, start
     bytes 5-7: always 00"
-  [buffer len]
+  [^bytes buffer len]
   (if (< len 8)
     (println "Incomplete data read from SNES controller:"
              (apply str (map (partial format "%02X") (take len buffer))))

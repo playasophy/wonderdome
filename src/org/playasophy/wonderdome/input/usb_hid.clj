@@ -41,7 +41,7 @@
   to return a sequence of events to emit. The loop can be terminated by
   interrupting the thread."
   ^Runnable
-  [device read-state state-events channel]
+  [^HIDDevice device read-state state-events channel]
   (let [buffer (byte-array buffer-size)]
     (fn []
       (try
@@ -82,6 +82,9 @@
 
   (stop
     [this]
+    #_ ; TODO: this will prevent the component from being started again...
+    (when device
+      (.close device))
     (when process
       (.interrupt process)
       (.join process 1000))
@@ -92,10 +95,17 @@
 
   (toString
     [this]
-    (if device
-      (str (.getManufacturerString device) "/"
-           (.getProductString device))
-      "(no device)")))
+    (str
+      "HID "
+      (if device
+        (str
+          (.getManufacturerString device) " / "
+          (.getProductString device) " / "
+          (.getSerialNumberString device))
+        "(no device)")
+      (if process
+        " [running]"
+        ""))))
 
 
 (defn hid-input
