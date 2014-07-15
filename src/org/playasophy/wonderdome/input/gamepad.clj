@@ -1,100 +1,113 @@
 (ns org.playasophy.wonderdome.input.gamepad
   "A gamepad input watches for button presses from a USB game controller."
   (:require
-    [clojure.core.async :as async :refer [>!!]]
-    [com.stuartsierra.component :as component])
-  (:import
-    (com.codeminders.hidapi
-      HIDDevice
-      HIDManager)))
+    [org.playasophy.wonderdome.input.usb-hid :as usb]))
 
 
-(def nes-vendor-id   4797)
-(def nes-product-id 53269)
+;;;;; HELPER FUNCTIONS ;;;;;
 
-(def snes-vendor-id  0x12bd)
-(def snes-product-id 0xd015)
-
-
-(defn get-device
-  ^HIDDevice
-  [vendor-id product-id]
-  (try
-    (clojure.lang.RT/loadLibrary "hidapi-jni-64")
-    (-> (HIDManager/getInstance)
-        (.openById vendor-id product-id nil))
-    (catch UnsatisfiedLinkError e
-      (println "Failed to load USB library:" e)
-      nil)
-    (catch RuntimeException e
-      (println "Error loading gamepad input device:" e)
-      nil)))
+(defn- byte-axis
+  "Converts a byte value from 00 to FF into a floating-point axis value."
+  [value]
+  (->
+    (cond
+      (zero? value) 0
+      (neg? value) (+ 0x101 value)
+      :else (inc value))
+    (/ 256.0)))
 
 
-(defn read-device
-  "Returns a state map showing the current buttons pressed."
-  [^HIDDevice device ^bytes buffer]
-  (let [len (.readTimeout device buffer 1000)]
-    (println (apply str "Read " len " bytes of output from gamepad: "
-                   (map (partial format "%02X") buffer)))
-    ; TODO: build state map
-    {}))
+(defn- button-events
+  "Determines button press and release events from old and new state maps.
+  Returns a seq of button events."
+  [buttons old-state new-state]
+  (for [button buttons]
+    (let [old-val (get old-state button)
+          new-val (get new-state button)]
+      (cond
+        (and new-val (not old-val))
+        {:type :gamepad/press, :button button}
+
+        (and old-val (not new-val))
+        {:type :gamepad/release, :button button}))))
 
 
-(defn- input-loop
-  "Constructs a new runnable looping function which reads the gamepad state
-  and sends any detected button presses. The loop can be terminated by
-  interrupting the thread."
-  ^Runnable
-  [device buffer channel]
-  (fn []
-    (try
-      (loop []
-        ;(Thread/sleep period)
-        (let [state (read-device device buffer)]
-          ; TODO: calculate individual button events, rather than sending entire state
-          (>!! channel {:type :gamepad, :buttons state}))
-        (recur))
-      (catch InterruptedException e
-        nil))))
+(defn- repeat-events
+  "Builds a function which will repeatedly fire events every period ms if their
+  value differs from the default given."
+  [defaults period]
+  ; TODO: implement repeat events function
+  ; probably store 'last repeat time' in an atom
+  (constantly nil))
 
 
-(defrecord GamepadInput
-  [channel ^HIDDevice device ^Thread process]
 
-  component/Lifecycle
+;;;;; NES CONTROLLER ;;;;;
 
-  (start
-    [this]
-    (if process
-      this
-      (assoc this :process
-        (doto (Thread. (input-loop device (byte-array 512) channel) "GamepadInput")
-          (.setDaemon true)
-          (.start)))))
+(def ^:const nes-vendor-id  0x12bd)
+(def ^:const nes-product-id 0xd015)
 
 
-  (stop
-    [this]
-    (when process
-      (.interrupt process)
-      (.join process 1000))
-    (assoc this :process nil))
+; TODO: implementation
 
 
-  Object
 
-  (toString
-    [this]
-    (if device
-      (str (.getManufacturerString device) "/"
-           (.getProductString device))
-      "(no device)")))
+;;;;; SNES CONTROLLER ;;;;;
+
+(def ^:const snes-vendor-id  0x12bd)
+(def ^:const snes-product-id 0xd015)
 
 
-(defn gamepad
-  "Creates a new gamepad input which will send button press events to the given
-  channel."
-  [channel vendor-id product-id]
+(defn- snes-read-state
+  "SNES controller state is read 8 bytes at a time:
+    byte 0: x-axis [00 7F FF] (FF is right)
+    byte 1: y-axis [00 7F FF] (FF is down)
+    byte 2: always 00
+    byte 3:
+      01 X
+      02 A
+      04 B
+      08 Y
+      10 left shoulder
+      20 right shoulder
+    byte 4:
+      01 select
+      02 start
+    bytes 5-7: always 00"
+  [buffer len]
+  (if (< len 8)
+    (println "Incomplete data read from SNES controller:"
+             (apply str (map (partial format "%02X") (take len buffer))))
+    {:x-axis (byte-axis (aget buffer 0))
+     :y-axis (- 1.0 (byte-axis (aget buffer 1)))
+     :X (bit-test (aget buffer 3) 0)
+     :A (bit-test (aget buffer 3) 1)
+     :B (bit-test (aget buffer 3) 2)
+     :Y (bit-test (aget buffer 3) 3)
+     :L (bit-test (aget buffer 3) 4)
+     :R (bit-test (aget buffer 3) 5)
+     :select (bit-test (aget buffer 4) 0)
+     :start  (bit-test (aget buffer 4) 1)}))
+
+
+(defn- snes-state-events
+  [old-state new-state elapsed]
+  (when (not= old-state new-state)
+    (prn elapsed "ms:" new-state))
+  (let [buttons (remove #{:x-axis :y-axis} (keys new-state))
+        events (button-events buttons old-state new-state)]
+    (dorun (map prn events))
+    events))
+
+
+(defn snes
+  "Creates a new SNES gamepad input which will send button press events to the
+  given channel."
+  [channel]
   {:pre [(some? channel)]}
-  (GamepadInput. channel (get-device vendor-id product-id) nil))
+  (usb/hid-input
+    channel
+    ; TODO: sometimes nil when refreshing code...
+    (usb/find-device snes-vendor-id snes-product-id)
+    snes-read-state
+    snes-state-events))
