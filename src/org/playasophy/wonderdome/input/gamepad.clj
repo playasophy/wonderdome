@@ -99,7 +99,7 @@
 (defn- snes-state-events
   [old-state new-state elapsed]
   (let [axes {:x-axis 0.0, :y-axis 0.0}
-        buttons (remove (keys axes) (keys new-state))]
+        buttons (remove #{:x-axis :y-axis} (keys new-state))]
     (remove nil?
       (concat
         (repeat-events axes old-state elapsed)

@@ -20,10 +20,10 @@
 
 
 (defn find-device
-  ^HIDDevice
   [vendor-id product-id]
   (try
     (clojure.lang.RT/loadLibrary library-name)
+    ; TODO: release the manager?
     (-> (HIDManager/getInstance)
         (.openById vendor-id product-id nil))
     (catch UnsatisfiedLinkError e
