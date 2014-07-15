@@ -7,14 +7,16 @@
 ;;;;; HELPER FUNCTIONS ;;;;;
 
 (defn- byte-axis
-  "Converts a byte value from 00 to FF into a floating-point axis value."
+  "Converts a byte value from [00, FF] into a floating-point axis value from
+  [-1.0, 1.0]."
   [value]
   (->
     (cond
       (zero? value) 0
       (neg? value) (+ 0x101 value)
       :else (inc value))
-    (/ 256.0)))
+    (/ 128.0)
+    (- 1.0)))
 
 
 (defn- button-events
@@ -79,7 +81,7 @@
     (println "Incomplete data read from SNES controller:"
              (apply str (map (partial format "%02X") (take len buffer))))
     {:x-axis (byte-axis (aget buffer 0))
-     :y-axis (- 1.0 (byte-axis (aget buffer 1)))
+     :y-axis (- (byte-axis (aget buffer 1)))
      :X (bit-test (aget buffer 3) 0)
      :A (bit-test (aget buffer 3) 1)
      :B (bit-test (aget buffer 3) 2)
