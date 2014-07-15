@@ -107,13 +107,14 @@
 
 
 (defn snes
-  "Creates a new SNES gamepad input which will send button press events to the
-  given channel."
+  "Creates a new SNES gamepad input which will send button events to the given
+  channel."
   [channel]
   {:pre [(some? channel)]}
-  (usb/hid-input
-    channel
-    ; TODO: sometimes nil when refreshing code...
-    (usb/find-device snes-vendor-id snes-product-id)
-    snes-read-state
-    snes-state-events))
+  ; TODO: sometimes nil when refreshing code...
+  (if-let [device (usb/find-device snes-vendor-id snes-product-id)]
+    (usb/hid-input
+      channel
+      device
+      snes-read-state
+      snes-state-events)))
