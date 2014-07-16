@@ -85,17 +85,27 @@
 
 (defn blend-hsv
   "Generates a color which is composed of linearly interpolated hue,
-  saturation, and value channels between two colors."
-  [p x y]
-  {:pre [(<= 0.0 p 1.0)]}
-  (let [xc (hsv-components x)
-        yc (hsv-components y)]
-    ; FIXME: this doesn't work because hue may wrap around the circle
-    (->>
-      (map - yc xc)
-      (map (partial * p))
-      (map + xc)
-      (apply hsv))))
+  saturation, and value channels between two colors. This direction the hue is
+  interpolated may be controlled with an optional mode argument. Mode may be
+  :closest, :pos, or :neg. The default is :closest."
+  ([p x y]
+   (blend-hsv :closest p x y))
+  ([mode p x y]
+   {:pre [(keyword? mode) (<= 0.0 p 1.0)]}
+   (let [[xh xs xv] (hsv-components x)
+         [yh ys yv] (hsv-components y)
+         dh+ (- (if (< yh xh) (+ yh 1.0) yh) xh)
+         dh- (- 1.0 dh+)]
+     (hsv
+       (case mode
+         :pos (+ xh (* p dh+))
+         :neg (- xh (* p dh-))
+         :closest
+         (if (< dh+ dh-)
+           (+ xh (* p dh+))
+           (- xh (* p dh-))))
+       (+ xs (* p (- ys xs)))
+       (+ xv (* p (- yv xv)))))))
 
 
 (defn gradient   ; FIXME
