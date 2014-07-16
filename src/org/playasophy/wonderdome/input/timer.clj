@@ -16,10 +16,11 @@
   (fn []
     (try
       (loop [t (System/currentTimeMillis)]
-        (Thread/sleep period)
-        (let [now (System/currentTimeMillis)]
-          (>!! channel {:type :dt, :elapsed (- now t)})
-          (recur now)))
+        (when-not (Thread/interrupted)
+          (Thread/sleep period)
+          (let [now (System/currentTimeMillis)]
+            (>!! channel {:type :dt, :elapsed (- now t)})
+            (recur now))))
       (catch InterruptedException e
         nil))))
 
