@@ -16,8 +16,9 @@
     (org.playasophy.wonderdome.geometry
       [layout :as layout])
     (org.playasophy.wonderdome.input
+      [gamepad :as gamepad]
       [middleware :as middleware]
-      [timer :refer [timer]])
+      [timer :as timer])
     (org.playasophy.wonderdome.mode
       [core :refer [color]]
       [strobe :refer [strobe]])))
@@ -41,21 +42,26 @@
 
 
 (defn init!
-  "Initialize the wonderdome system for local development."
-  []
+  "Initialize the wonderdome system for local development. Accepts an optional
+  key-value sequence to set options:
+
+  :timer-period     milliseconds per timer tick"
+  [& {:keys [timer-period]
+      :or {timer-period 30}}]
   (alter-var-root #'system
     (constantly
       (->
         {:layout (layout/star dimensions)
          :display (processing/display [1000 600] (:radius dimensions))
          :handler (-> state/update-mode
-                      #_ (middleware/print-events (comp #{:dt} :type)))
+                      (middleware/print-events (comp #{} :type)))
          :state (state/initialize modes)}
         system/initialize
-        (system/add-input :timer timer
+        (system/add-input :timer timer/timer
           (async/chan (async/dropping-buffer 3))
-          100)
-        ; TODO: usb input
+          timer-period)
+        (system/add-input :gamepad gamepad/snes
+          (async/chan (async/dropping-buffer 10)))
         ; TODO: audio parser
         )))
   :init)
