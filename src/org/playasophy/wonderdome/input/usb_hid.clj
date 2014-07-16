@@ -44,13 +44,13 @@
   (try
     (clojure.lang.RT/loadLibrary library-name)
     ; TODO: release the manager?
-    (-> (HIDManager/getInstance)
-        (.openById vendor-id product-id nil))
+    (when-let [manager (HIDManager/getInstance)]
+      (.openById manager vendor-id product-id nil))
     (catch UnsatisfiedLinkError e
       (println "Failed to load USB library:" e)
       nil)
     (catch RuntimeException e
-      (println "Error loading gamepad input device:" e)
+      (println "Error loading USB input device:" e)
       nil)))
 
 
