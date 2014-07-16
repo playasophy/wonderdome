@@ -9,6 +9,9 @@
       HIDManager)))
 
 
+
+;;;;; CONFIGURATION ;;;;;
+
 (def ^:private library-name
   "JNI library to load when finding devices."
   "hidapi-jni-64")
@@ -17,6 +20,18 @@
 (def ^:private ^:const buffer-size
   "Byte buffer size for reading USB input state."
   256)
+
+
+
+;;;;; HELPER FUNCTIONS ;;;;;
+
+(defn device-info
+  "Builds a map with a device's manufacturer, product, and serial number."
+  [^HIDDevice device]
+  (when device
+    {:manufacturer (.getManufacturerString device)
+     :product (.getProductString device)
+     :serial (.getSerialNumberString device)}))
 
 
 (defn find-device
@@ -61,6 +76,9 @@
           nil)))))
 
 
+
+;;;;; INPUT COMPONENT ;;;;;
+
 (defrecord HIDInput
   [channel
    ^HIDDevice device
@@ -88,24 +106,7 @@
     (when process
       (.interrupt process)
       (.join process 1000))
-    (assoc this :process nil))
-
-
-  Object
-
-  (toString
-    [this]
-    (str
-      "HID "
-      (if device
-        (str
-          (.getManufacturerString device) " / "
-          (.getProductString device) " / "
-          (.getSerialNumberString device))
-        "(no device)")
-      (if process
-        " [running]"
-        ""))))
+    (assoc this :process nil)))
 
 
 (defn hid-input
