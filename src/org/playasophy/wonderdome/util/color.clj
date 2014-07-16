@@ -76,11 +76,11 @@
   such that p of 0.0 and 1.0 both give the first color in the sequence."
   [colors p]
   (let [s  (count colors)
-        t  (* (- value (int value)) s)
+        t  (* (- p (Math/floor p)) s)
         t0 (int t)
         t1 (if (>= (inc t0) s) 0 (inc t0))
         p  (- t t0)]
-    (blend p (nth colors t0) (nth colors t1))))
+    (blend t (nth colors t0) (nth colors t1))))
 
 
 ; TODO: less-angry rainbow!
