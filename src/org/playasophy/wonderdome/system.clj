@@ -43,11 +43,17 @@
 
 (defn add-input
   "Associates a new input source component into a system map. The input
-  function should take an output channel as the first argument."
+  function should take an output channel as the first argument. If the function
+  does not return an input, the channel will be closed."
   [system k input-fn channel & args]
-  (-> system
-      (update-in [:mixer :inputs] conj channel)
-      (assoc k (apply input-fn channel args))))
+  {:pre [(some? channel)]}
+  (if-let [input (apply input-fn channel args)]
+    (-> system
+        (update-in [:mixer :inputs] conj channel)
+        (assoc k input))
+    (do
+      (async/close! channel)
+      system)))
 
 
 (defn initialize
