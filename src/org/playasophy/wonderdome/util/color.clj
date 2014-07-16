@@ -63,7 +63,7 @@
   [color]
   {:pre [(color? color)]}
   (let [c (Color. (unchecked-int color))]
-    (vec (Color/RGBtoHSB (.getRed c) (.getBlue c) (.getGreen c) nil))))
+    (vec (Color/RGBtoHSB (.getRed c) (.getGreen c) (.getBlue c) nil))))
 
 
 
