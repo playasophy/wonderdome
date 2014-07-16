@@ -7,6 +7,9 @@
   :native-path "target/native"
   :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
 
+  ; TODO: write some simple dev code to search for dot files in the doc folder and generate SVG graphs.
+  ;:aliases {"sysgraph" ["dot" "-Tsvg" "<" "doc/system-processes.dot" ">" "target/system-processes.svg"]}
+
   :dependencies
   [[com.codeminders/hidapi "1.1"]
    [com.stuartsierra/component "0.2.1"]
