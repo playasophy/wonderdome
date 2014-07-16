@@ -17,10 +17,14 @@
 (defn rgb
   "Creates a color value from red, green, and blue component channels. Each
   component should be a number from [0.0, 1.0]."
-  ([v]
-   (rgb v v v))
-  ([r g b]
-   (.getRGB (Color. (float r) (float g) (float b)))))
+  [r g b]
+  (.getRGB (Color. (float r) (float g) (float b))))
+
+
+(defn gray
+  "Creates a grayscale color by using the same value for every color channel."
+  [v]
+  (rgb v v v))
 
 
 (defn rgb-components
