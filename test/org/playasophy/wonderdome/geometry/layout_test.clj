@@ -1,4 +1,4 @@
-(ns org.playasophy.wonderdome.layout-test
+(ns org.playasophy.wonderdome.geometry.layout-test
   (:require
     [clojure.test :refer :all]
     [org.playasophy.wonderdome.geometry.layout :as layout]))
