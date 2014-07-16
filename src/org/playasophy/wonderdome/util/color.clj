@@ -57,8 +57,9 @@
 
 ;;;;; COLOR GRADIENTS ;;;;;
 
-(defn blend
-  "Generates a color which is linearly interpolated between two colors."
+(defn blend-rgb
+  "Generates a color which is composed of linearly interpolated red, green, and
+  blue channels between two colors."
   [p x y]
   {:pre [(<= 0.0 p 1.0)]}
   (let [xc (rgb-components x)
@@ -68,6 +69,21 @@
       (map (partial * p))
       (map + xc)
       (apply rgb))))
+
+
+(defn blend-hsv
+  "Generates a color which is composed of linearly interpolated hue,
+  saturation, and value channels between two colors."
+  [p x y]
+  {:pre [(<= 0.0 p 1.0)]}
+  (let [xc (hsv-components x)
+        yc (hsv-components y)]
+    ; FIXME: this doesn't work because hue may wrap around the circle
+    (->>
+      (map - yc xc)
+      (map (partial * p))
+      (map + xc)
+      (apply hsv))))
 
 
 (defn gradient   ; FIXME
