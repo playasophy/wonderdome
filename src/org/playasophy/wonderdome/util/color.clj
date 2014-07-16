@@ -49,18 +49,32 @@
 
 
 
-;;;;; GRADIENT FUNCTIONS ;;;;;
+;;;;; COLOR GRADIENTS ;;;;;
+
+(defn blend
+  "Generates a color which is linearly interpolated between two colors."
+  [p x y]
+  {:pre [(<= 0.0 p 1.0)]}
+  (let [xc (rgb-components x)
+        yc (rgb-components y)]
+    (->>
+      (map - yc xc)
+      (map (partial * p))
+      (map + xc)
+      (apply rgb))))
+
 
 (defn gradient   ; FIXME
-  "Assigns a color based on the position through a gradient of color points."
-  ; TODO: don't require a blend-color function, do it locally.
-  [blend-color colors value]
+  "Assigns a color based on the position through a gradient of color points.
+  Each color in the sequence occupies an equal amount of space in the cycle,
+  such that p of 0.0 and 1.0 both give the first color in the sequence."
+  [colors p]
   (let [s  (count colors)
         t  (* (- value (int value)) s)
         t0 (int t)
         t1 (if (>= (inc t0) s) 0 (inc t0))
         p  (- t t0)]
-    (blend-color (colors t0) (colors t1) p)))
+    (blend p (nth colors t0) (nth colors t1))))
 
 
 ; TODO: less-angry rainbow!
