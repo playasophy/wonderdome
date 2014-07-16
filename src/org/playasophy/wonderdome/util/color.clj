@@ -5,6 +5,14 @@
     java.awt.Color))
 
 
+(defn color?
+  "Tests whether the given value is a valid color."
+  [value]
+  (and (integer? value)
+       (< Integer/MIN_VALUE value Integer/MAX_VALUE)))
+
+
+
 ;;;;; RGB COLOR SPACE ;;;;;
 
 (defn rgb*
@@ -31,6 +39,7 @@
   "Takes a color value and returns a vector containing the red, green, and blue
   component channels as floating-point numbers."
   [color]
+  {:pre [(color? color)]}
   (vec (.getRGBColorComponents (Color. (unchecked-int color)) nil)))
 
 
@@ -40,9 +49,11 @@
 (defn hsv
   "Creates a color value from a hue, saturation, and value. The fractional
   portion of the hue determines the angle in the HSV space; saturation and
-  value should be numbers from [0.0, 1.0]."
+  value should be numbers from [0.0, 1.0].
+
+  The primary red, green, and blue hues are found at 0/3, 1/3, and 2/3,
+  respectively."
   [h s v]
-  ; TODO: document hue angles for pure red/green/blue
   (Color/HSBtoRGB (float h) (float s) (float v)))
 
 
@@ -50,6 +61,7 @@
   "Takes a color value and returns a vector containing the hue, saturation, and
   value components as floating-point numbers."
   [color]
+  {:pre [(color? color)]}
   (let [c (Color. (unchecked-int color))]
     (vec (Color/RGBtoHSB (.getRed c) (.getBlue c) (.getGreen c) nil))))
 
@@ -96,7 +108,7 @@
         t0 (int t)
         t1 (if (>= (inc t0) s) 0 (inc t0))
         p  (- t t0)]
-    (blend t (nth colors t0) (nth colors t1))))
+    (blend-hsv t (nth colors t0) (nth colors t1))))
 
 
 ; TODO: less-angry rainbow!
