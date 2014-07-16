@@ -17,6 +17,11 @@
   "hidapi-jni-64")
 
 
+(def ^:private ^:const poll-period
+  "Milliseconds to wait for new input from USB device."
+  100)
+
+
 (def ^:private ^:const buffer-size
   "Byte buffer size for reading USB input state."
   256)
@@ -57,20 +62,26 @@
   interrupting the thread."
   ^Runnable
   [^HIDDevice device read-state state-events channel]
-  (let [buffer (byte-array buffer-size)]
+  (let [buffer (byte-array buffer-size)
+
+        read-device!
+        (fn []
+          (let [len (.readTimeout device buffer poll-period)]
+            (when (pos? len)
+              (read-state buffer len))))
+
+        put-events!
+        (fn [events]
+          (dorun (map (partial >!! channel)
+                      (remove nil? events))))]
     (fn []
       (try
-        (loop [start (System/currentTimeMillis)
+        (loop [t (System/currentTimeMillis)
                old-state nil]
           (when-not (Thread/interrupted)
-            (let [len (.readTimeout device buffer 100)
-                  new-state (if (pos? len)
-                              (read-state buffer len)
-                              old-state)
-                  now (System/currentTimeMillis)
-                  elapsed (- now start)
-                  events (state-events old-state new-state elapsed)]
-              (dorun (map (partial >!! channel) (remove nil? events)))
+            (let [new-state (or (read-device!) old-state)
+                  now (System/currentTimeMillis)]
+              (put-events! (state-events old-state new-state (- now t)))
               (recur now new-state))))
         (catch InterruptedException e
           nil)))))
