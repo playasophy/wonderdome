@@ -6,7 +6,7 @@
     [org.playasophy.wonderdome.input.gamepad :as gamepad]))
 
 
-(defn gamepad-test
+(defn gamepad-harness
   "Creates and starts a gamepad input component attached to a channel and reader
   which will print events received to the console."
   []
