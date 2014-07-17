@@ -100,8 +100,8 @@
 ;;;;; COLOR GRADIENTS ;;;;;
 
 (defn blend-rgb
-  "Generates a color which is composed of linearly interpolated red, green, and
-  blue channels between two colors."
+  "Blends two colors by linearly interpolating their red, green, and blue
+  channels by a certain proportion."
   [p x y]
   {:pre [(<= 0.0 p 1.0)]}
   (let [xc (rgb-components x)
@@ -114,10 +114,10 @@
 
 
 (defn blend-hsv
-  "Generates a color which is composed of linearly interpolated hue,
-  saturation, and value channels between two colors. This direction the hue is
-  interpolated may be controlled with an optional mode argument. Mode may be
-  :closest, :pos, or :neg. The default is :closest."
+  "Blends two colors by linearly interpolating their hue, saturation, and value
+  channels by a certain proportion. The direction the hue is interpolated may
+  be controlled with an optional mode argument. Mode may be :closest, :pos, or
+  :neg. The default is :closest."
   ([p x y]
    (blend-hsv :closest p x y))
   ([mode p x y]
