@@ -175,13 +175,12 @@
   a cone. This means a lightness of 0.0 is black, as with HSV, but 1.0 gives
   white instead of a 'fully bright' color."
   [h s l]
-  (let [hr (* h 2 Math/PI)
-        cos-h (Math/cos hr)
-        sin-h (Math/sin hr)]
-    (rgb
-      (+ l (* s (+ (* -0.14861 cos-h) (* 1.78277 sin-h))))
-      (+ l (* s (- (* -0.29227 cos-h) (* 0.90649 sin-h))))
-      (+ l (* s    (*  1.97294 cos-h))))))
+  (let [l' (* 2 l)
+        s' (* s (if (> l' 1) (- 2 l') l'))
+        s-div (+ l' s')
+        s' (if (zero? s-div) 0.0 (/ (* 2 s') s-div))
+        v' (/ (+ l' s') 2)]
+    (hsv h s' v')))
 
 
 (defmethod pack :hsl
@@ -210,7 +209,7 @@
 
 
 
-;;;;; COLOR GRADIENTS ;;;;;
+;;;;; COLOR BLENDING ;;;;;
 
 (defn blend-rgb
   "Blends two colors by linearly interpolating their red, green, and blue
@@ -264,9 +263,18 @@
          [dh ds dl] (map - yc xc)
          h (+ xh 1/3 (* p dh))
          l (Math/pow (+ xl (* p dl)) gamma)
-         s (* (+ xs (* p ds)) l (- 1 l))]
-     (hsl h s l))))
+         s (* (+ xs (* p ds)) l (- 1 l))
+         hr (* h 2 Math/PI)
+         cos-h (Math/cos hr)
+         sin-h (Math/sin hr)]
+     (rgb
+       (+ l (* s (+ (* -0.14861 cos-h) (* 1.78277 sin-h))))
+       (+ l (* s (- (* -0.29227 cos-h) (* 0.90649 sin-h))))
+       (+ l (* s    (*  1.97294 cos-h)))))))
 
+
+
+;;;;; COLOR GRADIENTS ;;;;;
 
 (defn gradient   ; FIXME: model after D3's linear scale
   "Assigns a color based on the position through a gradient of color points.
