@@ -62,7 +62,7 @@
       (quil/fill (color/blend-hsv 0.5 blue red))
       (quil/rect 100 10 40 40)))
 
-    ; HSV rainbow
+    ; HSV rainbow (TODO: cylindrical projection)
     (quil/with-translation [200 20]
       (quil/fill (color/gray 0.75))
       (quil/text "HSV rainbow" 0 0)
@@ -72,7 +72,8 @@
             (quil/stroke c)
             (quil/line x 10 x 50)))))
 
-    ; HSL rainbow
+    ; HSL rainbow (TODO: cylindrical projection)
+    ; FIXME: something broke
     (quil/with-translation [200 90]
       (quil/fill (color/gray 0.75))
       (quil/text "HSL rainbow (50% saturation)" 0 0)
@@ -86,9 +87,9 @@
     (quil/with-translation [200 160]
       (quil/fill (color/gray 0.75))
       (quil/text "Cubehelix rainbow" 0 0)
-      (let [c0 (vector (/ -100 360) 0.75 0.35)
-            c1 (vector (/   80 360) 1.50 0.80)
-            c2 (vector (/  260 360) 0.75 0.35)]
+      (let [c0 (color/hsl* (/ -100 360) 0.75 0.35)
+            c1 (color/hsl* (/   80 360) 1.50 0.80)
+            c2 (color/hsl* (/  260 360) 0.75 0.35)]
         (doseq [x (range 0 200)]
           (let [p (/ x 200)]
             (quil/stroke (color/blend-cubehelix p c0 c1))

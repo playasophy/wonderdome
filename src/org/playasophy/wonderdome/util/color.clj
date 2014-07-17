@@ -5,46 +5,112 @@
     java.awt.Color))
 
 
-(defn color?
-  "Tests whether the given value is a valid color."
+;;;;; HELPER FUNCTIONS ;;;;;
+
+(defn color-number?
+  "Tests whether the given value is a valid numeric color, storing
+  the red, green, and blue color channels."
   [value]
   (and (integer? value)
        (< Integer/MIN_VALUE value Integer/MAX_VALUE)))
+
+
+(defn color-vector?
+  "Tests whether the given value is a valid color vector, containing at least
+  three color channels and :type metadata indicating :rgb, :hsv, or :hsl mode."
+  [value]
+  (and (vector? value)
+       (>= 3 (count value))
+       (contains? #{:rgb :hsv :hsl} (type value))))
+
+
+(defn color?
+  "Tests whether the given value is a valid color."
+  [value]
+  (or (color-number? value)
+      (color-vector? value)))
+
+
+(defmulti pack
+  "Converts a color to a numeric color value."
+  type)
+
+
+(defmethod pack Number
+  [value]
+  {:pre [(integer? value) (<= Integer/MIN_VALUE value Integer/MAX_VALUE)]}
+  value)
 
 
 
 ;;;;; RGB COLOR SPACE ;;;;;
 
 (defn rgb*
-  "Creates a color value from red, green, and blue component channels. Each
-  component should be an 8-bit value from [0, 255]."
+  "Creates a color vector with red, green, and blue components."
   [r g b]
-  (.getRGB (Color. (int r) (int g) (int b))))
+  {:pre [(number? r) (number? g) (number? b)]}
+  (vary-meta
+    [(max 0.0 (min 1.0 (float r)))
+     (max 0.0 (min 1.0 (float g)))
+     (max 0.0 (min 1.0 (float b)))]
+    assoc :type :rgb))
 
 
 (defn rgb
-  "Creates a color value from red, green, and blue component channels. Each
-  component should be a number from [0.0, 1.0]."
+  "Creates a numeric color value from red, green, and blue component channels.
+  Each component should be a number from [0.0, 1.0]. Values outside this range
+  are clamped to the bounds."
   [r g b]
-  (.getRGB (Color. (float r) (float g) (float b))))
+  {:pre [(number? r) (number? g) (number? b)]}
+  (.getRGB (Color. (max 0.0 (min 1.0 (float r)))
+                   (max 0.0 (min 1.0 (float g)))
+                   (max 0.0 (min 1.0 (float b))))))
 
 
 (defn gray
-  "Creates a grayscale color by using the same value for every color channel."
-  [v]
-  (rgb v v v))
+  "Creates a numeric grayscale color by using the same value for every color
+  channel. The luminance should be a value from [0.0, 1.0]."
+  [l]
+  (rgb l l l))
 
 
-(defn rgb-components
-  "Takes a color value and returns a vector containing the red, green, and blue
-  component channels as floating-point numbers."
-  [color]
-  {:pre [(color? color)]}
-  (vec (.getRGBColorComponents (Color. (unchecked-int color)) nil)))
+(defmethod pack :rgb
+  [[r g b]]
+  (rgb r g b))
+
+
+(defmulti rgb-vec
+  "Converts a color to a vector of red, green, and blue components."
+  type)
+
+
+(defmethod rgb-vec Number
+  [value]
+  {:pre [(color-number? value)]}
+  (apply rgb* (-> value unchecked-int Color. (.getRGBColorComponents nil))))
+
+
+(defmethod rgb-vec :rgb
+  [value]
+  value)
+
+
+(defmethod rgb-vec :default
+  [value]
+  (rgb-vec (pack value)))
 
 
 
 ;;;;; HSV COLOR SPACE ;;;;;
+
+(defn hsv*
+  "Creates a color vector with hue, saturation, and value components."
+  [h s v]
+  {:pre [(number? h) (number? s) (number? v)]}
+  (vary-meta
+    [h s v]
+    assoc :type :hsv))
+
 
 (defn hsv
   "Creates a color value from a hue, saturation, and value. The fractional
@@ -54,20 +120,54 @@
   The primary red, green, and blue hues are found at 0/3, 1/3, and 2/3,
   respectively."
   [h s v]
-  (Color/HSBtoRGB (float h) (float s) (float v)))
+  {:pre [(number? h) (number? s) (number? v)]}
+  (Color/HSBtoRGB (float h)
+                  (max 0.0 (min 1.0 (float s)))
+                  (max 0.0 (min 1.0 (float v)))))
 
 
-(defn hsv-components
-  "Takes a color value and returns a vector containing the hue, saturation, and
-  value components as floating-point numbers."
-  [color]
-  {:pre [(color? color)]}
-  (let [c (Color. (unchecked-int color))]
-    (vec (Color/RGBtoHSB (.getRed c) (.getGreen c) (.getBlue c) nil))))
+(defmethod pack :hsv
+  [[h s v]]
+  (hsv h s v))
+
+
+(defmulti hsv-vec
+  "Converts a color to a vector of hue, saturation, and value components."
+  type)
+
+
+(defmethod hsv-vec Number
+  [value]
+  {:pre [(color-number? value)]}
+  (let [color (Color. (unchecked-int value))]
+    (apply hsv* (Color/RGBtoHSB
+                  (.getRed color)
+                  (.getGreen color)
+                  (.getBlue color)
+                  nil))))
+
+
+(defmethod hsv-vec :hsv
+  [value]
+  value)
+
+
+(defmethod hsv-vec :default
+  [value]
+  (hsv-vec (pack value)))
 
 
 
 ;;;;; HSL COLOR SPACE ;;;;;
+
+(defn hsl*
+  "Creates a color vector with hue, saturation, and lightness components."
+  [h s l]
+  {:pre [(number? h) (number? s) (number? l)]}
+  (vary-meta
+    [h s l]
+    assoc :type :hsl))
+
 
 (defn hsl
   "Creates a color value from a hue, saturation, and lightness. This is similar
@@ -75,25 +175,38 @@
   a cone. This means a lightness of 0.0 is black, as with HSV, but 1.0 gives
   white instead of a 'fully bright' color."
   [h s l]
-  (let [l' (* 2 l)
-        s' (* s (if (> l' 1) (- 2 l') l'))
-        s-div (+ l' s')
-        s' (if (zero? s-div) 0.0 (/ (* 2 s') s-div))
-        v' (/ (+ l' s') 2)]
-    (hsv h s' v')))
+  (let [hr (* h 2 Math/PI)
+        cos-h (Math/cos hr)
+        sin-h (Math/sin hr)]
+    (rgb
+      (+ l (* s (+ (* -0.14861 cos-h) (* 1.78277 sin-h))))
+      (+ l (* s (- (* -0.29227 cos-h) (* 0.90649 sin-h))))
+      (+ l (* s    (*  1.97294 cos-h))))))
 
 
-(defn hsl-components
-  "Takes a color value and returns a vector containing the hue, saturation, and
-  lightness components as floating-point numbers."
-  [color]
-  {:pre [(color? color)]}
-  (let [[h s v] (hsv-components color)
+(defmethod pack :hsl
+  [[h s l]]
+  (hsl h s l))
+
+
+(defmulti hsl-vec
+  "Converts a color to a vector of hue, saturation, and lightness components."
+  type)
+
+
+(defmethod hsl-vec :hsl
+  [value]
+  value)
+
+
+(defmethod hsl-vec :default
+  [value]
+  (let [[h s v] (hsv-vec value)
         l' (* v (- 2 s))
         s-div (if (> l' 1) (- 2 l') l')
         s' (if (zero? s-div) 0.0 (/ (* v s) s-div))
         l' (/ l' 2)]
-    [h s' l']))
+    (hsl* h s' l')))
 
 
 
@@ -104,8 +217,8 @@
   channels by a certain proportion."
   [p x y]
   {:pre [(<= 0.0 p 1.0)]}
-  (let [xc (rgb-components x)
-        yc (rgb-components y)]
+  (let [xc (rgb-vec x)
+        yc (rgb-vec y)]
     (->>
       (map - yc xc)
       (map (partial * p))
@@ -122,8 +235,8 @@
    (blend-hsv :closest p x y))
   ([mode p x y]
    {:pre [(keyword? mode) (<= 0.0 p 1.0)]}
-   (let [[xh xs xv] (hsv-components x)
-         [yh ys yv] (hsv-components y)
+   (let [[xh xs xv] (hsv-vec x)
+         [yh ys yv] (hsv-vec y)
          dh+ (- (if (< yh xh) (+ yh 1.0) yh) xh)
          dh- (- 1.0 dh+)]
      (hsv
@@ -145,22 +258,17 @@
   ([p x y]
    (blend-cubehelix 1.0 p x y))
   ([gamma p x y]
-   (let [[xh xs xl :as xc] (if (integer? x) (hsl-components x) x)
-         [yh ys yl :as yc] (if (integer? y) (hsl-components y) y)
+   {:pre [(pos? gamma) (<= 0.0 p 1.0)]}
+   (let [[xh xs xl :as xc] (hsl-vec x)
+         [yh ys yl :as yc] (hsl-vec y)
          [dh ds dl] (map - yc xc)
          h (+ xh 1/3 (* p dh))
          l (Math/pow (+ xl (* p dl)) gamma)
-         s (* (+ xs (* p ds)) l (- 1 l))
-         h' (* h 2 Math/PI)
-         cos-h (Math/cos h')
-         sin-h (Math/sin h')
-         r (+ (* -0.14861 cos-h) (* 1.78277 sin-h))
-         g (- (* -0.29227 cos-h) (* 0.90649 sin-h))
-         b    (*  1.97294 cos-h)]
-     (apply rgb (map #(-> % (* s) (+ l) (min 1.0) (max 0.0)) [r g b])))))
+         s (* (+ xs (* p ds)) l (- 1 l))]
+     (hsl h s l))))
 
 
-(defn gradient   ; FIXME
+(defn gradient   ; FIXME: model after D3's linear scale
   "Assigns a color based on the position through a gradient of color points.
   Each color in the sequence occupies an equal amount of space in the cycle,
   such that p of 0.0 and 1.0 both give the first color in the sequence."
@@ -171,3 +279,6 @@
         t1 (if (>= (inc t0) s) 0 (inc t0))
         p  (- t t0)]
     (blend-hsv t (nth colors t0) (nth colors t1))))
+
+
+; TODO: move cubehelix rainbow here
