@@ -67,6 +67,35 @@
 
 
 
+;;;;; HSL COLOR SPACE ;;;;;
+
+(defn hsl
+  "Creates a color value from a hue, saturation, and lightness. This is similar
+  to HSV, except that the RGB color space is projected into a bicone instead of
+  a cone. This means a lightness of 0.0 is black, as with HSV, but 1.0 gives
+  white instead of a 'fully bright' color."
+  [h s l]
+  (let [l' (* 2 l)
+        s' (* s (if (> l' 1) (- 2 l') l'))]
+    (hsv
+      h
+      (/ (* 2 s') (+ l' s'))
+      (/ (+ l' s') 2))))
+
+
+(defn hsl-components
+  "Takes a color value and returns a vector containing the hue, saturation, and
+  lightness components as floating-point numbers."
+  [color]
+  {:pre [(color? color)]}
+  (let [[h s v] (hsv-components color)
+        l' (* v (- 2 s))
+        s' (/ (* v s) (if (> l' 1) (- 2 l') l'))
+        l' (/ l' 2)]
+    [h s' l']))
+
+
+
 ;;;;; COLOR GRADIENTS ;;;;;
 
 (defn blend-rgb
