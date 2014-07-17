@@ -124,6 +124,7 @@
     (assoc this :sketch
       (quil/sketch
         :title "Playasophy Wonderdome"
+        :features [:keep-on-top :resizable]
         :setup setup-sketch
         :draw #(render this)
         :size (:size this)
