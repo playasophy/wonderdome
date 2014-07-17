@@ -138,6 +138,28 @@
        (+ xv (* p (- yv xv)))))))
 
 
+(defn blend-cubehelix
+  "Blends two colors using the cubehelix algorithm. This generates a more even
+  and pleasing change in lightness across the interpolation.
+  See: http://bl.ocks.org/mbostock/310c99e53880faec2434"
+  ([p x y]
+   (blend-cubehelix 1.0 p x y))
+  ([gamma p x y]
+   (let [[xh xs xl :as xc] (if (integer? x) (hsl-components x) x)
+         [yh ys yl :as yc] (if (integer? y) (hsl-components y) y)
+         [dh ds dl] (map - yc xc)
+         h (+ xh 1/3 (* p dh))
+         l (Math/pow (+ xl (* p dl)) gamma)
+         s (* (+ xs (* p ds)) l (- 1 l))
+         h' (* h 2 Math/PI)
+         cos-h (Math/cos h')
+         sin-h (Math/sin h')
+         r (+ (* -0.14861 cos-h) (* 1.78277 sin-h))
+         g (- (* -0.29227 cos-h) (* 0.90649 sin-h))
+         b    (*  1.97294 cos-h)]
+     (apply rgb (map #(-> % (* s) (+ l) (min 1.0) (max 0.0)) [r g b])))))
+
+
 (defn gradient   ; FIXME
   "Assigns a color based on the position through a gradient of color points.
   Each color in the sequence occupies an equal amount of space in the cycle,
@@ -149,6 +171,3 @@
         t1 (if (>= (inc t0) s) 0 (inc t0))
         p  (- t t0)]
     (blend-hsv t (nth colors t0) (nth colors t1))))
-
-
-; TODO: less-angry rainbow!

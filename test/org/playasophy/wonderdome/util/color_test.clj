@@ -82,8 +82,19 @@
             (quil/stroke c)
             (quil/line x 10 x 50)))))
 
-    ; TODO: less-angry rainbow?
-  )
+    ; Cubehelix rainbow
+    (quil/with-translation [200 160]
+      (quil/fill (color/gray 0.75))
+      (quil/text "Cubehelix rainbow" 0 0)
+      (let [c0 (vector (/ -100 360) 0.75 0.35)
+            c1 (vector (/   80 360) 1.50 0.80)
+            c2 (vector (/  260 360) 0.75 0.35)]
+        (doseq [x (range 0 200)]
+          (let [p (/ x 200)]
+            (quil/stroke (color/blend-cubehelix p c0 c1))
+            (quil/line x 10 x 50)
+            (quil/stroke (color/blend-cubehelix p c1 c2))
+            (quil/line (+ x 200) 10 (+ x 200) 50))))))
 
 
 (defn color-harness
