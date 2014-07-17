@@ -86,7 +86,7 @@
         (quil/rect 0 10 width height)
         (doseq [x (range 0 width)
                 y (range 0 height)]
-          (quil/stroke (color/hsl (/ x width) 1 (- 1 (* 2 (/ y height)))))
+          (quil/stroke (color/hsl (/ x width) 1 (- 1 (/ y height))))
           (quil/point x (+ y 10)))))
 
     ; Cubehelix rainbow

@@ -4,6 +4,9 @@
   (import
     java.awt.Color))
 
+; TODO: use deftypes instead of vectors with metadata and protocols instead of multimethods
+; should be much higher performance
+
 
 ;;;;; HELPER FUNCTIONS ;;;;;
 
@@ -175,10 +178,12 @@
   a cone. This means a lightness of 0.0 is black, as with HSV, but 1.0 gives
   white instead of a 'fully bright' color."
   [h s l]
-  (let [l' (* 2 l)
+  ; TODO: double-check this calculation
+  (let [l' (- (* 2 l) 1)
+        l' (* 2 l')
         s' (* s (if (> l' 1) (- 2 l') l'))
         s-div (+ l' s')
-        s' (if (zero? s-div) 0.0 (/ (* 2 s') s-div))
+        s' (if (zero? s-div) 1.0 (/ (* 2 s') s-div))
         v' (/ (+ l' s') 2)]
     (hsv h s' v')))
 
