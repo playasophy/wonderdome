@@ -76,11 +76,11 @@
   white instead of a 'fully bright' color."
   [h s l]
   (let [l' (* 2 l)
-        s' (* s (if (> l' 1) (- 2 l') l'))]
-    (hsv
-      h
-      (/ (* 2 s') (+ l' s'))
-      (/ (+ l' s') 2))))
+        s' (* s (if (> l' 1) (- 2 l') l'))
+        s-div (+ l' s')
+        s' (if (zero? s-div) 0.0 (/ (* 2 s') s-div))
+        v' (/ (+ l' s') 2)]
+    (hsv h s' v')))
 
 
 (defn hsl-components
@@ -90,7 +90,8 @@
   {:pre [(color? color)]}
   (let [[h s v] (hsv-components color)
         l' (* v (- 2 s))
-        s' (/ (* v s) (if (> l' 1) (- 2 l') l'))
+        s-div (if (> l' 1) (- 2 l') l')
+        s' (if (zero? s-div) 0.0 (/ (* v s) s-div))
         l' (/ l' 2)]
     [h s' l']))
 
