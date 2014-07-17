@@ -20,6 +20,9 @@
   (let [red   (color/rgb 1 0 0)  ; hue 0/3
         green (color/rgb 0 1 0)  ; hue 1/3
         blue  (color/rgb 0 0 1)] ; hue 2/3
+    (quil/background 0)
+    (quil/stroke 0)
+
     ; red, green, and blue blocks
     (quil/with-translation [20 20]
       (quil/fill (color/gray 0.75))
@@ -58,6 +61,28 @@
       (quil/rect 50 10 40 40)
       (quil/fill (color/blend-hsv 0.5 blue red))
       (quil/rect 100 10 40 40)))
+
+    ; HSV rainbow
+    (quil/with-translation [200 20]
+      (quil/fill (color/gray 0.75))
+      (quil/text "HSV rainbow" 0 0)
+      (let [width 400]
+        (doseq [x (range 0 width)]
+          (let [c (color/hsv (/ x width) 1 1)]
+            (quil/stroke c)
+            (quil/line x 10 x 50)))))
+
+    ; HSL rainbow
+    (quil/with-translation [200 90]
+      (quil/fill (color/gray 0.75))
+      (quil/text "HSL rainbow (50% saturation)" 0 0)
+      (let [width 400]
+        (doseq [x (range 0 width)]
+          (let [c (color/hsl (/ x width) 0.5 0.5)]
+            (quil/stroke c)
+            (quil/line x 10 x 50)))))
+
+    ; TODO: less-angry rainbow?
   )
 
 
@@ -69,4 +94,4 @@
       :title "Wonderdome Color Harness"
       :setup setup-harness
       :draw render-harness
-      :size [800 600])))
+      :size [650 400])))
