@@ -20,6 +20,7 @@
       [middleware :as middleware]
       [timer :as timer])
     (org.playasophy.wonderdome.mode
+      [lantern :refer [lantern]]
       [strobe :refer [strobe]])
     (org.playasophy.wonderdome.util
       [color :as color])))
@@ -36,7 +37,8 @@
 (def modes
   "Map of mode values."
   ; TODO: dynamically load modes?
-  {:strobe (strobe [(color/rgb 1 0 0) (color/rgb 0 1 0) (color/rgb 0 0 1)])})
+  {:lantern (lantern 0.5)
+   :strobe (strobe [(color/rgb 1 0 0) (color/rgb 0 1 0) (color/rgb 0 0 1)])})
 
 
 (def system nil)
