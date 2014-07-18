@@ -74,8 +74,10 @@
         (quil/rect -1 9 (inc width) (inc height))
         (doseq [x (range 0 width)
                 y (range 0 height)]
-          (quil/stroke (color/hsv (/ x width) 1 (- 1 (/ y height))))
-          (quil/point x (+ y 10)))))
+          (quil/set-pixel
+            (+ x 20)
+            (+ y 110)
+            (color/hsv (/ x width) 1 (- 1 (/ y height)))))))
 
     ; HSL spectrum
     (quil/with-translation [20 240]
@@ -87,8 +89,10 @@
         (quil/rect -1 9 (inc width) (inc height))
         (doseq [x (range 0 width)
                 y (range 0 height)]
-          (quil/stroke (color/hsl (/ x width) 1 (- 1 (/ y height))))
-          (quil/point x (+ y 10)))))
+          (quil/set-pixel
+            (+ x 20)
+            (+ y 250)
+            (color/hsl (/ x width) 1 (- 1 (/ y height)))))))
 
     ; Cubehelix rainbow
     (quil/with-translation [20 380]
