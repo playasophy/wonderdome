@@ -279,19 +279,24 @@
 
 
 
-;;;;; COLOR GRADIENTS ;;;;;
+;;;;; CUBEHELIX RAINBOW ;;;;;
 
-(defn gradient   ; FIXME: model after D3's linear scale
-  "Assigns a color based on the position through a gradient of color points.
-  Each color in the sequence occupies an equal amount of space in the cycle,
-  such that p of 0.0 and 1.0 both give the first color in the sequence."
-  [colors p]
-  (let [s  (count colors)
-        t  (* (- p (Math/floor p)) s)
-        t0 (int t)
-        t1 (if (>= (inc t0) s) 0 (inc t0))
-        p  (- t t0)]
-    (blend-hsv t (nth colors t0) (nth colors t1))))
+(def ^:private ^:const rainbow-points
+  "Points on the cubehelix rainbow."
+  [(hsl* -5/18 0.75 0.35)
+   (hsl*  4/18 1.50 0.80)
+   (hsl* 13/18 0.75 0.35)])
 
 
-; TODO: move cubehelix rainbow here
+(defn rainbow
+  "Maps a floating point value to a color in the cubehelix rainbow. The
+  fractional part of the number determines the position in the gradient."
+  [value]
+  (let [p (- value (Math/floor value))]
+    (if (< p 0.5)
+      (blend-cubehelix (* 2 p)
+        (rainbow-points 0)
+        (rainbow-points 1))
+      (blend-cubehelix (* 2 (- p 0.5))
+        (rainbow-points 1)
+        (rainbow-points 2)))))

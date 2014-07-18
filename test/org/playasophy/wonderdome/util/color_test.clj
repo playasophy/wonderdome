@@ -94,16 +94,10 @@
     (quil/with-translation [20 380]
       (quil/fill (color/gray 0.8))
       (quil/text "Cubehelix rainbow" 0 0)
-      (let [half-width 240
-            c0 (color/hsl* (/ -100 360) 0.75 0.35)
-            c1 (color/hsl* (/   80 360) 1.50 0.80)
-            c2 (color/hsl* (/  260 360) 0.75 0.35)]
-        (doseq [x (range 0 240)]
-          (let [p (/ x half-width)]
-            (quil/stroke (color/blend-cubehelix p c0 c1))
-            (quil/line x 10 x 50)
-            (quil/stroke (color/blend-cubehelix p c1 c2))
-            (quil/line (+ x half-width) 10 (+ x half-width) 50))))))
+      (let [width 480]
+        (doseq [x (range 0 width)]
+          (quil/stroke (color/rainbow (/ x width)))
+          (quil/line x 10 x 50)))))
 
 
 (defn color-harness
