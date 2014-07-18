@@ -11,6 +11,7 @@
   []
   (quil/frame-rate 5)
   (quil/text-font (quil/create-font "Courier" 18 true))
+  ;(quil/blend-mode :blend)
   (quil/background 0)
   (quil/stroke 0))
 
@@ -69,8 +70,8 @@
       (quil/text "HSV Spectrum" 0 0)
       (let [width 480, height 100]
         (quil/fill 0)
-        (quil/stroke (color/gray 0.5))
-        (quil/rect 0 10 width height)
+        (quil/stroke (color/gray 0.75))
+        (quil/rect -1 9 (inc width) (inc height))
         (doseq [x (range 0 width)
                 y (range 0 height)]
           (quil/stroke (color/hsv (/ x width) 1 (- 1 (/ y height))))
@@ -82,8 +83,8 @@
       (quil/text "HSL Spectrum" 0 0)
       (let [width 480, height 100]
         (quil/fill 0)
-        (quil/stroke (color/gray 0.5))
-        (quil/rect 0 10 width height)
+        (quil/stroke (color/gray 0.75))
+        (quil/rect -1 9 (inc width) (inc height))
         (doseq [x (range 0 width)
                 y (range 0 height)]
           (quil/stroke (color/hsl (/ x width) 1 (- 1 (/ y height))))
