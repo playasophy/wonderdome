@@ -38,10 +38,10 @@
           new-val (get new-state button)]
       (cond
         (and new-val (not old-val))
-        {:type :gamepad/press, :button button}
+        {:type :button/press, :button button}
 
         (and old-val (not new-val))
-        {:type :gamepad/release, :button button}))))
+        {:type :button/release, :button button}))))
 
 
 (defn- repeat-events
@@ -52,7 +52,7 @@
   (for [[button default] defaults]
     (let [value (get state button)]
       (when (and (some? value) (not= value default))
-        {:type :gamepad/repeat
+        {:type :button/repeat
          :button button
          :value value
          :elapsed elapsed}))))
