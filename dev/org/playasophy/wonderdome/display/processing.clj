@@ -1,5 +1,6 @@
 (ns org.playasophy.wonderdome.display.processing
   (:require
+    [clojure.core.async :as async :refer [>!!]]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display.core :as display]
     (org.playasophy.wonderdome.geometry
@@ -112,8 +113,8 @@
 
 (def ^:private key-codes
   "Maps integer key codes to keywords."
-  {10 :enter
-   32 :space
+  {10 :start    ; enter
+   32 :select   ; space
    37 :left
    38 :up
    39 :right
@@ -124,6 +125,10 @@
    82 :R
    88 :X
    89 :Y})
+
+
+(def ^:private axis-keys
+  #{:up :down :left :right})
 
 
 (defn- key-handler
@@ -140,7 +145,22 @@
               dt (if last-press (- now last-press) 0)]
           (println (format "Key pressed: %d %s -- %d ms since %s"
                            code new-key dt old-key))
-          ; TODO: emit button/press and button/repeat events
+          (when-let [event
+                     ; TODO: extract into function
+                     (if (and (= new-key old-key) (< dt 100))
+                       (case new-key
+                         :left  {:type :button/repeat, :button :x-axis, :value -1.0, :elapsed dt}
+                         :right {:type :button/repeat, :button :x-axis, :value  1.0, :elapsed dt}
+                         :down  {:type :button/repeat, :button :y-axis, :value -1.0, :elapsed dt}
+                         :up    {:type :button/repeat, :button :y-axis, :value  1.0, :elapsed dt}
+                         nil)
+                       (when (and new-key (not (axis-keys new-key)))
+                         (let [button (case new-key
+                                        :enter :start
+                                        :space :select
+                                        new-key)]
+                           {:type :button/press, :button button})))]
+            (>!! channel event))
           ; TODO: need timers to handle button/release events
           (swap! state assoc :old-key new-key :last-press now))))))
 
@@ -149,9 +169,8 @@
 ;;;;; PROCESSING DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
-  [size dome layout colors event-channel])
+  [size dome layout colors event-channel]
 
-(extend-type ProcessingDisplay
   component/Lifecycle
 
   (start
