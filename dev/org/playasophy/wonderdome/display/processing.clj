@@ -131,6 +131,27 @@
   #{:up :down :left :right})
 
 
+(defn- key->event
+  "Generates button press and repeat events for appropriate key actions."
+  [old-key new-key dt]
+  (when new-key
+    (if (= new-key old-key)
+      (if (< dt 80)
+        ; Repeated key-press events
+        (case new-key
+          :left  {:type :button/repeat, :button :x-axis, :value -1.0, :elapsed dt}
+          :right {:type :button/repeat, :button :x-axis, :value  1.0, :elapsed dt}
+          :down  {:type :button/repeat, :button :y-axis, :value -1.0, :elapsed dt}
+          :up    {:type :button/repeat, :button :y-axis, :value  1.0, :elapsed dt}
+          nil)
+        ; New press of same key
+        (when-not (axis-keys new-key)
+          {:type :button/press, :button new-key}))
+      ; New key pressed
+      (when-not (axis-keys new-key)
+        {:type :button/press, :button new-key}))))
+
+
 (defn- key-handler
   "Builds a handler function which will store the current key state in an atom
   and report gamepad-compatible events to the given channel."
@@ -143,23 +164,7 @@
               now (System/currentTimeMillis)
               {:keys [old-key last-press]} @state
               dt (if last-press (- now last-press) 0)]
-          (println (format "Key pressed: %d %s -- %d ms since %s"
-                           code new-key dt old-key))
-          (when-let [event
-                     ; TODO: extract into function
-                     (if (and (= new-key old-key) (< dt 100))
-                       (case new-key
-                         :left  {:type :button/repeat, :button :x-axis, :value -1.0, :elapsed dt}
-                         :right {:type :button/repeat, :button :x-axis, :value  1.0, :elapsed dt}
-                         :down  {:type :button/repeat, :button :y-axis, :value -1.0, :elapsed dt}
-                         :up    {:type :button/repeat, :button :y-axis, :value  1.0, :elapsed dt}
-                         nil)
-                       (when (and new-key (not (axis-keys new-key)))
-                         (let [button (case new-key
-                                        :enter :start
-                                        :space :select
-                                        new-key)]
-                           {:type :button/press, :button button})))]
+          (when-let [event (key->event old-key new-key dt)]
             (>!! channel event))
           ; TODO: need timers to handle button/release events
           (swap! state assoc :old-key new-key :last-press now))))))
