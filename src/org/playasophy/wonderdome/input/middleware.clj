@@ -1,11 +1,13 @@
-(ns org.playasophy.wonderdome.input.middleware)
-
+(ns org.playasophy.wonderdome.input.middleware
+  "Functions for providing system capabilities by handling input events."
+  (:require
+    [org.playasophy.wonderdome.state :as state]))
 
 ; Handler functions recieve the current state of the system and an input event
-; and return the updated system state.
+; and return the updated system state. Middleware wraps a handler function to
+; produce a new handler with some extra logic. This is very similar to Ring
+; middlewares.
 
-; Middleware wraps a handler function to produce a new handler with some extra
-; logic. This is very similar to Ring middlewares.
 
 (defn print-events
   "Debugging middleware which prints out events as they pass through the
@@ -18,6 +20,15 @@
      (when (pred event)
        (prn event))
      (handler state event))))
+
+
+(defn cycle-modes
+  "Uses :select button presses to change the current mode."
+  ([handler]
+   (fn [state event]
+     (if (= [:button/press :select] [(:type event) (:button event)])
+       (state/next-mode state)
+       (handler state event)))))
 
 
 ; Autocycle middleware:

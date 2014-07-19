@@ -59,7 +59,8 @@
                     (processing/display [1000 600] (:radius dimensions))
                     [:layout :event-channel])
          :handler (-> state/update-mode
-                      (middleware/print-events (comp #{:button/press :button/repeat} :type)))
+                      middleware/cycle-modes
+                      (middleware/print-events (comp #{} :type)))
          :state (state/initialize modes)}
         system/initialize
         (system/add-input :timer timer/timer

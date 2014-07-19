@@ -9,7 +9,7 @@
   "Builds the initial system state map from the given configuration."
   [modes]
   {:mode/map modes
-   :mode/playlist (keys modes)
+   :mode/playlist (vec (keys modes))
    :mode/current (first (keys modes))})
 
 
@@ -17,6 +17,19 @@
   "Returns the current mode record from the state map."
   [state]
   (get (:mode/map state) (:mode/current state)))
+
+
+(defn next-mode
+  "Returns the wonderdome state with the next mode in the playlist set as the
+  current mode. Rotates the new mode to the back of the list."
+  [state]
+  (let [playlist (:mode/playlist state)
+        next-mode (first playlist)
+        playlist' (-> playlist rest vec (conj next-mode))]
+    (println (str "Switching mode to " next-mode " => updated playlist: " (pr-str playlist')))
+    (assoc state
+      :mode/current next-mode
+      :mode/playlist playlist')))
 
 
 (defn update-mode
