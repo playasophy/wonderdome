@@ -51,7 +51,7 @@ You should see a window pop up which demonstrates the color functionality
 available. If not, there is likely an issue with the environment the REPL is
 running in - check to make sure it has access to your `$DISPLAY` (on linux).
 
-## Local Display
+## Local Simulation
 
 Finally, try running the local Wonderdome system! In your REPL:
 
@@ -72,3 +72,18 @@ new code changes.
 - `stop!` halts the system
 - `go!` is the same as `init!` followed by `start!`
 - `reload!` stops the running system, reloads changed code, and calls `go!`
+
+### Button Controls
+
+Many visualization modes will want to respond to button-press events, so during
+local development if you don't have a USB SNES gamepad you can press keys
+directly in the Processing display. The arrow keys will send X and Y-axis events
+to simulate the d-pad, and the A, B, X, Y, L, and R letters send the
+corresponding button press events. The enter (return) and spacebar send start
+and select buttons, respectively.
+
+Due to the nature of keyboard auto-repeats, the buttons won't function exactly
+the same way as the gamepad. In particular, the non-axis buttons may
+occasionally send repeated presses, and you won't see any `:button/release`
+events. Additionally, the axis buttons will have an initial ~500 ms lag before
+the keyboard's repeat kicks in.
