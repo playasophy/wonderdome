@@ -55,7 +55,9 @@
     (constantly
       (->
         {:layout (layout/star dimensions)
-         :display (processing/display [1000 600] (:radius dimensions))
+         :display (component/using
+                    (processing/display [1000 600] (:radius dimensions))
+                    [:layout :event-channel])
          :handler (-> state/update-mode
                       (middleware/print-events (comp #{} :type)))
          :state (state/initialize modes)}

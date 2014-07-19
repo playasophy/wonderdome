@@ -9,10 +9,11 @@
       [core :as quil])))
 
 
-;;;;; HELPER FUNCTIONS ;;;;;
+;;;;; RENDERING FUNCTIONS ;;;;;
 
 (def scale
   "Scale up all coordinates to map meters to screen space."
+  ; TODO: base this on the display size instead?
   70.0)
 
 
@@ -20,10 +21,6 @@
   "Scales up a point vector to screen space."
   [p]
   (vec (map (partial * scale) p)))
-
-
-
-;;;;; PROCESSING SKETCH ;;;;;
 
 
 (defn- setup-sketch
@@ -111,10 +108,48 @@
 
 
 
+;;;;; INPUT FUNCTIONS ;;;;;
+
+(def ^:private key-codes
+  "Maps integer key codes to keywords."
+  {10 :enter
+   32 :space
+   37 :left
+   38 :up
+   39 :right
+   40 :down
+   65 :A
+   66 :B
+   76 :L
+   82 :R
+   88 :X
+   89 :Y})
+
+
+(defn- key-handler
+  "Builds a handler function which will store the current key state in an atom
+  and report gamepad-compatible events to the given channel."
+  [channel]
+  (let [state (atom {})]
+    (fn []
+      (when (quil/key-pressed?)
+        (let [code (quil/key-code)
+              new-key (key-codes code)
+              now (System/currentTimeMillis)
+              {:keys [old-key last-press]} @state
+              dt (if last-press (- now last-press) 0)]
+          (println (format "Key pressed: %d %s -- %d ms since %s"
+                           code new-key dt old-key))
+          ; TODO: emit button/press and button/repeat events
+          ; TODO: need timers to handle button/release events
+          (swap! state assoc :old-key new-key :last-press now))))))
+
+
+
 ;;;;; PROCESSING DISPLAY ;;;;;
 
 (defrecord ProcessingDisplay
-  [size dome layout colors])
+  [size dome layout colors event-channel])
 
 (extend-type ProcessingDisplay
   component/Lifecycle
@@ -128,6 +163,7 @@
         :setup setup-sketch
         :draw #(render this)
         :size (:size this)
+        :key-pressed (key-handler event-channel)
         :renderer :opengl)))
 
 
@@ -152,6 +188,4 @@
   layout must be injected at runtime before starting the display."
   [size radius]
   (let [dome (-> radius (+ 0.05) (geodesic/edges 3) geodesic/ground-slice set)]
-    (component/using
-      (ProcessingDisplay. size dome nil (atom []))
-      [:layout])))
+    (ProcessingDisplay. size dome nil (atom []) nil)))
