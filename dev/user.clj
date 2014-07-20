@@ -60,6 +60,7 @@
                     [:layout :event-channel])
          :handler (-> state/update-mode
                       middleware/mode-selector
+                      (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
                       (middleware/print-events (comp #{} :type)))
          :state (state/initialize modes)}
         system/initialize
