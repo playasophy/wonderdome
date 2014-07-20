@@ -59,7 +59,7 @@
                     (processing/display [1000 600] (:radius dimensions))
                     [:layout :event-channel])
          :handler (-> state/update-mode
-                      middleware/cycle-modes
+                      middleware/mode-selector
                       (middleware/print-events (comp #{} :type)))
          :state (state/initialize modes)}
         system/initialize

@@ -5,13 +5,7 @@
     [org.playasophy.wonderdome.mode.core :as mode]))
 
 
-(defn initialize
-  "Builds the initial system state map from the given configuration."
-  [modes]
-  {:mode/map modes
-   :mode/playlist (vec (keys modes))
-   :mode/current (first (keys modes))})
-
+;;;;; STATE FUNCTIONS ;;;;;
 
 (defn current-mode
   "Returns the current mode record from the state map."
@@ -40,6 +34,18 @@
     (update-in state [:mode/map (:mode/current state)] mode/update event)
     state))
 
+
+(defn initialize
+  "Builds the initial system state map from the given configuration."
+  [modes]
+  (->
+    {:mode/map modes
+     :mode/playlist (vec (keys modes))}
+    next-mode))
+
+
+
+;;;;; INPUT PROCESSOR ;;;;;
 
 (defrecord InputProcessor
   [handler input state-agent process]

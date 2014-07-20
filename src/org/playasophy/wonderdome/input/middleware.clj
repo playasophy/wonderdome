@@ -22,7 +22,7 @@
      (handler state event))))
 
 
-(defn cycle-modes
+(defn mode-selector
   "Uses :select button presses to change the current mode."
   ([handler]
    (fn [state event]
