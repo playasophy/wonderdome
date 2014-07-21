@@ -1,7 +1,9 @@
 (ns org.playasophy.wonderdome.input.middleware
   "Functions for providing system capabilities by handling input events."
   (:require
-    [org.playasophy.wonderdome.state :as state]))
+    [org.playasophy.wonderdome.state :as state])
+  (:import
+    java.util.Date))
 
 ; Handler functions recieve the current state of the system and an input event
 ; and return the updated system state. Middleware wraps a handler function to
@@ -35,33 +37,35 @@
   "Adds properties to the event state and automatically switches the current
   mode if no input matching a predicate has been received in a certain amount
   of time."
-  [handler input?]
+  [handler input? & {:keys [period enabled]
+                     :or {period 300
+                          enabled true}}]
   (fn [state event]
-    (let [period (or (:autocycle/period state) 300)
+    (let [period (or (:autocycle/period state) period)
           now (System/currentTimeMillis)
-          next-cycle (+ now (* 1000 period))]
+          target (Date. (long (+ now (* 1000 period))))]
       (cond-> state
-        ; Default autocycling to enabled.
+        ; Set enabled default if not found in state map.
         (nil? (find state :autocycle/enabled))
-        (assoc :autocycle/enabled true)
+        (assoc :autocycle/enabled enabled)
 
-        ; Default period to 5 minutes.
+        ; Set default period if not found.
         (nil? (:autocycle/period state))
         (assoc :autocycle/period period)
 
         ; If no target time is set, add it.
         (nil? (:autocycle/at state))
-        (assoc :autocycle/at next-cycle)
+        (assoc :autocycle/at target)
 
         ; Input events push autocycle target back.
         (input? event)
-        (assoc :autocycle/at next-cycle)
+        (assoc :autocycle/at target)
 
         ; If target cycle time is passed, rotate modes.
         (and (:autocycle/enabled state)
              (:autocycle/at state)
-             (> now (:autocycle/at state)))
-        (-> (assoc :autocycle/at next-cycle)
+             (> now (.getTime ^Date (:autocycle/at state))))
+        (-> (assoc :autocycle/at target)
             state/next-mode)
 
         ; Forward events to handler chain.
