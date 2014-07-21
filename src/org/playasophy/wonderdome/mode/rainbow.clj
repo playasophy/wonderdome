@@ -43,10 +43,8 @@
 
   (render
     [this pixel]
-    (let [[_ pixel-polar pixel-azimuth] (:sphere pixel)
-          ; TODO: calculate angular distance between polar/azimuth target:
-          ; http://math.stackexchange.com/questions/231221/great-arc-distance-between-two-points-on-a-unit-sphere
-          index (* scale (- pixel-polar offset))]
+    (let [angle (sphere/angle-offset (:sphere pixel) [0 polar azimuth])
+          index (* scale (- angle offset))]
       (color/rainbow index))))
 
 

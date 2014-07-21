@@ -46,3 +46,15 @@
   [(* radius (Math/sin polar) (Math/cos azimuth))
    (* radius (Math/sin polar) (Math/sin azimuth))
    (* radius (Math/cos polar))])
+
+
+(defn angle-offset
+  "Calculates the great-circle angle between two spherical coordinates. Ignores
+  the radius."
+  [[_ polar1 azimuth1] [_ polar2 azimuth2]]
+  (Math/acos
+    (+ (* (Math/cos polar1)
+          (Math/cos polar2))
+       (* (Math/sin polar1)
+          (Math/sin polar2)
+          (Math/cos (- azimuth1 azimuth2))))))
