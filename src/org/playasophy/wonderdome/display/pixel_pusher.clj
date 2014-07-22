@@ -3,10 +3,8 @@
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display.core :as display])
   (:import
-    #_
     (com.heroicrobot.dropbit.devices.pixelpusher
       Strip)
-    #_
     (com.heroicrobot.dropbit.registry
       DeviceRegistry)))
 
@@ -14,18 +12,17 @@
 ;;;;; CONFIGURATION ;;;;;
 
 ; Suppress spurious log output.
-#_
 (->
   DeviceRegistry
   .getName
   java.util.logging.Logger/getLogger
-  (.setLevel java.util.logger.Level/WARNING))
+  (.setLevel java.util.logging.Level/WARNING))
 
 
 (defn- registry-observer
   "Constructs a new callback function which will update the strips in the given
   atom when the device registry changes."
-  [registry strips]
+  [^DeviceRegistry registry strips]
   (reify java.util.Observer
     (update [this target device]
       (let [new-strips (vec (.getStrips registry))]
@@ -37,26 +34,29 @@
 ;;;;; PIXEL PUSHER DISPLAY ;;;;;
 
 (defrecord PixelPusherDisplay
-  [registry strips running]
+  [^DeviceRegistry registry strips running]
 
   component/Lifecycle
 
   (start
     [this]
     (println "Starting PixelPusher display...")
-    (doto registry
-      (.addObserver (registry-observer registry strips))
-      (.startPushing)
-      (.setExtraDelay 0)
-      (.setAutoThrottle true))
+    (when-not running
+      (doto registry
+        (.addObserver (registry-observer registry strips))
+        (.startPushing)
+        (.setExtraDelay 0)
+        (.setAutoThrottle true)))
     (assoc this :running true))
 
 
   (stop
     [this]
     (println "Stopping PixelPusher display...")
-    ; TODO: clear strips, remove device observer?
-    (.stopPushing registry)
+    (when running
+      ; TODO: remove device observer?
+      (.stopPushing registry)
+      (reset! strips []))
     (assoc this :running false))
 
 

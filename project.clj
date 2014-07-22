@@ -10,8 +10,13 @@
   ; TODO: write some simple dev code to search for dot files in the doc folder and generate SVG graphs.
   ;:aliases {"sysgraph" ["dot" "-Tsvg" "<" "doc/system-processes.dot" ">" "target/system-processes.svg"]}
 
+  ; TODO: host this on a static S3 website
+  :repositories
+  [["local" "file:///home/greg/projects/playasophy/wonderdome/lib/repo"]]
+
   :dependencies
   [[com.codeminders/hidapi "1.1"]
+   [com.heroicrobot/pixelpusher "20130916"]
    [com.stuartsierra/component "0.2.1"]
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]]
