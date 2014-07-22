@@ -30,6 +30,14 @@
         (reset! strips new-strips)))))
 
 
+(defn- set-pixels!
+  "Renders a sequence of pixel colors to an LED strip."
+  [^Strip strip colors]
+  (dorun (map #(when %2 (.setPixel strip (int %1) (unchecked-int %2)))
+              (range (.getLength strip))
+              colors)))
+
+
 
 ;;;;; PIXEL PUSHER DISPLAY ;;;;;
 
@@ -53,10 +61,9 @@
   (stop
     [this]
     (println "Stopping PixelPusher display...")
-    (when running
-      ; TODO: remove device observer?
-      (.stopPushing registry)
-      (reset! strips []))
+    ; TODO: remove device observer
+    (.stopPushing registry)
+    (reset! strips [])
     (assoc this :running false))
 
 
@@ -64,7 +71,8 @@
 
   (set-colors!
     [this colors]
-    ; TODO: implementation
+    (when running
+      (dorun (map set-pixels! @strips colors)))
     nil))
 
 
