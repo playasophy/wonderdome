@@ -4,6 +4,9 @@
     (compojure
       [core :refer [ANY GET POST routes]]
       [route :as route])
+    (ring.middleware
+      [keyword-params :refer [wrap-keyword-params]]
+      [params :refer [wrap-params]])
     [ring.util.response :refer [header response status]]))
 
 
@@ -17,9 +20,9 @@
 
 
 
-;;;;; APPLICATION ROUTES ;;;;;
+;;;;; APPLICATION CONSTRUCTORS ;;;;;
 
-(defn ->site
+(defn app-routes
   "Constructs a new Ring handler implementing the website application."
   [config]
   (routes
@@ -41,3 +44,16 @@
       (method-not-allowed :get))
 
     (route/not-found {:message "Not Found"})))
+
+
+(defn wrap-middleware
+  "Wraps the application routes in middleware."
+  [handler]
+  (-> handler
+      wrap-keyword-params
+      wrap-params
+      ; TODO: add middlewares:
+      ; wrap-exception-handler
+      ; wrap-request-logger
+      ; wrap-x-forwarded-for
+      ))
