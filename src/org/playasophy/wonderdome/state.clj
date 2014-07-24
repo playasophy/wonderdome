@@ -45,9 +45,9 @@
 
 
 
-;;;;; INPUT PROCESSOR ;;;;;
+;;;;; EVENT PROCESSOR ;;;;;
 
-(defrecord InputProcessor
+(defrecord EventProcessor
   [handler input state-agent process]
 
   component/Lifecycle
@@ -69,7 +69,7 @@
     (assoc this :process nil)))
 
 
-(defn input-processor
+(defn processor
   [handler & {:keys [input state-agent]}]
   {:pre [(fn? handler)]}
-  (InputProcessor. handler input state-agent nil))
+  (EventProcessor. handler input state-agent nil))

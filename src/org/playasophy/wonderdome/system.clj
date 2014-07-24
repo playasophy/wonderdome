@@ -2,7 +2,7 @@
   (:require
     [clojure.core.async :as async]
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.renderer :as render]
+    [org.playasophy.wonderdome.render :as render]
     [org.playasophy.wonderdome.state :as state]
     [org.playasophy.wonderdome.web.app :as web]))
 
@@ -74,11 +74,11 @@
     :event-channel
     (async/chan 25)
 
-    ; The input processor pulls events off the input channel and sends updates
+    ; The event processor pulls events off the input channel and sends updates
     ; to the state agent via the event handler function.
     :processor
     (component/using
-      (state/input-processor handler)
+      (state/processor handler)
       {:input :event-channel
        :state-agent :state-agent})
 

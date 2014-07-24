@@ -1,4 +1,4 @@
-(ns org.playasophy.wonderdome.renderer
+(ns org.playasophy.wonderdome.render
   "The rendering component attaches a watch function to the state agent which
   forwards the new mode value onto the channel any time the current mode state
   changes. The process then maps the mode over the pixels in the layout to set
