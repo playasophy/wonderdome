@@ -14,12 +14,14 @@
   [["mvxcvi" "http://mvxcvi.com/libs/repo"]]
 
   :dependencies
-  [[compojure "1.1.8"]
+  [[ch.qos.logback/logback-classic "1.1.2"]
+   [compojure "1.1.8"]
    [com.codeminders/hidapi "1.1"]
    [com.heroicrobot/pixelpusher "20130916"]
    [com.stuartsierra/component "0.2.1"]
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]
+   [org.clojure/tools.logging "0.3.0"]
    [ring/ring-core "1.3.0"]
    [ring/ring-jetty-adapter "1.3.0"]]
 

@@ -11,14 +11,6 @@
 
 ;;;;; CONFIGURATION ;;;;;
 
-; Suppress spurious log output.
-(->
-  DeviceRegistry
-  .getName
-  java.util.logging.Logger/getLogger
-  (.setLevel java.util.logging.Level/WARNING))
-
-
 (defn- registry-observer
   "Constructs a new callback function which will update the strips in the given
   atom when the device registry changes."
