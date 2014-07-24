@@ -4,10 +4,14 @@
     (compojure
       [core :refer [ANY GET POST routes]]
       [route :as route])
+    [com.stuartsierra.component :as component]
+    [ring.adapter.jetty :as jetty]
     (ring.middleware
       [keyword-params :refer [wrap-keyword-params]]
       [params :refer [wrap-params]])
-    [ring.util.response :refer [header response status]]))
+    [ring.util.response :refer [header response status]])
+  (:import
+    org.eclipse.jetty.server.Server))
 
 
 ;;;;; RESPONSE FUNCTIONS ;;;;;
@@ -57,3 +61,41 @@
       ; wrap-request-logger
       ; wrap-x-forwarded-for
       ))
+
+
+
+;;;;; WEB SERVER ;;;;;
+
+(defrecord WebServer
+  [^Server server]
+
+  component/Lifecycle
+
+  (start
+    [this]
+    (if server
+      (do
+        (when-not (.isStarted server)
+          (.start server))
+        this)
+      (let [handler (wrap-middleware (app-routes nil))
+            options {:port 8080
+                     :host "0.0.0.0"
+                     :join? false
+                     :min-threads 3
+                     :max-threads 10
+                     :max-queued 25}]
+        (assoc this :server (jetty/run-jetty handler options)))))
+
+
+  (stop
+    [this]
+    (when (and server (not (.isStopped server)))
+      (.stop server))
+    this))
+
+
+(defn server
+  "Constructs a new web server component with the given options."
+  []
+  (WebServer. nil))

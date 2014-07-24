@@ -2,9 +2,9 @@
   (:require
     [clojure.core.async :as async]
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.renderer :refer [renderer]]
-    [org.playasophy.wonderdome.state :refer [input-processor]]))
-
+    [org.playasophy.wonderdome.renderer :as render]
+    [org.playasophy.wonderdome.state :as state]
+    [org.playasophy.wonderdome.web.app :as web]))
 
 
 ;;;;; CHANNEL MIXER ;;;;;
@@ -78,7 +78,7 @@
     ; to the state agent via the event handler function.
     :processor
     (component/using
-      (input-processor handler)
+      (state/input-processor handler)
       {:input :event-channel
        :state-agent :state-agent})
 
@@ -95,11 +95,12 @@
     ; renders new modes over the layout to set the display colors.
     :renderer
     (component/using
-      (renderer)
+      (render/renderer)
       [:mode-channel :state-agent :layout :display])
 
     :layout layout
     :display display
 
-    ; TODO: http server
+    :web
+    (web/server)
     ))
