@@ -1,6 +1,7 @@
 (ns org.playasophy.wonderdome.input.gamepad
   "A gamepad input watches for button presses from a USB game controller."
   (:require
+    [clojure.tools.logging :as log]
     [org.playasophy.wonderdome.input.usb-hid :as usb]))
 
 
@@ -100,8 +101,9 @@
     bytes 5-7: always 00"
   [^bytes buffer len]
   (if (< len 8)
-    (println "Incomplete data read from SNES controller:"
-             (apply str (map (partial format "%02X") (take len buffer))))
+    (log/warn
+      (str "Incomplete data read from SNES controller: "
+           (apply str (map (partial format "%02X") (take len buffer)))))
     (assoc
       (read-buttons snes-buttons buffer)
       :x-axis (byte-axis (aget buffer 0))

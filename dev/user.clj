@@ -50,7 +50,7 @@
          :handler (-> state/update-mode
                       middleware/mode-selector
                       (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
-                      (middleware/print-events (comp #{} :type)))
+                      (middleware/log-events (comp #{} :type)))
          :initial-state (state/initialize modes/config)}
         system/initialize
         (system/add-input :timer timer/timer

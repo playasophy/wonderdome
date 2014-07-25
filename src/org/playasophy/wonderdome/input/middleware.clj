@@ -1,6 +1,7 @@
 (ns org.playasophy.wonderdome.input.middleware
   "Functions for providing system capabilities by handling input events."
   (:require
+    [clojure.tools.logging :as log]
     [org.playasophy.wonderdome.state :as state])
   (:import
     java.util.Date))
@@ -11,16 +12,15 @@
 ; middlewares.
 
 
-(defn print-events
-  "Debugging middleware which prints out events as they pass through the
-  handler stack. A predicate function may be provided to filter the events
-  shown."
+(defn log-events
+  "Debugging middleware which logs events as they pass through the handler
+  stack. A predicate function may be provided to filter the events shown."
   ([handler]
-   (print-events handler (constantly true)))
+   (log-events handler (constantly true)))
   ([handler pred]
    (fn [state event]
      (when (pred event)
-       (prn event))
+       (log/debug (pr-str event)))
      (handler state event))))
 
 

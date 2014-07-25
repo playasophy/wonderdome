@@ -1,5 +1,6 @@
 (ns org.playasophy.wonderdome.display.pixel-pusher
   (:require
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.display.core :as display])
   (:import
@@ -18,7 +19,7 @@
   (reify java.util.Observer
     (update [this target device]
       (let [new-strips (vec (.getStrips registry))]
-        (println "Updated device:" device (str "(" (count new-strips) " strips)"))
+        (log/info (str "Updated device: " device))
         (reset! strips new-strips)))))
 
 
@@ -40,7 +41,7 @@
 
   (start
     [this]
-    (println "Starting PixelPusher display...")
+    (log/info "Starting PixelPusher display...")
     (when-not running
       (doto registry
         (.addObserver (registry-observer registry strips))
@@ -52,9 +53,10 @@
 
   (stop
     [this]
-    (println "Stopping PixelPusher display...")
-    ; TODO: remove device observer
-    (.stopPushing registry)
+    (log/info "Stopping PixelPusher display...")
+    (doto registry
+      (.deleteObservers)
+      (.stopPushing))
     (reset! strips [])
     (assoc this :running false))
 

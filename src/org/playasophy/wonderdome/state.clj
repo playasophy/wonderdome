@@ -1,6 +1,7 @@
 (ns org.playasophy.wonderdome.state
   (:require
     [clojure.core.async :as async :refer [<!]]
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.mode.core :as mode]))
 
@@ -20,7 +21,7 @@
   (let [playlist (:mode/playlist state)
         next-mode (first playlist)
         playlist' (-> playlist rest vec (conj next-mode))]
-    (println (str "Switching mode to " next-mode " => updated playlist: " (pr-str playlist')))
+    (log/debug (str "Switching mode to " next-mode " => updated playlist: " (pr-str playlist')))
     (assoc state
       :mode/current next-mode
       :mode/playlist playlist')))

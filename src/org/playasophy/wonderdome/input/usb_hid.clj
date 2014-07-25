@@ -2,6 +2,7 @@
   "The USB HID component reads state from a device and reports button events."
   (:require
     [clojure.core.async :as async :refer [>!!]]
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component])
   (:import
     (com.codeminders.hidapi
@@ -47,10 +48,10 @@
     (when-let [manager (HIDManager/getInstance)]
       (.openById manager vendor-id product-id nil))
     (catch UnsatisfiedLinkError e
-      (println "Failed to load USB library:" e)
+      (log/error e "Failed to load USB library!")
       nil)
     (catch RuntimeException e
-      (println "Error loading USB input device:" e)
+      (log/error e "Error loading USB input device!")
       nil)))
 
 
