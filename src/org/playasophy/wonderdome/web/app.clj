@@ -48,7 +48,7 @@
   [config]
   (routes
     (GET "/" []
-      (r/response "Hello World"))
+      (render view/control))
     (ANY "/" []
       (method-not-allowed :get))
 
@@ -60,7 +60,7 @@
     ; TODO: input endpoint
 
     (GET "/admin" []
-      (r/response "TODO: render admin page"))
+      (render view/admin))
     (ANY "/admin" []
       (method-not-allowed :get))
 
