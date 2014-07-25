@@ -1,4 +1,8 @@
 <configuration scan="true">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+    <resetJUL>true</resetJUL>
+  </contextListener>
+
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -10,5 +14,5 @@
   </root>
 
   <logger name="org.eclipse.jetty" level="INFO"/>
-  <logger name="com.heroicrobot.dropbit.registry.DeviceRegistry" level="WARNING"/>
+  <logger name="com.heroicrobot.dropbit.registry.DeviceRegistry" level="INFO"/>
 </configuration>

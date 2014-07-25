@@ -18,6 +18,11 @@
     [org.playasophy.wonderdome.mode.config :as modes]))
 
 
+; Force java.util.logging through SLF4J/Logback
+(org.slf4j.bridge.SLF4JBridgeHandler/removeHandlersForRootLogger)
+(org.slf4j.bridge.SLF4JBridgeHandler/install)
+
+
 (def dimensions
   "Geodesic dome and pixel strip dimensions."
   {:radius 3.688         ; 12.1'

@@ -23,6 +23,7 @@
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]
    [org.clojure/tools.logging "0.3.0"]
+   [org.slf4j/jul-to-slf4j "1.7.6"]
    [ring/ring-core "1.3.0"]
    [ring/ring-jetty-adapter "1.3.0"]]
 
