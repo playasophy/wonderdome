@@ -28,8 +28,8 @@ is in the works, as the cubieboard proved itself a bit underpowered in 2013.
 The software driving the display is Clojure code running on the JVM. The overall
 system is composed of many individual components communicating via `core.async`
 channels. The system data-flow diagram can be found
-[here](doc/system-processes.dot); you can use the following command to render it
-for viewing:
+[here](http://www.playasophy.org/media/wonderdome/system-processes.svg);
+you can use the following command to render it locally:
 
 ```bash
 dot -Tsvg < doc/system-processes.dot > target/system-processes.svg
