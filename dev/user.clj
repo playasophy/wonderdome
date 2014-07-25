@@ -19,12 +19,7 @@
       [gamepad :as gamepad]
       [middleware :as middleware]
       [timer :as timer])
-    (org.playasophy.wonderdome.mode
-      [lantern :refer [lantern]]
-      [rainbow :refer [rainbow]]
-      [strobe :refer [strobe]])
-    (org.playasophy.wonderdome.util
-      [color :as color])))
+    [org.playasophy.wonderdome.mode.config :as modes]))
 
 
 (def dimensions
@@ -33,14 +28,6 @@
    :pixel-spacing 0.02   ; 2 cm
    :strip-pixels 240
    :strips 6})
-
-
-(def modes
-  "Map of mode values."
-  ; TODO: dynamically load modes?
-  {:rainbow (rainbow)
-   :strobe (strobe [(color/rgb 1 0 0) (color/rgb 0 1 0) (color/rgb 0 0 1)])
-   :lantern (lantern 0.5)})
 
 
 (def system nil)
@@ -64,7 +51,7 @@
                       middleware/mode-selector
                       (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
                       (middleware/print-events (comp #{} :type)))
-         :initial-state (state/initialize modes)}
+         :initial-state (state/initialize modes/config)}
         system/initialize
         (system/add-input :timer timer/timer
           (async/chan (async/dropping-buffer 3))
