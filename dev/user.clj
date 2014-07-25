@@ -64,7 +64,7 @@
                       middleware/mode-selector
                       (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
                       (middleware/print-events (comp #{} :type)))
-         :state (state/initialize modes)}
+         :initial-state (state/initialize modes)}
         system/initialize
         (system/add-input :timer timer/timer
           (async/chan (async/dropping-buffer 3))

@@ -57,7 +57,7 @@
 
 
 (defn initialize
-  [{:keys [layout display handler state]
+  [{:keys [layout display handler initial-state]
     :as config}]
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
@@ -86,7 +86,7 @@
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
     :state-agent
-    (agent state)
+    (agent initial-state)
 
     :mode-channel
     (async/chan (async/sliding-buffer 3))
