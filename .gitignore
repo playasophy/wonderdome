@@ -1,11 +1,5 @@
-# general ignores
-/build
-
 # deployment files
 /deploy/*.img
-
-# rbenv
-.ruby-version
 
 # leiningen files
 pom.xml
