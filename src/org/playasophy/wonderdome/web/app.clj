@@ -5,6 +5,7 @@
       [core :refer [ANY GET POST routes]]
       [route :refer [not-found]])
     [com.stuartsierra.component :as component]
+    [org.playasophy.wonderdome.web.middleware :refer :all]
     [ring.adapter.jetty :as jetty]
     (ring.middleware
       [keyword-params :refer [wrap-keyword-params]]
@@ -56,11 +57,9 @@
   (-> handler
       wrap-keyword-params
       wrap-params
-      ; TODO: add middlewares:
-      ; wrap-exception-handler
-      ; wrap-request-logger
-      ; wrap-x-forwarded-for
-      ))
+      wrap-exception-handler
+      wrap-request-logger
+      wrap-x-forwarded-for))
 
 
 
