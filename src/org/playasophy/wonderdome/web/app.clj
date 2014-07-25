@@ -3,13 +3,13 @@
     [clojure.string :as str]
     (compojure
       [core :refer [ANY GET POST routes]]
-      [route :as route])
+      [route :refer [not-found]])
     [com.stuartsierra.component :as component]
     [ring.adapter.jetty :as jetty]
     (ring.middleware
       [keyword-params :refer [wrap-keyword-params]]
       [params :refer [wrap-params]])
-    [ring.util.response :refer [header response status]])
+    [ring.util.response :as r])
   (:import
     org.eclipse.jetty.server.Server))
 
@@ -18,9 +18,9 @@
 
 (defn- method-not-allowed
   [& allowed]
-  (-> (response nil)
-      (header "Allow" (str/join ", " (map (comp str/upper-case name) allowed)))
-      (status 405)))
+  (-> (r/response nil)
+      (r/header "Allow" (str/join ", " (map (comp str/upper-case name) allowed)))
+      (r/status 405)))
 
 
 
@@ -31,23 +31,23 @@
   [config]
   (routes
     (GET "/" []
-      (response "Hello World"))
+      (r/response "Hello World"))
     (ANY "/" []
       (method-not-allowed :get))
 
     (GET "/about" []
-      (response "TODO: render about page"))
+      (r/response "TODO: render about page"))
     (ANY "/about" []
       (method-not-allowed :get))
 
     ; TODO: input endpoint
 
     (GET "/admin" []
-      (response "TODO: render admin page"))
+      (r/response "TODO: render admin page"))
     (ANY "/admin" []
       (method-not-allowed :get))
 
-    (route/not-found {:message "Not Found"})))
+    (not-found {:message "Not Found"})))
 
 
 (defn wrap-middleware
