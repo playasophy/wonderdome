@@ -71,5 +71,5 @@
 (defn pixel-pusher
   "Creates a new display streaming color commands to connected pixel-pusher
   hardware."
-  [registry]
-  (PixelPusherDisplay. registry (atom []) false))
+  []
+  (PixelPusherDisplay. (DeviceRegistry.) (atom []) false))
