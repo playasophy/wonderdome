@@ -128,6 +128,7 @@
   ; TODO: sometimes nil when refreshing code...
   (if-let [device (usb/find-device snes-vendor-id snes-product-id)]
     (usb/hid-input
+      :snes
       channel
       device
       snes-read-state

@@ -92,7 +92,8 @@
 ;;;;; INPUT COMPONENT ;;;;;
 
 (defrecord HIDInput
-  [channel
+  [tag
+   channel
    ^HIDDevice device
    read-state
    state-events
@@ -123,9 +124,10 @@
 
 (defn hid-input
   "Creates a new USB input which will report state changes to the function."
-  [channel device read-state state-events]
-  {:pre [(some? channel)
+  [tag channel device read-state state-events]
+  {:pre [(keyword? tag)
+         (some? channel)
          (some? device)
          (fn? read-state)
          (fn? state-events)]}
-  (HIDInput. channel device read-state state-events nil))
+  (HIDInput. tag channel device read-state state-events nil))
