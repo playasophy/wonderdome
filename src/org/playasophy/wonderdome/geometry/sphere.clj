@@ -11,7 +11,7 @@
 (defn wrap-angle
   "Wraps an angle so that it lies between -pi and pi radians."
   [angle]
-  (let [wraps (-> angle (/ tau) Math/abs Math/floor (* tau))]
+  (let [wraps (-> angle (/ tau) double Math/abs Math/floor (* tau))]
     (cond
       (neg? angle)
       (let [a (+ angle wraps)]
