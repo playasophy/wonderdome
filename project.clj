@@ -29,7 +29,8 @@
   :hiera
   {:cluster-depth 4
    :vertical? false
-   :ignore-ns #{com.stuartsierra quil}}
+   :show-external? false
+   :ignore-ns #{user}}
 
   :profiles
   {:dev
