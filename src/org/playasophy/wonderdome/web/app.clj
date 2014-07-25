@@ -5,11 +5,17 @@
       [core :refer [ANY GET POST routes]]
       [route :refer [not-found]])
     [com.stuartsierra.component :as component]
-    [org.playasophy.wonderdome.web.middleware :refer :all]
+    [hiccup.core :as hiccup]
+    (org.playasophy.wonderdome.web
+      [middleware :refer :all]
+      [view :as view])
     [ring.adapter.jetty :as jetty]
     (ring.middleware
+      [content-type :refer [wrap-content-type]]
       [keyword-params :refer [wrap-keyword-params]]
-      [params :refer [wrap-params]])
+      [not-modified :refer [wrap-not-modified]]
+      [params :refer [wrap-params]]
+      [resource :refer [wrap-resource]])
     [ring.util.response :as r])
   (:import
     org.eclipse.jetty.server.Server))
@@ -22,6 +28,16 @@
   (-> (r/response nil)
       (r/header "Allow" (str/join ", " (map (comp str/upper-case name) allowed)))
       (r/status 405)))
+
+
+(defn- render
+  "Renders a Hiccup template data structure to HTML and returns a response with
+  the correct content type."
+  [template]
+  (-> template
+      hiccup/html
+      r/response
+      (r/header "Content-Type" "text/html")))
 
 
 
@@ -37,7 +53,7 @@
       (method-not-allowed :get))
 
     (GET "/about" []
-      (r/response "TODO: render about page"))
+      (render view/about))
     (ANY "/about" []
       (method-not-allowed :get))
 
@@ -57,6 +73,9 @@
   (-> handler
       wrap-keyword-params
       wrap-params
+      (wrap-resource "/public")
+      wrap-content-type
+      wrap-not-modified
       wrap-exception-handler
       wrap-request-logger
       wrap-x-forwarded-for))
@@ -79,7 +98,7 @@
         this)
       (let [handler (wrap-middleware (app-routes nil))
             options {:port 8080
-                     :host "0.0.0.0"
+                     :host "localhost"
                      :join? false
                      :min-threads 3
                      :max-threads 10

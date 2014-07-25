@@ -19,6 +19,7 @@
    [com.codeminders/hidapi "1.1"]
    [com.heroicrobot/pixelpusher "20130916"]
    [com.stuartsierra/component "0.2.1"]
+   [hiccup "1.0.5"]
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]
    [org.clojure/tools.logging "0.3.0"]
