@@ -35,15 +35,14 @@
   (fn [{:keys [uri remote-addr request-method] :as request}]
     (let [start (System/currentTimeMillis)
           method (str/upper-case (name request-method))]
-      (log/debug remote-addr method uri)
+      (log/trace remote-addr method uri)
       (let [{:keys [status headers] :as response} (handler request)
-            elapsed (- (System/currentTimeMillis) start)]
+            elapsed (- (System/currentTimeMillis) start)
+            msg (format "[%s] %s %s %s (%d ms)"
+                        status remote-addr method uri elapsed)]
         (if (<= 400 status 599)
-          (log/warn remote-addr method uri "->" status
-                    (str "(" elapsed " ms)"))
-          (log/info remote-addr method uri "->" status
-                    (str "(" elapsed " ms, "
-                         (get headers "Content-Length" \?) " bytes)")))
+          (log/warn msg)
+          (log/info msg))
         response))))
 
 
