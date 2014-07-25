@@ -28,7 +28,8 @@
   "Uses :select button presses to change the current mode."
   ([handler]
    (fn [state event]
-     (if (= [:button/press :select] [(:type event) (:button event)])
+     (if (and (= (:type event) :button/press)
+              (= (:button event) :select))
        (state/next-mode state)
        (handler state event)))))
 

@@ -5,6 +5,7 @@
   the display colors."
   (:require
     [clojure.core.async :as async :refer [<! <!! >! >!!]]
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.mode.core :as mode]
     [org.playasophy.wonderdome.state :as state]
@@ -41,15 +42,20 @@
     [this]
     (add-watch state-agent :renderer (mode-watcher mode-channel))
     (if process
-      this
-      (assoc this :process
-        (async/go-loop []
-          (render! (<! mode-channel) layout display)
-          (recur)))))
+      (do
+        (log/info "DisplayRenderer is already running")
+        this)
+      (do
+        (log/info "Starting DisplayRenderer...")
+        (assoc this :process
+          (async/go-loop []
+            (render! (<! mode-channel) layout display)
+            (recur))))))
 
 
   (stop
     [this]
+    (log/info "Stopping DisplayRenderer...")
     (remove-watch state-agent :renderer)
     (when process
       (async/close! process))

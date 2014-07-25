@@ -56,15 +56,20 @@
   (start
     [this]
     (if process
-      this
-      (assoc this :process
-        (async/go-loop []
-          (send state-agent handler (<! input))
-          (recur)))))
+      (do
+        (log/info "EventProcessor is already running")
+        this)
+      (do
+        (log/info "Starting EventProcessor...")
+        (assoc this :process
+          (async/go-loop []
+            (send state-agent handler (<! input))
+            (recur))))))
 
 
   (stop
     [this]
+    (log/info "Stopping EventProcessor...")
     (when process
       (async/close! process))
     (assoc this :process nil)))

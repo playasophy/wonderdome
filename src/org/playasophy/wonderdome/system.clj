@@ -1,6 +1,7 @@
 (ns org.playasophy.wonderdome.system
   (:require
     [clojure.core.async :as async]
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
     [org.playasophy.wonderdome.render :as render]
     [org.playasophy.wonderdome.state :as state]
@@ -16,6 +17,7 @@
 
   (start
     [this]
+    (log/info "Starting ChannelMixer...")
     (when-not output
       (throw (IllegalStateException.
                "ChannelMixer can't be started without an output channel")))
@@ -26,6 +28,7 @@
 
   (stop
     [this]
+    (log/info "Stopping ChannelMixer...")
     (when mixer
       (dorun (map (partial async/unmix mixer) inputs)))
     (assoc this :mixer nil)))
@@ -59,6 +62,7 @@
 (defn initialize
   [{:keys [layout display handler initial-state]
     :as config}]
+  (log/info "Initializing system components...")
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
     ; into a channel which is mixed into a common event channel. Use 'add-input'

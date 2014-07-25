@@ -1,6 +1,7 @@
 (ns org.playasophy.wonderdome.web.app
   (:require
     [clojure.string :as str]
+    [clojure.tools.logging :as log]
     (compojure
       [core :refer [ANY GET POST routes]]
       [route :refer [not-found]])
@@ -93,8 +94,11 @@
     [this]
     (if server
       (do
-        (when-not (.isStarted server)
-          (.start server))
+        (if-not (.isStarted server)
+          (do
+            (log/info "Restarting WebServer...")
+            (.start server))
+          (log/info "WebServer is already started"))
         this)
       (let [handler (wrap-middleware (app-routes nil))
             options {:port 8080
@@ -103,11 +107,13 @@
                      :min-threads 3
                      :max-threads 10
                      :max-queued 25}]
+        (log/info (str "Starting WebServer on port " (:port options) "..."))
         (assoc this :server (jetty/run-jetty handler options)))))
 
 
   (stop
     [this]
+    (log/info "Stopping WebServer...")
     (when (and server (not (.isStopped server)))
       (.stop server))
     this))

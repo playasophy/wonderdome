@@ -104,11 +104,15 @@
   (start
     [this]
     (if process
-      this
-      (assoc this :process
-        (doto (Thread. (read-loop device read-state state-events channel) "HIDInput")
-          (.setDaemon true)
-          (.start)))))
+      (do
+        (log/info (str "HIDInput " tag " already started"))
+        this)
+      (do
+        (log/info (str "Starting HIDInput " tag "..."))
+        (assoc this :process
+          (doto (Thread. (read-loop device read-state state-events channel) "HIDInput")
+            (.setDaemon true)
+            (.start))))))
 
 
   (stop

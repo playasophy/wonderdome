@@ -4,6 +4,7 @@
   last event as an :elapsed value."
   (:require
     [clojure.core.async :as async :refer [>!!]]
+    [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]))
 
 
@@ -33,15 +34,20 @@
   (start
     [this]
     (if process
-      this
-      (assoc this :process
-        (doto (Thread. (timer-loop period channel) "TimerInput")
-          (.setDaemon true)
-          (.start)))))
+      (do
+        (log/info "TimerInput already started")
+        this)
+      (do
+        (log/info (str "Starting TimerInput with " period " ms period..."))
+        (assoc this :process
+          (doto (Thread. (timer-loop period channel) "TimerInput")
+            (.setDaemon true)
+            (.start))))))
 
 
   (stop
     [this]
+    (log/info "Stopping TimerInput...")
     (when process
       (.interrupt process)
       (.join process 1000))
