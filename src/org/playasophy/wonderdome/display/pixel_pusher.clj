@@ -26,7 +26,7 @@
 (defn- set-pixels!
   "Renders a sequence of pixel colors to an LED strip."
   [^Strip strip colors]
-  (dorun (map #(when %2 (.setPixel strip (int %1) (unchecked-int %2)))
+  (dorun (map #(when %2 (.setPixel strip (unchecked-int %2) (int %1)))
               (range (.getLength strip))
               colors)))
 
@@ -42,22 +42,14 @@
   (start
     [this]
     (log/info "Starting PixelPusher display...")
-    (when-not running
-      (doto registry
-        (.addObserver (registry-observer registry strips))
-        (.startPushing)
-        (.setExtraDelay 0)
-        (.setAutoThrottle true)))
+    (.startPushing registry)
     (assoc this :running true))
 
 
   (stop
     [this]
     (log/info "Stopping PixelPusher display...")
-    (doto registry
-      (.deleteObservers)
-      (.stopPushing))
-    (reset! strips [])
+    (.stopPushing registry)
     (assoc this :running false))
 
 
@@ -74,4 +66,10 @@
   "Creates a new display streaming color commands to connected pixel-pusher
   hardware."
   []
-  (PixelPusherDisplay. (DeviceRegistry.) (atom []) false))
+  (let [registry (DeviceRegistry.)
+        strips (atom [])]
+    (doto registry
+      (.addObserver (registry-observer registry strips))
+      (.setExtraDelay 0)
+      (.setAutoThrottle true))
+    (PixelPusherDisplay. registry strips false)))
