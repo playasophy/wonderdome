@@ -1,0 +1,13 @@
+# Puppet Module config
+# vim: ft=ruby
+
+name    'playasophy-wonderdome'
+version '0.1.0'
+source 'git://github.com/playasophy/wonderdome.git'
+author 'playasophy'
+license 'Public Domain'
+summary 'Puppet modules for configuring the Wonderdome'
+description 'Puppet modules for configuring the Wonderdome'
+project_page 'https://github.com/playasophy/wonderdome'
+
+dependency 'jfryman/nginx', '>= 0.0.9'
