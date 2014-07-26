@@ -35,7 +35,7 @@
 ;;;;; PIXEL PUSHER DISPLAY ;;;;;
 
 (defrecord PixelPusherDisplay
-  [^DeviceRegistry registry strips running]
+  [^DeviceRegistry registry strips]
 
   component/Lifecycle
 
@@ -43,22 +43,23 @@
     [this]
     (log/info "Starting PixelPusher display...")
     (.startPushing registry)
-    (assoc this :running true))
+    this)
 
 
   (stop
     [this]
     (log/info "Stopping PixelPusher display...")
+    (display/clear this)
+    (Thread/sleep 10)
     (.stopPushing registry)
-    (assoc this :running false))
+    this)
 
 
   display/Display
 
   (set-colors!
     [this colors]
-    (when running
-      (dorun (map set-pixels! @strips colors)))
+    (dorun (map set-pixels! @strips colors))
     nil))
 
 
@@ -72,4 +73,4 @@
       (.addObserver (registry-observer registry strips))
       (.setExtraDelay 0)
       (.setAutoThrottle true))
-    (PixelPusherDisplay. registry strips false)))
+    (PixelPusherDisplay. registry strips)))

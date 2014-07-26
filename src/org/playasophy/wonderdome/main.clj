@@ -15,6 +15,8 @@
     [org.playasophy.wonderdome.mode.config :as modes]))
 
 
+;;;;; CONFIGURATION ;;;;;
+
 ; Force java.util.logging through SLF4J/Logback
 (org.slf4j.bridge.SLF4JBridgeHandler/removeHandlersForRootLogger)
 (org.slf4j.bridge.SLF4JBridgeHandler/install)
@@ -39,15 +41,15 @@
           (finally (remove-ns temp-ns)))))))
 
 
-(def dimensions
-  "Geodesic dome and pixel strip dimensions."
-  {:radius 3.688         ; 12.1'
-   :pixel-spacing 0.02   ; 2 cm
-   :strip-pixels 240
-   :strips 6})
+
+;;;;; LIFECYCLE ;;;;;
+
+(def system nil)
 
 
-(defn -main [& [config-path]]
+(defn- start!
+  "Constructs an initialized Wonderdome system."
+  [config-path]
   (->
     (load-config-file
       config-path
@@ -56,7 +58,8 @@
       '[org.playasophy.wonderdome.geometry.layout :as layout]
       '[org.playasophy.wonderdome.input.middleware :as middleware])
 
-    ; TODO: load some kind of saved state
+    ; TODO: load some kind of saved state?
+    ; TODO: move modes to config file
     (assoc :initial-state
       (state/initialize modes/config))
 
@@ -72,3 +75,21 @@
     ; TODO: audio parser
 
     component/start))
+
+
+(defn- stop!
+  "Halts the running wonderdome system."
+  []
+  (log/info "Stopping Wonderdome system...")
+  (when system
+    (component/stop system)))
+
+
+
+;;;;; ENTRY POINT ;;;;;
+
+(defn -main [& [config-path]]
+  (alter-var-root #'system (constantly (start! config-path)))
+  (.addShutdownHook
+    (Runtime/getRuntime)
+    (Thread. stop! "Wonderdome Shutdown Hook")))
