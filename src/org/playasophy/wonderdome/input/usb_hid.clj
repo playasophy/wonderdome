@@ -50,6 +50,11 @@
     (catch UnsatisfiedLinkError e
       (log/error e "Failed to load USB library!")
       nil)
+    (catch NullPointerException e
+      (log/warn (str "No USB input device present matching "
+                     (Integer/toHexString vendor-id) ":"
+                     (Integer/toHexString product-id)))
+      nil)
     (catch RuntimeException e
       (log/error e "Error loading USB input device!")
       nil)))
