@@ -38,10 +38,10 @@
 
 (defn initialize
   "Builds the initial system state map from the given configuration."
-  [modes]
+  [modes playlist]
   (->
     {:mode/map modes
-     :mode/playlist (vec (keys modes))}
+     :mode/playlist (or playlist (vec (keys modes)))}
     next-mode))
 
 

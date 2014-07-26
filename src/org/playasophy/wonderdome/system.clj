@@ -60,7 +60,7 @@
 
 
 (defn initialize
-  [{:keys [layout display handler initial-state web-options]}]
+  [{:keys [layout display event-handler modes playlist web-options]}]
   (log/info "Initializing system components...")
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
@@ -81,7 +81,7 @@
     ; to the state agent via the event handler function.
     :processor
     (component/using
-      (state/processor handler)
+      (state/processor event-handler)
       {:input :event-channel
        :state-agent :state-agent})
 
@@ -89,9 +89,11 @@
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
     :state-agent
-    (agent initial-state
-           :error-handler (fn [a ex]
-                            (log/error ex "Error updating agent state!")))
+    (agent
+      (state/initialize modes playlist)
+      :error-handler
+      (fn [a ex]
+        (log/error ex "Error updating agent state!")))
 
     :mode-channel
     (async/chan (async/sliding-buffer 3))
