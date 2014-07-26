@@ -1,0 +1,10 @@
+description "wonderdome service"
+start on runlevel [2345]
+stop on runlevel [016]
+
+respawn
+
+setuid <%= @user %>
+setgid <%= @user %>
+
+exec /usr/bin/java <%= @java_opts %> -jar <%= @home %>/wonderdome.jar <%= @service_config %>
