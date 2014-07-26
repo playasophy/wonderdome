@@ -3,43 +3,10 @@
     [clojure.core.async :as async]
     [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
+    [org.playasophy.wonderdome.input.mixer :as mixer]
     [org.playasophy.wonderdome.render :as render]
     [org.playasophy.wonderdome.state :as state]
     [org.playasophy.wonderdome.web.app :as web]))
-
-
-;;;;; CHANNEL MIXER ;;;;;
-
-(defrecord ChannelMixer
-  [inputs output mixer]
-
-  component/Lifecycle
-
-  (start
-    [this]
-    (log/info "Starting ChannelMixer...")
-    (when-not output
-      (throw (IllegalStateException.
-               "ChannelMixer can't be started without an output channel")))
-    (let [mix (or (:mixer this) (async/mix output))]
-      (doall (map (partial async/admix mix) inputs))
-      (assoc this :mixer mix)))
-
-
-  (stop
-    [this]
-    (log/info "Stopping ChannelMixer...")
-    (when mixer
-      (dorun (map (partial async/unmix mixer) inputs)))
-    (assoc this :mixer nil)))
-
-
-(defn mixer
-  "Creates a new component which will set up a channel mixer to put multiple
-  input channels onto the given output channel."
-  [& {:keys [inputs output]}]
-  (ChannelMixer. (set inputs) output nil))
-
 
 
 ;;;;; SYSTEM INITIALIZATION ;;;;;
@@ -60,8 +27,12 @@
 
 
 (defn initialize
-  [{:keys [layout display event-handler modes playlist web-options]}]
+  [{:keys [layout display event-handler modes playlist web-options]
+    :as config}]
   (log/info "Initializing system components...")
+  (when-not config
+    (throw (IllegalArgumentException.
+             "Cannot initialize system without config map")))
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
     ; into a channel which is mixed into a common event channel. Use 'add-input'
@@ -71,7 +42,7 @@
     ; source and mixes them into the common event channel.
     :mixer
     (component/using
-      (mixer)
+      (mixer/channel-mixer)
       {:output :event-channel})
 
     :event-channel
