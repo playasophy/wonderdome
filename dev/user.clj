@@ -12,6 +12,7 @@
       [state :as state]
       [system :as system])
     (org.playasophy.wonderdome.display
+      [pixel-pusher :refer [pixel-pusher]]
       [processing :as processing])
     (org.playasophy.wonderdome.geometry
       [layout :as layout])
@@ -43,21 +44,32 @@
   (alter-var-root #'system
     (constantly
       (->
-        {:layout (layout/star dimensions)
-         :display (component/using
-                    (processing/display [1000 600] (:radius dimensions))
-                    [:layout :event-channel])
-         :handler (-> state/update-mode
-                      middleware/mode-selector
-                      (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
-                      (middleware/log-events (comp #{} :type)))
-         :initial-state (state/initialize modes/config)}
+        {:layout
+         (layout/star dimensions)
+
+         :display
+         (component/using
+           (processing/display [1000 600] (:radius dimensions))
+           [:layout :event-channel])
+
+         :handler
+         (-> state/update-mode
+             middleware/mode-selector
+             (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
+             (middleware/log-events (comp #{} :type)))
+
+         :initial-state
+         (state/initialize modes/config)}
+
         system/initialize
+
         (system/add-input :timer timer/timer
           (async/chan (async/dropping-buffer 3))
           timer-period)
+
         (system/add-input :gamepad gamepad/snes
           (async/chan (async/dropping-buffer 10)))
+
         ; TODO: audio parser
         )))
   :init)
