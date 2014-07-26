@@ -49,8 +49,9 @@
   (stop
     [this]
     (log/info "Stopping PixelPusher display...")
-    (display/clear this)
-    (Thread/sleep 10)
+    (dotimes [i 10]
+      (display/clear this)
+      (Thread/sleep 100))
     (.stopPushing registry)
     this)
 
