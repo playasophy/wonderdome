@@ -54,10 +54,10 @@ The Wonderdome system is engineered to be fairly fault-tolerant, and especially
 to be self-activating as much as possible. Getting the system running should not
 require anything except plugging it in and turning it on.
 
-***TODO:*** describe how to deploy
-
-The software will probably be packaged up as an uberjar using leiningen, then
-deployed as an upstart service which is respawned if it is ever terminated.
+The host is configured by a [Puppet module](puppet), which sets up the
+environment necessary to run the software. The Wonderdome code is packaged up
+with all its dependencies into an 'uberjar' by Leiningen. The jar is run as an
+Upstart script which respawns the process whenever it is terminated.
 
 ## License
 
