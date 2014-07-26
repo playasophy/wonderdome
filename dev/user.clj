@@ -9,6 +9,7 @@
     [clojure.tools.namespace.repl :refer [refresh]]
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
+      [config :as config]
       [state :as state]
       [system :as system])
     (org.playasophy.wonderdome.display
@@ -19,53 +20,35 @@
     (org.playasophy.wonderdome.input
       [gamepad :as gamepad]
       [middleware :as middleware]
-      [timer :as timer])
-    [org.playasophy.wonderdome.mode.config :as modes]))
+      [timer :as timer])))
 
 
-(def dimensions
-  "Geodesic dome and pixel strip dimensions."
-  {:radius 3.688         ; 12.1'
-   :pixel-spacing 0.02   ; 2 cm
-   :strip-pixels 240
-   :strips 6})
+(def dome-radius
+  "Geodesic dome radius in meters (~12.1')."
+  3.688)
 
 
 (def system nil)
 
 
 (defn init!
-  "Initialize the wonderdome system for local development. Accepts an optional
-  key-value sequence to set options:
-
-  :timer-period     milliseconds per timer tick"
-  [& {:keys [timer-period]
-      :or {timer-period 30}}]
+  "Initialize the wonderdome system for local development."
+  [config-path]
   (alter-var-root #'system
     (constantly
       (->
-        {:layout
-         (layout/star dimensions)
+        (config/load config-path)
 
-         :display
-         (component/using
-           (processing/display [1000 600] (:radius dimensions))
-           [:layout :event-channel])
-
-         :handler
-         (-> state/update-mode
-             middleware/mode-selector
-             (middleware/autocycle-modes (comp #{:button/press :button/repeat} :type))
-             (middleware/log-events (comp #{} :type)))
-
-         :initial-state
-         (state/initialize modes/config)}
+        (assoc :display
+          (component/using
+            (processing/display [1000 600] dome-radius)
+            [:layout :event-channel]))
 
         system/initialize
 
         (system/add-input :timer timer/timer
           (async/chan (async/dropping-buffer 3))
-          timer-period)
+          30)
 
         (system/add-input :gamepad gamepad/snes
           (async/chan (async/dropping-buffer 10)))
@@ -84,9 +67,9 @@
 
 
 (defn go!
-  "Initializes and starts the wonderdome system."
+  "Initializes with the default config and starts the wonderdome system."
   []
-  (init!)
+  (init! "config.clj")
   (start!))
 
 
