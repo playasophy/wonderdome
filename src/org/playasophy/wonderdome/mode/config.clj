@@ -5,12 +5,10 @@
       lantern
       rainbow
       strobe)
-    (org.playasophy.wonderdome.util
-      [color :as color])
-    [potemkin :refer [import-vars]]))
+    potemkin))
 
 
-(import-vars
+(potemkin/import-vars
   (org.playasophy.wonderdome.mode.lantern lantern)
   (org.playasophy.wonderdome.mode.rainbow rainbow)
   (org.playasophy.wonderdome.mode.strobe strobe))
