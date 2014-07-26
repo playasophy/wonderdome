@@ -31,7 +31,8 @@ class wonderdome (
   ### SYSTEM CONFIG ###
 
   $packages = [
-    'openjdk-7-jre-headless',
+    # TODO: currently using oracle's embedded arm JRE
+    #'openjdk-7-jre-headless',
   ]
 
   package { $packages:
