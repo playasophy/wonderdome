@@ -89,7 +89,9 @@
     ; (such as pausing, changing the mode playlist, etc) can be accomplished by
     ; sending assoc's which alter the necessary configuration state.
     :state-agent
-    (agent initial-state)
+    (agent initial-state
+           :error-handler (fn [a ex]
+                            (log/error ex "Error updating agent state!")))
 
     :mode-channel
     (async/chan (async/sliding-buffer 3))

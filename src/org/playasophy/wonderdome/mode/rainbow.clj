@@ -17,7 +17,7 @@
 
   (update
     [this event]
-    (condp = [(:type event) (:button event)]
+    (case [(:type event) (:button event)]
       [:dt nil]
       (let [elapsed (or (:elapsed event) 0.0)
             offset' (+ offset (* (/ speed 1000) elapsed))
@@ -38,7 +38,10 @@
                      (or (:elapsed event) 0)
                      move-rate)]
         (assoc this :polar
-          (sphere/wrap-angle (+ polar delta))))))
+          (sphere/wrap-angle (+ polar delta))))
+
+      ; default
+      this))
 
 
   (render
