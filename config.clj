@@ -9,8 +9,8 @@
 
   :event-handler
   (-> state/update-mode
-      middleware/mode-selector
-      (middleware/autocycle-modes
+      handler/mode-selector
+      (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type)))
 
   :web-options

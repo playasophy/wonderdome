@@ -1,15 +1,16 @@
-(ns org.playasophy.wonderdome.input.middleware
-  "Functions for providing system capabilities by handling input events."
+(ns org.playasophy.wonderdome.handler
+  "Middleware functions for providing system capabilities by handling input
+  events.
+
+  Handler functions recieve the current state of the system and an input event
+  and return the updated system state. Middleware wraps a handler function to
+  produce a new handler with some extra logic. This is very similar to how Ring
+  middleware functions."
   (:require
     [clojure.tools.logging :as log]
     [org.playasophy.wonderdome.state :as state])
   (:import
     java.util.Date))
-
-; Handler functions recieve the current state of the system and an input event
-; and return the updated system state. Middleware wraps a handler function to
-; produce a new handler with some extra logic. This is very similar to Ring
-; middlewares.
 
 
 (defn log-events

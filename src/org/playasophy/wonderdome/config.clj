@@ -31,8 +31,8 @@
   [path]
   (load-with-requires
     path
-    '[org.playasophy.wonderdome.state :as state]
     '[org.playasophy.wonderdome.geometry.layout :as layout]
-    '[org.playasophy.wonderdome.input.middleware :as middleware]
+    '[org.playasophy.wonderdome.handler :as handler]
     '[org.playasophy.wonderdome.mode.config :as mode]
+    '[org.playasophy.wonderdome.state :as state]
     '[org.playasophy.wonderdome.util.color :as color]))
