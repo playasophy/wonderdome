@@ -60,8 +60,7 @@
 
 
 (defn initialize
-  [{:keys [layout display handler initial-state]
-    :as config}]
+  [{:keys [layout display handler initial-state web-options]}]
   (log/info "Initializing system components...")
   (component/system-map
     ; Input sources run whatever processes are necessary and stick input events
@@ -106,5 +105,5 @@
     :display display
 
     :web
-    (web/server)
+    (web/server web-options)
     ))

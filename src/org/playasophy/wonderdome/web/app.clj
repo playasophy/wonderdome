@@ -86,7 +86,7 @@
 ;;;;; WEB SERVER ;;;;;
 
 (defrecord WebServer
-  [^Server server]
+  [options ^Server server]
 
   component/Lifecycle
 
@@ -101,12 +101,7 @@
           (log/info "WebServer is already started"))
         this)
       (let [handler (wrap-middleware (app-routes nil))
-            options {:port 8080
-                     :host "localhost"
-                     :join? false
-                     :min-threads 3
-                     :max-threads 10
-                     :max-queued 25}]
+            options (assoc options :host "localhost" :join? false)]
         (log/info (str "Starting WebServer on port " (:port options) "..."))
         (assoc this :server (jetty/run-jetty handler options)))))
 
@@ -121,5 +116,5 @@
 
 (defn server
   "Constructs a new web server component with the given options."
-  []
-  (WebServer. nil))
+  [options]
+  (WebServer. options nil))
