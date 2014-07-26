@@ -29,7 +29,7 @@
   state."
   [mode layout display]
   (display/set-colors! display
-    (map (partial map (partial mode/render mode))
+    (map (partial pmap (partial mode/render mode))
          layout)))
 
 
