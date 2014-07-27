@@ -10,16 +10,13 @@
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
       [config :as config]
-      [state :as state]
       [system :as system])
     (org.playasophy.wonderdome.display
-      [pixel-pusher :refer [pixel-pusher]]
       [processing :as processing])
     (org.playasophy.wonderdome.geometry
       [layout :as layout])
     (org.playasophy.wonderdome.input
       [gamepad :as gamepad]
-      [middleware :as middleware]
       [timer :as timer])))
 
 
