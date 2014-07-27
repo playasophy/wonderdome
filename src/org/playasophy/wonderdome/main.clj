@@ -9,7 +9,7 @@
       [config :as config]
       [state :as state]
       [system :as system])
-    [org.playasophy.wonderdome.display.pixel-pusher :refer [pixel-pusher]]
+    [org.playasophy.wonderdome.display.pixel-pusher :as pixel-pusher]
     (org.playasophy.wonderdome.input
       [gamepad :as gamepad]
       [timer :as timer])))
@@ -32,7 +32,7 @@
   (->
     (config/load config-path)
 
-    (assoc :display (pixel-pusher))
+    (assoc :display (pixel-pusher/display))
 
     system/initialize
 

@@ -64,7 +64,7 @@
     nil))
 
 
-(defn pixel-pusher
+(defn display
   "Creates a new display streaming color commands to connected pixel-pusher
   hardware."
   []
