@@ -13,11 +13,6 @@
 
 ;;;;; CONFIGURATION ;;;;;
 
-(def ^:private library-name
-  "JNI library to load when finding devices."
-  "hidapi-jni-64")
-
-
 (def ^:private ^:const poll-period
   "Milliseconds to wait for new input from USB device."
   100)
@@ -31,24 +26,31 @@
 
 ;;;;; HELPER FUNCTIONS ;;;;;
 
-(defn device-info
-  "Builds a map with a device's manufacturer, product, and serial number."
-  [^HIDDevice device]
-  (when device
-    {:manufacturer (.getManufacturerString device)
-     :product (.getProductString device)
-     :serial (.getSerialNumberString device)}))
+(defn- load-hidapi-library
+  "Attempts to load the JNI hidapi library."
+  []
+  (let [arch (System/getProperty "os.arch")
+        bits (condp re-find arch
+               #"32" 32
+               #"64" 64
+               (throw (IllegalStateException.
+                 (str "Unknown architecture bit size: " arch))))
+        libname (str "hidapi-jni-" bits)]
+    (log/info (str "Loading HID library " libname))
+    (clojure.lang.RT/loadLibrary libname)))
 
 
 (defn find-device
+  "Loads a USB device by vendor and product id. Loads the JNI library and returns
+  an initialized device, or nil on failure."
   [vendor-id product-id]
   (try
-    (clojure.lang.RT/loadLibrary library-name)
-    ; TODO: release the manager?
+    (load-hidapi-library)
     (when-let [manager (HIDManager/getInstance)]
+      ; TODO: release the manager?
       (.openById manager vendor-id product-id nil))
     (catch UnsatisfiedLinkError e
-      (log/error e "Failed to load USB library!")
+      (log/error e "Failed to load USB HID library!")
       nil)
     (catch NullPointerException e
       (log/warn (str "No USB input device present matching "
@@ -59,6 +61,18 @@
       (log/error e "Error loading USB input device!")
       nil)))
 
+
+(defn device-info
+  "Builds a map with a device's manufacturer, product, and serial number."
+  [^HIDDevice device]
+  (when device
+    {:manufacturer (.getManufacturerString device)
+     :product (.getProductString device)
+     :serial (.getSerialNumberString device)}))
+
+
+
+;;;;; INPUT HANDLING ;;;;;
 
 (defn- read-loop
   "Constructs a new runnable looping function which reads the device state and
