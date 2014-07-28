@@ -31,8 +31,9 @@
   []
   (let [arch (System/getProperty "os.arch")
         bits (condp re-find arch
-               #"32" 32
-               #"64" 64
+               #"32"  "32"
+               #"64"  "64"
+               #"arm" "arm"
                (throw (IllegalStateException.
                  (str "Unknown architecture bit size: " arch))))
         libname (str "hidapi-jni-" bits)]
