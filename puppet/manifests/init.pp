@@ -17,15 +17,30 @@
 #   Port to serve the website on locally. The external port will always be the
 #   standard HTTP port 80.
 #
+# [*java_heap*]
+#   Size to assign to the JVM heap. Defaults to 1 GB ("1024M").
+#
 # [*java_opts*]
-#   Options to pass to Java when running the service.
+#   Additional options to pass to Java when running the service.
 #
 class wonderdome (
   $user        = 'wonder',
   $service     = 'wonderdome',
   $server_name = 'wonderdome',
   $server_port = 8080,
-  $java_opts   = "-server",
+  $java_heap   = '1024M',
+  $java_opts   = [
+    '-server',
+    #'-XX:+UseConcMarkSweepGC',
+    #'-XX:+UseParNewGC',
+    #'-XX:+CMSIncrementalPacing',
+    #'-XX:ParallelGCThreads=2',
+    #'-XX:+AggressiveOpts',
+    #'-XX:+PrintGC'
+    '-Dcom.sun.management.jmxremote.port=1098',
+    '-Dcom.sun.management.jmxremote.authenticate=false',
+    '-Dcom.sun.management.jmxremote.ssl=false',
+  ],
 ) {
 
   ### SYSTEM CONFIG ###
@@ -69,12 +84,36 @@ class wonderdome (
   }
 
 
+  ### LOGGING CONFIG ###
+
+  $log_dir = "/var/log/wonderdome"
+  $log_file = "${log_dir}/system.log"
+
+  file { $log_dir:
+    ensure  => directory,
+    owner   => $user,
+    group   => $user,
+    mode    => '0644',
+    require => User[$user],
+  }
+
+
   ### SERVICE CONFIG ###
+
+  $java_lib_path = "${home}/native/linux"
+
+  $service_jar = "${home}/wonderdome.jar"
+  file { $service_jar:
+    ensure  => file,
+    owner   => $user,
+    group   => $user,
+    mode    => '0644',
+    require => File[$home],
+  }
 
   $service_config = "${home}/config.clj"
   file { $service_config:
     ensure  => file,
-    content => template('wonderdome/config.clj.erb'),
     owner   => $user,
     group   => $user,
     mode    => '0644',
@@ -88,13 +127,15 @@ class wonderdome (
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    require => File[$service_config],
+    require => File[$service_jar,
+                    $service_config],
   }
 
   service { $service:
     ensure    => running,
     enable    => true,
-    subscribe => File[$service_config,
+    subscribe => File[$service_jar,
+                      $service_config,
                       $upstart_config],
   }
 

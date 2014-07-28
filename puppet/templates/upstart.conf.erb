@@ -3,8 +3,21 @@ start on runlevel [2345]
 stop on runlevel [016]
 
 respawn
+nice -10
 
 setuid <%= @user %>
 setgid <%= @user %>
 
-exec /usr/bin/java <%= @java_opts %> -jar <%= @home %>/wonderdome.jar <%= @service_config %>
+# console none
+#env WONDERDOME_LOG=<%= @log_file %>
+# env usbhid lib name
+
+exec /usr/bin/java \
+  -Xms<%= @java_heap %> \
+  -Xmx<%= @java_heap %> \
+<% unless @java_opts.empty? -%>
+  <%= @java_opts.join(" \\\n  ") %> \
+<% end -%>
+  -Djava.library.path=<%= @java_lib_path %> \
+  -jar <%= @service_jar %> \
+  <%= @service_config %>
