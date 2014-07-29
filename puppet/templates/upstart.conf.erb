@@ -8,9 +8,7 @@ nice -10
 setuid <%= @user %>
 setgid <%= @user %>
 
-# console none
-#env WONDERDOME_LOG=<%= @log_file %>
-# env usbhid lib name
+console none
 
 exec /usr/bin/java \
   -Xms<%= @java_heap %> \
