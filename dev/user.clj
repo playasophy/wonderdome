@@ -12,12 +12,7 @@
       [config :as config]
       [system :as system])
     (org.playasophy.wonderdome.display
-      [processing :as processing])
-    (org.playasophy.wonderdome.geometry
-      [layout :as layout])
-    (org.playasophy.wonderdome.input
-      [gamepad :as gamepad]
-      [timer :as timer])))
+      [processing :as processing])))
 
 
 (def dome-radius
@@ -35,23 +30,11 @@
     (constantly
       (->
         (config/load config-path)
-
         (assoc :display
           (component/using
             (processing/display [1000 600] dome-radius)
             [:layout :event-channel]))
-
-        system/initialize
-
-        (system/add-input :timer timer/timer
-          (async/chan (async/dropping-buffer 3))
-          30)
-
-        (system/add-input :gamepad gamepad/snes
-          (async/chan (async/dropping-buffer 10)))
-
-        ; TODO: audio parser
-        )))
+        system/initialize)))
   :init)
 
 
