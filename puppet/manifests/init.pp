@@ -100,7 +100,7 @@ class wonderdome (
 
   ### SERVICE CONFIG ###
 
-  $java_lib_path = "${home}/native/linux"
+  $java_lib_path = "${home}/lib"
 
   $service_jar = "${home}/wonderdome.jar"
   file { $service_jar:

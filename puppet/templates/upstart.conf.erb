@@ -19,5 +19,6 @@ exec /usr/bin/java \
   <%= @java_opts.join(" \\\n  ") %> \
 <% end -%>
   -Djava.library.path=<%= @java_lib_path %> \
+  -Dwonderdome.log=<%= @log_file %> \
   -jar <%= @service_jar %> \
   <%= @service_config %>
