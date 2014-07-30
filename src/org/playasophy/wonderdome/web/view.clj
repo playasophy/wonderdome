@@ -41,6 +41,7 @@
     [:div.collapse.navbar-collapse
      [:ul.nav.navbar-nav
       [:li [:a {:href "/about"} "About"]]
+      [:li [:a {:href "/system"} "System Status"]]
       [:li [:a {:href "mailto:wonderdome@playasophy.org?subject=Feedback"} "Send us feedback!"]]]]]])
 
 
@@ -97,19 +98,42 @@
 
 (defn system-stats
   [stats]
-  (let [stat (fn [k] [:span {:id (key->id k)} (get stats k)])]
+  (let [stat (fn [k] [:span {:id (key->id k)} (get stats k)])
+        ->mb (fn [v] (format "%.0f MB" (/ v 1024 1024.0)))]
     (page
       (head "Wonderdome - System")
       [:div.system {:style "padding: 40px 15px;"}
        [:h1 "System Status"]
        [:ul
-        [:li [:strong "Operating System"]
-         " " (stat :os/name)
-         " " (stat :os/version)
-         " " [:em (stat :os/arch)]]
-        [:li [:strong "Java Virtual Machine"]
-         " " (stat :java/vm-name)
-         " " (stat :java/version)]]
+        [:li [:strong "Operating System"] " "
+         (stat :os/name) " "
+         (stat :os/version) " ("
+         (stat :os/arch) ")"]
+        [:li [:strong "Java Virtual Machine"] " "
+         (stat :java/vm-name) " "
+         (stat :java/version)]
+        [:li [:strong "Physical Memory"] " "
+         (let [total (or (:memory.physical/total stats) 1)
+               free (or (:memory.physical/free stats) 0)
+               used (- total free)]
+            (format
+              "%s / %s (%.0f%% in use)"
+              (->mb used)
+              (->mb total)
+              (* 100.0 (/ used total))))]
+        [:li [:strong "Swap Space"] " "
+         (let [total (or (:memory.swap/total stats) 1)
+               free (or (:memory.swap/free stats) 0)
+               used (- total free)]
+            (format "%s / %s (%.0f%% in use)"
+                    (->mb used)
+                    (->mb total)
+                    (* 100.0 (/ used total))))]
+        [:li [:strong "Threads"] " "
+         (format "%d running (%d daemons)"
+                 (:thread/count stats)
+                 (:thread/daemons stats))]]
+       [:h3 "Raw stats"]
        [:div#raw-stats {:style "display: block;"}
         [:pre (with-out-str (pprint stats))]]])))
 
