@@ -7,6 +7,8 @@
       [route :refer [not-found]])
     [com.stuartsierra.component :as component]
     [hiccup.core :as hiccup]
+    (org.playasophy.wonderdome.util
+      [stats :as stats])
     (org.playasophy.wonderdome.web
       [middleware :refer :all]
       [view :as view])
@@ -56,6 +58,11 @@
     (GET "/about" []
       (render view/about))
     (ANY "/about" []
+      (method-not-allowed :get))
+
+    (GET "/system" []
+      (render (view/system-stats (stats/info))))
+    (ANY "/system" []
       (method-not-allowed :get))
 
     ; TODO: input endpoint

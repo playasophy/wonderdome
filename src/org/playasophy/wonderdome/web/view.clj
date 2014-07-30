@@ -1,7 +1,19 @@
-(ns org.playasophy.wonderdome.web.view)
+(ns org.playasophy.wonderdome.web.view
+  (:require
+    [clojure.pprint :refer [pprint]]
+    [clojure.string :as str]))
 
 
 ;;;;; TEMPLATE FUNCTIONS ;;;;;
+
+(defn- key->id
+  "Converts a keyword into an html-safe identifier."
+  [k]
+  (let [clean #(str/replace % \. \-)]
+    (str
+      (and (namespace k) (str (clean (namespace k)) \-))
+      (clean (name k)))))
+
 
 (defn- button
   ([name]
@@ -81,6 +93,25 @@
       "The software driving the display is Clojure code running on the JVM. The overall
       system is composed of many individual components communicating via `core.async`
       channels."]]))
+
+
+(defn system-stats
+  [stats]
+  (let [stat (fn [k] [:span {:id (key->id k)} (get stats k)])]
+    (page
+      (head "Wonderdome - System")
+      [:div.system {:style "padding: 40px 15px;"}
+       [:h1 "System Status"]
+       [:ul
+        [:li [:strong "Operating System"]
+         " " (stat :os/name)
+         " " (stat :os/version)
+         " " [:em (stat :os/arch)]]
+        [:li [:strong "Java Virtual Machine"]
+         " " (stat :java/vm-name)
+         " " (stat :java/version)]]
+       [:div#raw-stats {:style "display: block;"}
+        [:pre (with-out-str (pprint stats))]]])))
 
 
 (def admin
