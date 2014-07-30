@@ -39,7 +39,7 @@
    {:source-paths ["dev"]
     :dependencies
     [[quil "2.1.0"]
-     [org.clojure/tools.namespace "0.2.4"]
+     [org.clojure/tools.namespace "0.2.5"]
      [ring/ring-devel "1.3.0"]]}
 
    :uberjar
