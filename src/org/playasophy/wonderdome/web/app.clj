@@ -75,7 +75,7 @@
     (not-found {:message "Not Found"})))
 
 
-(defn wrap-middleware
+(defn- wrap-middleware
   "Wraps the application routes in middleware."
   [handler]
   (-> handler
@@ -87,6 +87,16 @@
       wrap-exception-handler
       wrap-request-logger
       wrap-x-forwarded-for))
+
+
+(defn- app-handler
+  "Constructs a fully-wrapped application handler to serve with Jetty."
+  [options]
+  ; TODO: inject dependencies
+  (let [handler (wrap-middleware (app-routes nil))]
+    (if-let [wrapper (:ring/wrapper options)]
+      (wrapper handler)
+      handler)))
 
 
 
@@ -107,7 +117,7 @@
             (.start server))
           (log/info "WebServer is already started"))
         this)
-      (let [handler (wrap-middleware (app-routes nil))
+      (let [handler (app-handler options)
             options (assoc options :host "localhost" :join? false)]
         (log/info (str "Starting WebServer on port " (:port options) "..."))
         (assoc this :server (jetty/run-jetty handler options)))))

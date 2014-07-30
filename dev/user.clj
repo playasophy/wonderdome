@@ -12,7 +12,8 @@
       [config :as config]
       [system :as system])
     (org.playasophy.wonderdome.display
-      [processing :as processing])))
+      [processing :as processing])
+    [ring.middleware.reload :refer [wrap-reload]]))
 
 
 (def dome-radius
@@ -30,6 +31,7 @@
     (constantly
       (->
         (config/load config-path)
+        (assoc-in [:web-options :ring/wrapper] wrap-reload)
         (assoc :display
           (component/using
             (processing/display [1000 600] dome-radius)
