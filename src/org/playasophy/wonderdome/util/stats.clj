@@ -1,6 +1,6 @@
 (ns org.playasophy.wonderdome.util.stats
   "Functions to read the current system and JVM status."
-  (import
+  (:import
     com.sun.management.OperatingSystemMXBean
     java.lang.management.ManagementFactory))
 
@@ -19,7 +19,8 @@
   "Returns a map of cpu and memory utilization info from the operating system
   MX bean."
   []
-  (when-let [os-bean (ManagementFactory/getOperatingSystemMXBean)]
+  (when-let [^OperatingSystemMXBean os-bean
+             (ManagementFactory/getOperatingSystemMXBean)]
     {:cpu.load/system (.getSystemLoadAverage os-bean)
      :cpu.load/process (.getProcessCpuLoad os-bean)
      :memory.physical/free (.getFreePhysicalMemorySize os-bean)
