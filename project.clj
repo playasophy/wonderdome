@@ -44,4 +44,5 @@
 
    :uberjar
    {:aot :all
+    :target-path "target/uberjar"
     :main org.playasophy.wonderdome.main}})
