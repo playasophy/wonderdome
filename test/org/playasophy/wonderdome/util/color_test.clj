@@ -107,9 +107,8 @@
 (defn color-harness
   "Creates and starts a sketch to demonstrate the color utility functions."
   []
-  (let []
-    (quil/sketch
-      :title "Wonderdome Color Harness"
-      :setup setup-harness
-      :draw render-harness
-      :size [520 460])))
+  (quil/sketch
+    :title "Wonderdome Color Harness"
+    :setup setup-harness
+    :draw render-harness
+    :size [520 460]))
