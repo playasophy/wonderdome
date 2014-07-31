@@ -39,10 +39,10 @@
           new-val (get new-state button)]
       (cond
         (and new-val (not old-val))
-        {:type :button/press, :button button}
+        {:type :button/press, :button button, :source :gamepad}
 
         (and old-val (not new-val))
-        {:type :button/release, :button button}))))
+        {:type :button/release, :button button, :source :gamepad}))))
 
 
 (defn- repeat-events
