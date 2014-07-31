@@ -18,7 +18,7 @@
   (update
     [this event]
     (case [(:type event) (:button event)]
-      [:dt nil]
+      [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)
             offset' (+ offset (* (/ speed 1000) elapsed))
             offset' (if (> offset' 1.0) (- offset' 1.0) offset')]

@@ -20,7 +20,7 @@
         (when-not (Thread/interrupted)
           (Thread/sleep period)
           (let [now (System/currentTimeMillis)]
-            (>!! channel {:type :dt, :elapsed (- now t)})
+            (>!! channel {:type :time/tick, :elapsed (- now t)})
             (recur now))))
       (catch InterruptedException e
         nil))))

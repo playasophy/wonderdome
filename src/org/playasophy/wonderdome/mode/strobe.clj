@@ -10,7 +10,7 @@
 
   (update
     [this event]
-    (if (= :dt (:type event))
+    (if (= :time/tick (:type event))
       (assoc this :index
         (mod (inc index) (count colors)))
       this))
