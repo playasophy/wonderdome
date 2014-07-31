@@ -83,7 +83,9 @@
       :display display
 
       :web
-      (web/server web-options))
+      (component/using
+        (web/server web-options)
+        [:event-channel :state-agent]))
 
     ; Input sources run whatever processes are necessary and stick input events
     ; into a channel which is mixed into a common event channel. Use 'add-input'

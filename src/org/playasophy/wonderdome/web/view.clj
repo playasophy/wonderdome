@@ -158,22 +158,23 @@
       [:script
        "$(document).ready(function(){
           $('button').mousedown(function(){
-            $.post('/control',
+            $.post('/events',
             {
               button:$(this).attr('name'),
-              type:'pressed'
+              type:'button.pressed'
             });
           });
           $('button').mouseup(function(){
-            $.post('/control',
+            $.post('/events',
             {
               button:$(this).attr('name'),
-              type:'released'
+              type:'button.released'
             });
           });
         });"])
     [:div.admin {:style "padding: 40px 15px; text-align: center;"}
      [:h1 "Wonderdome Controls"]
+     ; TODO: directions need to be handled differently
      [:p (map button ["up" "down" "left" "right"])]
      [:p (map button ["select" "start"])]
      [:p (map button ["A" "B" "X" "Y"])]

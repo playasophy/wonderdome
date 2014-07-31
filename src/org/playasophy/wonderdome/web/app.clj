@@ -1,5 +1,6 @@
 (ns org.playasophy.wonderdome.web.app
   (:require
+    [clojure.core.async :as async :refer [>!!]]
     [clojure.string :as str]
     [clojure.tools.logging :as log]
     (compojure
@@ -26,6 +27,13 @@
 
 ;;;;; RESPONSE FUNCTIONS ;;;;;
 
+(defn- bad-request
+  [body]
+  (-> (r/response body)
+      (r/status 400)
+      (r/content-type "text/plain")))
+
+
 (defn- method-not-allowed
   [& allowed]
   (-> (r/response nil)
@@ -40,7 +48,24 @@
   (-> template
       hiccup/html
       r/response
-      (r/header "Content-Type" "text/html")))
+      (r/content-type "text/html")))
+
+
+(defn- ->event
+  "Constructs an event from request parameters. Throws IllegalArgumentException
+  on invalid events."
+  [params]
+  (let [button (some-> params :button keyword)
+        etype (case (:type params)
+                "button.press"   :button/press
+                "button.release" :button/release
+                (throw (IllegalArgumentException.
+                        (str (pr-str (:type params)) " is not a valid event type"))))]
+    (case etype
+      :button/press
+      {:type etype, :source :web, :button (keyword (:button params))}
+      :button/release
+      {:type etype, :source :web, :button (keyword (:button params))})))
 
 
 
@@ -48,7 +73,7 @@
 
 (defn app-routes
   "Constructs a new Ring handler implementing the website application."
-  [config]
+  [event-channel state-agent]
   (routes
     (GET "/" []
       (render view/control))
@@ -65,14 +90,20 @@
     (ANY "/system" []
       (method-not-allowed :get))
 
-    ; TODO: input endpoint
+    (POST "/events" [& params]
+      (try
+        (when-let [event (->event params)]
+          (>!! event-channel event)
+          (r/response (pr-str event)))
+        (catch IllegalArgumentException e
+          (bad-request (.getMessage e)))))
 
     (GET "/admin" []
       (render view/admin))
     (ANY "/admin" []
       (method-not-allowed :get))
 
-    (not-found {:message "Not Found"})))
+    (not-found "Not Found")))
 
 
 (defn- wrap-middleware
@@ -91,9 +122,8 @@
 
 (defn- app-handler
   "Constructs a fully-wrapped application handler to serve with Jetty."
-  [options]
-  ; TODO: inject dependencies
-  (let [handler (wrap-middleware (app-routes nil))]
+  [event-channel state-agent options]
+  (let [handler (wrap-middleware (app-routes event-channel state-agent))]
     (if-let [wrapper (:ring/wrapper options)]
       (wrapper handler)
       handler)))
@@ -103,7 +133,7 @@
 ;;;;; WEB SERVER ;;;;;
 
 (defrecord WebServer
-  [options ^Server server]
+  [options event-channel state-agent ^Server server]
 
   component/Lifecycle
 
@@ -117,7 +147,7 @@
             (.start server))
           (log/info "WebServer is already started"))
         this)
-      (let [handler (app-handler options)
+      (let [handler (app-handler event-channel state-agent options)
             options (assoc options :host "localhost" :join? false)]
         (log/info (str "Starting WebServer on port " (:port options) "..."))
         (assoc this :server (jetty/run-jetty handler options)))))
@@ -134,4 +164,4 @@
 (defn server
   "Constructs a new web server component with the given options."
   [options]
-  (WebServer. options nil))
+  (WebServer. options nil nil nil))
