@@ -161,14 +161,14 @@
             $.post('/events',
             {
               button:$(this).attr('name'),
-              type:'button.pressed'
+              type:'button.press'
             });
           });
           $('button').mouseup(function(){
             $.post('/events',
             {
               button:$(this).attr('name'),
-              type:'button.released'
+              type:'button.release'
             });
           });
         });"])

@@ -56,7 +56,7 @@
   on invalid events."
   [params]
   (let [button (some-> params :button keyword)
-        etype (case (:type params)
+        etype (condp = (:type params)
                 "button.press"   :button/press
                 "button.release" :button/release
                 (throw (IllegalArgumentException.
