@@ -15,4 +15,5 @@
 
   <logger name="com.heroicrobot.dropbit.registry.DeviceRegistry" level="INFO"/>
   <logger name="org.eclipse.jetty" level="INFO"/>
+  <logger name="org.playasophy" level="DEBUG"/>
 </configuration>
