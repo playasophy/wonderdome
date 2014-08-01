@@ -1,13 +1,10 @@
-(ns org.playasophy.wonderdome.util.color-test
+(ns org.playasophy.wonderdome.util.color-harness
   (:require
-    [clojure.test :refer :all]
     [org.playasophy.wonderdome.util.color :as color]
     [quil.core :as quil]))
 
 
-;;;;; COLOR HARNESS ;;;;;
-
-(defn- setup-harness
+(defn- setup
   []
   (quil/frame-rate 5)
   (quil/text-font (quil/create-font "Courier" 18 true))
@@ -16,7 +13,7 @@
   (quil/stroke 0))
 
 
-(defn- render-harness
+(defn- render
   []
   (let [red   (color/rgb 1 0 0)  ; hue 0/3
         green (color/rgb 0 1 0)  ; hue 1/3
@@ -104,11 +101,11 @@
           (quil/line x 10 x 50)))))
 
 
-(defn color-harness
+(defn start!
   "Creates and starts a sketch to demonstrate the color utility functions."
   []
   (quil/sketch
     :title "Wonderdome Color Harness"
-    :setup setup-harness
-    :draw render-harness
+    :setup #'setup
+    :draw #'render
     :size [520 460]))
