@@ -29,6 +29,17 @@
             (r/status 500))))))
 
 
+(defn wrap-cache-control
+  "Ring middleware to add a cache-control header if the response matches
+  certain content types."
+  [handler cacheable-type? & {:keys [max-age] :or {max-age 300}}]
+  (fn [req]
+    (let [resp (handler req)]
+      (if (cacheable-type? (get-in resp [:headers "Content-Type"]))
+        (r/header resp "Cache-Control" (format "public,max-age=%d" max-age))
+        resp))))
+
+
 (defn wrap-request-logger
   "Ring middleware to log information about service requests."
   [handler]

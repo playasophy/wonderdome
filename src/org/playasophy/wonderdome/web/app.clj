@@ -27,17 +27,6 @@
 
 ;;;;; RESPONSE FUNCTIONS ;;;;;
 
-(defn- wrap-caching
-  "Ring middleware to add a cache-control header if the response matches
-  certain content types."
-  [handler max-age cacheable-type?]
-  (fn [req]
-    (let [resp (handler req)]
-      (if (cacheable-type? (get-in resp [:headers "Content-Type"]))
-        (r/header resp "Cache-Control" (format "public,max-age=%d" max-age))
-        resp))))
-
-
 (defn- bad-request
   [body]
   (-> (r/response body)
@@ -125,7 +114,7 @@
       wrap-params
       (wrap-resource "/public")
       wrap-content-type
-      (wrap-caching 300 #{"text/css" "text/javascript"})
+      (wrap-cache-control #{"text/css" "text/javascript"} :max-age 300)
       wrap-not-modified
       wrap-exception-handler
       wrap-request-logger
