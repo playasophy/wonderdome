@@ -13,6 +13,8 @@
       [system :as system])
     (org.playasophy.wonderdome.display
       [processing :as processing])
+    (org.playasophy.wonderdome.input
+      [gamepad-harness :as gamepad-harness])
     (org.playasophy.wonderdome.util
       [color-harness :as color-harness])
     [ring.middleware.reload :refer [wrap-reload]]))
