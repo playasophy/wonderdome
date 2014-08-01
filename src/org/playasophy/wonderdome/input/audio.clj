@@ -32,7 +32,7 @@
   [^long period ^ddf.minim.AudioInput input channel]
   (let [^FFT fft (FFT. (.bufferSize input) (.sampleRate input))
         ^BeatDetect beats (BeatDetect.)]
-    (.logAverages fft 10 2)
+    (.logAverages fft 50 3)
     (fn []
       (try
         (loop []

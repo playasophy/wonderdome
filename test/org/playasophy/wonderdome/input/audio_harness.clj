@@ -36,21 +36,22 @@
       (dotimes [t history-size]
         (let [index (mod (+ t (:freq/pos audio)) history-size)
               bands (nth spectrums index)
-              band-height (/ (quil/height) (count bands))
+              band-height (/ (- (quil/height) 20) (count bands))
               x-pos (* index slice-width)]
           (dotimes [f (count bands)]
             (let [power (nth bands f)
-                  exposure (- 1.0 (Math/exp (- (/ power 4))))
+                  exposure (- 1.0 (Math/exp (- (/ power 12))))
                   y-pos (+ 20 (* (- (count bands) f) band-height))
-                  color (color/rainbow (* 0.8 (- 1.0 exposure)))]
+                  ;color (color/rainbow (* 0.8 (- 1.0 exposure)))
+                  color (color/gray exposure)]
               (quil/fill color)
               (quil/stroke color)
               (quil/rect x-pos y-pos slice-width band-height)))))
       (when-let [current (nth spectrums (:freq/pos audio))]
         (dotimes [f (count current)]
-          (let [band-height (/ (quil/height) (count current))
+          (let [band-height (/ (- (quil/height) 20) (count current))
                 y-pos (+ 20 (* (dec (- (count current) f)) band-height))]
-            (quil/fill (color/gray 0.0))
+            (quil/fill (color/rgb 0 1 0.5))
             (quil/text (format "%2d: %4.1f" f (nth current f)) 0 (+ 15 y-pos))))))))
 
 
@@ -89,6 +90,7 @@
             :sketch
             (quil/sketch
               :title "Wonderdome Audio Harness"
+              :features [:resizable]
               :setup #'setup
               :draw #'render
               :size [750 500])))))))
