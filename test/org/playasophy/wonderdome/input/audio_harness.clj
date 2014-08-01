@@ -7,6 +7,9 @@
     [quil.core :as quil]))
 
 
+(def ^:constant ^:private history-size 100)
+
+
 (def system nil)
 
 
@@ -21,24 +24,34 @@
   []
   (quil/background 0)
   (when-let [audio (some-> system :state deref)]
-    (let [spectrum (:freq/spectrum audio)
-          band-height (/ (- (quil/height) 40) (inc (count spectrum)))]
-      (doseq [i (range (count spectrum))]
-        (quil/with-translation [20 (+ 20 (* i band-height))]
-          (let [power (nth spectrum i)]
-            (quil/fill (color/rgb 0 0 1))
-            (quil/rect 20 5 (* power 10) (- band-height 10))
-            (quil/fill (color/gray 0.8))
-            (quil/text (str i) 0 5) ; TODO: frequency?
-            (quil/text (format "%4.1f" power) 25 5)))))
     (let [beat-elapsed (- (System/currentTimeMillis) (:beat/at audio))
-          decay-r 0.2
-          saturation (/ (Math/pow (+ 1.0 decay-r) (/ beat-elapsed 100.0)))]
-      (quil/with-translation [(- (quil/width) 30) (- (quil/height) 30)]
-        (quil/fill (color/rgb saturation 0 0))
-        (quil/ellipse 0 0 20 20)
-        (quil/fill (color/gray 0.8))
-        (quil/text (format "%4.1f" (:beat/power audio)) -30 5)))))
+          saturation (/ (Math/pow 1.5 (/ beat-elapsed 100.0)))]
+      (quil/stroke 0)
+      (quil/fill (color/rgb saturation 0 0))
+      (quil/rect 0 0 (quil/width) 20)
+      (quil/fill (color/gray 0.8))
+      (quil/text (format "%4.1f" (:beat/power audio)) 20 15))
+    (let [spectrums (:freq/spectrum audio)
+          slice-width (/ (quil/width) history-size)]
+      (dotimes [t history-size]
+        (let [index (mod (+ t (:freq/pos audio)) history-size)
+              bands (nth spectrums index)
+              band-height (/ (quil/height) (count bands))
+              x-pos (* index slice-width)]
+          (dotimes [f (count bands)]
+            (let [power (nth bands f)
+                  exposure (- 1.0 (Math/exp (- (/ power 4))))
+                  y-pos (+ 20 (* (- (count bands) f) band-height))
+                  color (color/rainbow (* 0.8 (- 1.0 exposure)))]
+              (quil/fill color)
+              (quil/stroke color)
+              (quil/rect x-pos y-pos slice-width band-height)))))
+      (when-let [current (nth spectrums (:freq/pos audio))]
+        (dotimes [f (count current)]
+          (let [band-height (/ (quil/height) (count current))
+                y-pos (+ 20 (* (dec (- (count current) f)) band-height))]
+            (quil/fill (color/gray 0.0))
+            (quil/text (format "%2d: %4.1f" f (nth current f)) 0 (+ 15 y-pos))))))))
 
 
 (defn init!
@@ -51,7 +64,8 @@
               state (atom {:beat/at 0
                            :beat/power 0.0
                            :freq/at 0
-                           :freq/spectrum []})]
+                           :freq/spectrum (vec (repeat history-size [0.0]))
+                           :freq/pos 0})]
           (component/system-map
             :state state
             :input (audio/audio-input channel 100)
@@ -64,7 +78,12 @@
                   :audio/beat
                   (swap! state assoc :beat/at now :beat/power (:power event))
                   :audio/freq
-                  (swap! state assoc :freq/at now :freq/spectrum (:spectrum event))))
+                  (swap! state
+                    (fn [s]
+                      (-> s
+                          (assoc :freq/at now)
+                          (update-in [:freq/spectrum] assoc (or (:freq/pos s) 0) (:spectrum event))
+                          (update-in [:freq/pos] #(mod (inc (or % 0)) history-size)))))))
               (recur))
 
             :sketch
