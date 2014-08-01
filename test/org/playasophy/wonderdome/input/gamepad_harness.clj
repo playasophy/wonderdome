@@ -8,29 +8,37 @@
 (def system nil)
 
 
-(defn start!
-  "Creates and starts a gamepad input component attached to a channel and reader
-  which will print events received to the console."
+(defn init!
+  "Initializes the gamepad harness."
   []
-  (if system
-    (alter-var-root #'system
-      update-in [:input] component/start)
+  (when-not system
     (alter-var-root #'system
       (constantly
         (let [channel (async/chan (async/dropping-buffer 5))]
           (if-let [input (gamepad/snes channel)]
-            {:input (component/start input)
-             :channel channel
-             :process (async/go-loop []
-                        (prn (<! channel))
-                        (recur))}
-            (println "No USB input device found!"))))))
+            (component/system-map
+              :channel channel
+              :input input
+              :process
+              (async/go-loop []
+                (prn (<! channel))
+                (recur)))
+            (println "No USB input device found!")))))))
+
+
+(defn start!
+  "Creates and starts a gamepad input component attached to a channel and reader
+  which will print events received to the console."
+  []
+  (when-not system
+    (init!))
+  (alter-var-root #'system component/start)
   :start)
 
 
 (defn stop!
-  "Stops the wonderdome system and closes the display window."
+  "Stops the gamepad harness from reporting events."
   []
   (when system
-    (alter-var-root #'system update-in [:input] component/stop))
+    (alter-var-root #'system component/stop))
   :stop)
