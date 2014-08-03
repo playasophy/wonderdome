@@ -7,6 +7,7 @@
       [render :as render]
       [state :as state])
     (org.playasophy.wonderdome.input
+      [audio :as audio]
       [gamepad :as gamepad]
       [mixer :as mixer]
       [timer :as timer])
@@ -31,8 +32,10 @@
 
 
 (defn initialize
-  [{:keys [layout display event-handler modes playlist timer-period web-options]
+  [{:keys [layout display event-handler modes playlist audio-period
+           timer-period web-options]
     :or {event-handler state/update-mode
+         audio-period 100
          timer-period 30}
     :as config}]
   (log/info "Initializing system components...")
@@ -95,8 +98,9 @@
       (async/chan (async/dropping-buffer 3))
       timer-period)
 
-    (add-input :gamepad gamepad/snes
-      (async/chan (async/dropping-buffer 10)))
+    (add-input :audio audio/audio-input
+      (async/chan (async/sliding-buffer 10))
+      audio-period)
 
-    ; TODO: audio parser
-    ))
+    (add-input :gamepad gamepad/snes
+      (async/chan (async/dropping-buffer 10)))))
