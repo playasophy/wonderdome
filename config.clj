@@ -15,8 +15,8 @@
 
   :web-options
   {:port 8080
-   :min-threads 3
-   :max-threads 10
+   :min-threads 2
+   :max-threads 5
    :max-queued 25}
 
   :modes
