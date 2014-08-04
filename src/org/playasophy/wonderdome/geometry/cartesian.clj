@@ -63,7 +63,7 @@
   distance epsilon of each other."
   [epsilon edges]
   (let [some-point (fn [points p]
-                     (or (first (filter #(< (cartesian/distance p %) epsilon)
+                     (or (first (filter #(< (distance p %) epsilon)
                                         points))
                          p))]
     (loop [points #{}
@@ -77,3 +77,10 @@
         (if (next edges)
           (recur points' (next edges) result')
           result')))))
+
+
+(defn sort-edges
+  "Returns a sequence of edges, sorted by z, y, then x coordinates."
+  [edges]
+  (let [edge-key (fn [[a b]] (vec (map sort (reverse (map vector a b)))))]
+    (reverse (sort-by edge-key edges))))

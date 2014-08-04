@@ -22,7 +22,7 @@
   [edges]
   (quil/stroke (quil/color 96 128))
   (quil/stroke-weight 3)
-  (let [sorted-edges (map vector (range) (reverse (sort-by (fn [[a b]] (vec (reverse (map vector a b)))) edges)))]
+  (let [sorted-edges (map vector (range) (cartesian/sort-edges edges))]
     (doseq [[i [a b]] sorted-edges]
       (quil/line
         (scale-point a)
