@@ -82,5 +82,5 @@
 (defn sort-edges
   "Returns a sequence of edges, sorted by z, y, then x coordinates."
   [edges]
-  (let [edge-key (fn [[a b]] (vec (map sort (reverse (map vector a b)))))]
+  (let [edge-key (fn [[a b]] (vec (map (comp vec sort) (reverse (map vector a b)))))]
     (reverse (sort-by edge-key edges))))
