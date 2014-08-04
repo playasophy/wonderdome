@@ -13,6 +13,8 @@
       [system :as system])
     (org.playasophy.wonderdome.display
       [processing :as processing])
+    (org.playasophy.wonderdome.geometry
+      [layout-harness :as layout-harness])
     (org.playasophy.wonderdome.input
       [audio-harness :as audio-harness]
       [gamepad-harness :as gamepad-harness])
