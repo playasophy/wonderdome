@@ -27,6 +27,10 @@ here, you can type Clojure statements an immediately see the results:
 (println "Hello world!")
 ```
 
+If you get errors about ClassNotFound referring to `FileSystemHandler`, run
+`lein jar` to perform the necessary compilation. This should only be required
+once.
+
 ## Testing
 
 This project splits the Clojure source files into three top-level directories:
