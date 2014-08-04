@@ -3,10 +3,32 @@
   3-element vector of [x y z]. Coordinates are assumed to be in meters.")
 
 
+(defn scale
+  "Scales a coordinate vector by a constant factor."
+  [p s]
+  (vec (map (partial * s) p)))
+
+
 (defn magnitude
   "Determines the magnitude of the vector from the origin to the given point."
   [p]
   (Math/sqrt (apply + (map #(* % %) p))))
+
+
+(defn distance
+  "Determines the distance between two points."
+  [a b]
+  (magnitude (map - a b)))
+
+
+(defn midpoint
+  "Returns a new point that is a fraction of the distance towards point b
+  from point a."
+  [p a b]
+  (->>
+    (map - b a)
+    (map (partial * p))
+    (map + a)))
 
 
 (defn ->sphere
@@ -36,11 +58,22 @@
      (+ (* y sin-t) (* z cos-t))]))
 
 
-(defn midpoint
-  "Returns a new point that is a fraction of the distance towards point b
-  from point a."
-  [p a b]
-  (->>
-    (map - b a)
-    (map (partial * p))
-    (map + a)))
+(defn dedupe-edges
+  "Deduplicates a set of edges by unifying point values which lie within a certain
+  distance epsilon of each other."
+  [epsilon edges]
+  (let [some-point (fn [points p]
+                     (or (first (filter #(< (cartesian/distance p %) epsilon)
+                                        points))
+                         p))]
+    (loop [points #{}
+           edges edges
+           result #{}]
+      (let [[a b] (first edges)
+            a' (some-point points a)
+            b' (some-point points b)
+            points' (conj points a' b')
+            result' (conj result (vec (sort [a' b'])))]
+        (if (next edges)
+          (recur points' (next edges) result')
+          result')))))
