@@ -58,3 +58,30 @@
          [radius
           (* pixel-angle (+ pixel 5))
           (* strip-angle strip)]}))))
+
+
+(defn geodesic
+  "Constructs a new geodesic layout with the given dimensions."
+  [{:keys [radius pixel-spacing]}]
+  (let [A 1.320
+        B 1.528
+        C 1.562
+        pixel-pair 0.041
+        pairs-per-strip 120
+        connector-length 0.25
+        A-pairs 27
+        B-pairs 32
+        C-pairs 33
+        strip-pairs [24 32 32 32]
+        strip-struts
+        [[0 6 12 10]
+         [2 8 18 16]
+         [4 9 17 19]
+         [3 7 11 13]
+         [1 5 14 15]]
+        ]
+    ; TODO: function which takes a sequence of struts (and the sorted edge
+    ; sequence) and returns a vector of struts, sorted such that adjacent
+    ; points are near each other. Then the count of pixels per strut can be
+    ; mapped onto the sorted strut endpoints and concatenated together.
+    nil))
