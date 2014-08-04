@@ -5,6 +5,7 @@
     [org.playasophy.wonderdome.display.core :as display]
     (org.playasophy.wonderdome.geometry
       [geodesic :as geodesic])
+    [org.playasophy.wonderdome.util.quil :refer [scale-point draw-axes]]
     (quil
       [applet :as applet]
       [core :as quil])))
@@ -12,46 +13,10 @@
 
 ;;;;; RENDERING FUNCTIONS ;;;;;
 
-(def scale
-  "Scale up all coordinates to map meters to screen space."
-  ; TODO: base this on the display size instead?
-  70.0)
-
-
-(defn- scale-point
-  "Scales up a point vector to screen space."
-  [p]
-  (vec (map (partial * scale) p)))
-
-
 (defn- setup-sketch
   []
   (quil/background 0)
   (quil/stroke 0))
-
-
-(defn- draw-axes
-  [length]
-  (let [l (* scale length)]
-    (quil/stroke-weight 1)
-    ; x-axis red
-    (quil/stroke (quil/color 255 0 0))
-    (quil/line [0 0 0] [l 0 0])
-    ; y-axis green
-    (quil/stroke (quil/color 0 255 0))
-    (quil/line [0 0 0] [0 l 0])
-    ; z-axis blue
-    (quil/stroke (quil/color 0 0 255))
-    (quil/line [0 0 0] [0 0 l])))
-
-
-(defn- draw-ground
-  [radius]
-  (let [c (quil/color 210 200 175)
-        r (* scale radius)]
-    (quil/fill c)
-    (quil/stroke c)
-    (quil/ellipse 0 0 r r)))
 
 
 (defn- draw-dome
