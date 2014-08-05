@@ -61,7 +61,7 @@
 (defn dedupe-edges
   "Deduplicates a set of edges by unifying point values which lie within a certain
   distance epsilon of each other."
-  [epsilon edges]
+  [edges epsilon]
   (let [some-point (fn [points p]
                      (or (first (filter #(< (distance p %) epsilon)
                                         points))
@@ -79,8 +79,7 @@
           result')))))
 
 
-(defn sort-edges
-  "Returns a sequence of edges, sorted by z, y, then x coordinates."
-  [edges]
+(defn edge-comparator
+  [a b]
   (let [edge-key (fn [[a b]] (vec (map (comp vec sort) (reverse (map vector a b)))))]
-    (reverse (sort-by edge-key edges))))
+    (compare (edge-key b) (edge-key a))))

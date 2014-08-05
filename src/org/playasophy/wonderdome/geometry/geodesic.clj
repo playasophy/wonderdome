@@ -127,8 +127,7 @@
        (map-shape (partial cartesian/rotate-x phi-angle))
        (split-faces n)
        (map-shape (partial cartesian/project-to r))
-       (mapcat face->edges)
-       (cartesian/dedupe-edges 0.05)))
+       (mapcat face->edges)))
 
 
 (defn ground-slice

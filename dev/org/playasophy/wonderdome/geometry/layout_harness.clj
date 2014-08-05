@@ -2,7 +2,8 @@
   (:require
     (org.playasophy.wonderdome.geometry
       [cartesian :as cartesian]
-      [geodesic :as geodesic])
+      [geodesic :as geodesic]
+      [layout :as layout])
     (org.playasophy.wonderdome.util
       [color :as color]
       [quil :refer [scale-point draw-axes]])
@@ -11,18 +12,15 @@
 
 ;;;;; DRAWING FUNCTIONS ;;;;;
 
-(def struts
-  (-> 3.787
-      (geodesic/edges 3)
-      geodesic/ground-slice
-      set))
+(def dome-struts
+  (layout/geodesic-dome 3.787))
 
 
 (defn- draw-dome
   [edges]
   (quil/stroke (quil/color 96 128))
   (quil/stroke-weight 3)
-  (let [sorted-edges (map vector (range) (cartesian/sort-edges edges))]
+  (let [sorted-edges (map vector (range) edges)]
     (doseq [[i [a b]] sorted-edges]
       (quil/line
         (scale-point a)
@@ -48,7 +46,7 @@
   (quil/rotate-x 0.0 #_ 1.2)
   ;(quil/rotate-z (* (quil/frame-count) 0.003))
   (draw-axes 0.5)
-  (draw-dome struts))
+  (draw-dome dome-struts))
 
 
 (defn start!

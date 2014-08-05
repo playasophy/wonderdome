@@ -5,6 +5,7 @@
   (:require
     (org.playasophy.wonderdome.geometry
       [cartesian :as cartesian]
+      [geodesic :as geodesic]
       [sphere :as sphere :refer [tau]])))
 
 
@@ -62,6 +63,17 @@
 
 
 ;;;;; GEODESIC LAYOUT ;;;;;
+
+(defn geodesic-dome
+  "Builds a sorted set of struts forming the wonder dome's geodesic frame."
+  [radius]
+  (into
+    (sorted-set-by cartesian/edge-comparator)
+    (-> radius
+        (geodesic/edges 3)
+        geodesic/ground-slice
+        (cartesian/dedupe-edges 0.05))))
+
 
 (defn- align-struts
   "Takes a sequence of struts, each of which is a vector of two cartesian
