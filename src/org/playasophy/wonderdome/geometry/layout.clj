@@ -60,6 +60,51 @@
           (* strip-angle strip)]}))))
 
 
+
+;;;;; GEODESIC LAYOUT ;;;;;
+
+(defn- align-struts
+  "Takes a sequence of struts, each of which is a vector of two cartesian
+  coordinates. Returns the strut sequence, but with each strut arranged so
+  that the endpoints are adjacent.
+
+  For example, if the sequence is:
+      ([B A] [C B] [C D])
+  Then the result will be:
+      ([A B] [B C] [C D])"
+  [struts]
+  (if-let [[[a b :as x] y & more] struts]
+    (let [first-vertex
+          (let [points (set y)]
+            (or (get points a)
+                (get points b)
+                (throw (IllegalArgumentException.
+                         (str "Strut " (pr-str x) " has no vertices in "
+                              "common with " (pr-str y))))))
+          first-strut (if (= first-vertex a) [b a] x)]
+      (first
+        (reduce
+          (fn [[result vertex] [a b :as strut]]
+            (cond
+              (= vertex a) [(conj result [a b]) b]
+              (= vertex b) [(conj result [b a]) a]
+              :else
+              (throw (IllegalArgumentException.
+                       (str "Strut " (pr-str strut) " has no vertex matching "
+                            (pr-str vertex))))))
+          [[first-strut] first-vertex]
+          (rest struts))))
+    struts))
+
+
+(defn- place-segments
+  "Given a sequence of struts and a sequence of pixel counts per segment,
+  returns a sequence of coordinates for each pixel."
+  [struts counts pixel-spacing]
+  ; TODO: implement
+  nil)
+
+
 (defn geodesic
   "Constructs a new geodesic layout with the given dimensions."
   [{:keys [radius pixel-spacing]}]
