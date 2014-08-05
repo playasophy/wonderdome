@@ -49,7 +49,7 @@
 
 (defn star
   "Constructs a new star layout with the given dimensions."
-  [{:keys [radius pixel-spacing strips strip-pixels]}]
+  [& {:keys [radius pixel-spacing strips strip-pixels]}]
   (let [strip-angle (/ tau strips)
         pixel-angle (* 2 (Math/asin (/ pixel-spacing 2 radius)))]
     (place-pixels
@@ -109,36 +109,43 @@
     struts))
 
 
-(defn- place-segments
-  "Given a sequence of struts and a sequence of pixel counts per segment,
-  returns a sequence of coordinates for each pixel."
-  [struts counts pixel-spacing]
-  ; TODO: implement
-  nil)
+(defn- place-segment
+  "Given a strut, a count of pixels to place on it, and a spacing between each
+  pixel, returns a sequence of cartesian coordinates for each pixel."
+  [spacing pixels [a b]]
+  (let [strut-length (cartesian/distance a b)
+        margin (/ (- strut-length (* (dec pixels) spacing)) 2)]
+    (println "Placing" pixels "pixels with spacing" spacing "along" strut-length "m strut")
+    (for [i (range pixels)]
+      (let [p (/ (+ margin (* i spacing)) strut-length)]
+        (cartesian/midpoint p a b)))))
 
 
 (defn geodesic
   "Constructs a new geodesic layout with the given dimensions."
-  [{:keys [radius pixel-spacing]}]
-  (let [A 1.320
-        B 1.528
-        C 1.562
-        pixel-pair 0.041
-        pairs-per-strip 120
-        connector-length 0.25
-        A-pairs 27
-        B-pairs 32
-        C-pairs 33
-        strip-pairs [24 32 32 32]
-        strip-struts
-        [[0 6 12 10]
-         [2 8 18 16]
-         [4 9 17 19]
-         [3 7 11 13]
-         [1 5 14 15]]
-        ]
-    ; TODO: function which takes a sequence of struts (and the sorted edge
-    ; sequence) and returns a vector of struts, sorted such that adjacent
-    ; points are near each other. Then the count of pixels per strut can be
-    ; mapped onto the sorted strut endpoints and concatenated together.
-    nil))
+  [& {:keys [radius pixel-spacing strut-pixels strip-struts]}]
+  {:pre [(number? radius)
+         (number? pixel-spacing)
+         (sequential? strut-pixels)
+         (sequential? strip-struts)]}
+  (let [dome-struts (seq (geodesic-dome radius))
+        struts->pixels
+        (fn [strut-indexes]
+          (println "Converting strut indexes to pixels:" (pr-str strut-indexes))
+          (->> strut-indexes
+               (map (partial nth dome-struts))
+               align-struts
+               (mapcat (partial place-segment pixel-spacing) strut-pixels)))]
+    (vec
+      (map
+        (fn [strip i]
+          (map
+            (fn [coord j]
+              {:strip i
+               :pixel j
+               :coord coord
+               :sphere (cartesian/->sphere coord)})
+            strip
+            (range)))
+        (map struts->pixels strip-struts)
+        (range)))))
