@@ -1,6 +1,7 @@
 (hash-map
 
   :layout
+  #_
   (layout/geodesic
     :radius 3.688
     :pixel-spacing 0.02
@@ -13,7 +14,6 @@
      [3 7 11 13]
      [1 5 14 15]])
 
-  #_
   (layout/star
     :radius 3.688         ; 12.1'
     :pixel-spacing 0.02   ; 2 cm
