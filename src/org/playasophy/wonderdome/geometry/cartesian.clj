@@ -36,8 +36,12 @@
   [[x y z :as p]]
   (let [r (magnitude p)]
     [r
-     (Math/acos (/ z r))
-     (Math/atan (/ y x))]))
+     (if (zero? r) 0 (Math/acos (/ z r)))
+     (if (zero? x)
+       (if (pos? y)
+         (/ Math/PI 2)
+         (- (/ Math/PI 2)))
+       (Math/atan (/ y x)))]))
 
 
 (defn project-to

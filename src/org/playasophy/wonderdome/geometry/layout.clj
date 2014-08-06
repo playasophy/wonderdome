@@ -121,14 +121,14 @@
         (cartesian/midpoint p a b)))))
 
 
-(defn geodesic
+(defn geodesic-grid
   "Constructs a new geodesic layout with the given dimensions."
   [& {:keys [radius pixel-spacing strut-pixels strip-struts]}]
   {:pre [(number? radius)
          (number? pixel-spacing)
          (sequential? strut-pixels)
          (sequential? strip-struts)]}
-  (let [dome-struts (seq (geodesic-dome radius))
+  (let [dome-struts (vec (geodesic-dome radius))
         struts->pixels
         (fn [strut-indexes]
           (println "Converting strut indexes to pixels:" (pr-str strut-indexes))
