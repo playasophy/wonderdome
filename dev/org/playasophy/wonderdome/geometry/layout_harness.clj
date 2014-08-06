@@ -17,16 +17,15 @@
 
 
 (defn- draw-dome
-  [edges]
+  []
   (quil/stroke (quil/color 96 128))
   (quil/stroke-weight 3)
-  (let [sorted-edges (map vector (range) edges)]
-    (doseq [[i [a b]] sorted-edges]
-      (quil/line
-        (scale-point a)
-        (scale-point b))
-      (apply quil/text (str i)
-        (scale-point (cartesian/midpoint 1/2 a b))))))
+  (doseq [[[a b] i] (map vector dome-struts (range))]
+    (quil/line
+      (scale-point a)
+      (scale-point b))
+    (apply quil/text (str i)
+      (scale-point (cartesian/midpoint 1/2 a b)))))
 
 
 
@@ -46,7 +45,7 @@
   (quil/rotate-x 0.0 #_ 1.2)
   ;(quil/rotate-z (* (quil/frame-count) 0.003))
   (draw-axes 0.5)
-  (draw-dome dome-struts))
+  (draw-dome))
 
 
 (defn start!
