@@ -13,14 +13,14 @@
 ;;;;; DRAWING FUNCTIONS ;;;;;
 
 (def dome-struts
-  (layout/geodesic-dome 3.787))
+  (vec (map vector (range) (layout/geodesic-dome 3.787))))
 
 
 (defn- draw-dome
   []
   (quil/stroke (quil/color 96 128))
   (quil/stroke-weight 3)
-  (doseq [[[a b] i] (map vector dome-struts (range))]
+  (doseq [[i [a b]] dome-struts]
     (quil/line
       (scale-point a)
       (scale-point b))
@@ -41,7 +41,7 @@
 (defn- render
   []
   (quil/background 0)
-  (quil/translate (* 0.50 (quil/width)) (* 0.50 (quil/height)) 0)
+  (quil/translate (/ (quil/width) 2) (/ (quil/height) 2) 0)
   (quil/rotate-x 0.0 #_ 1.2)
   ;(quil/rotate-z (* (quil/frame-count) 0.003))
   (draw-axes 0.5)
