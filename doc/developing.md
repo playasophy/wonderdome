@@ -24,7 +24,7 @@ used by the system. You should eventually be greeted by a `user=>` prompt. From
 here, you can type Clojure statements an immediately see the results:
 
 ```clojure
-(println "Hello world!")
+user=> (println "Hello world!")
 ```
 
 If you get errors about ClassNotFound referring to `FileSystemHandler`, run
@@ -47,17 +47,27 @@ lein test
 If all goes well, switch to the REPL and try running the color test harness:
 
 ```clojure
-(require '[org.playasophy.wonderdome.util.color-test :as color-test])
-(color-test/color-harness)
+user=> (color-harness/start!)
 ```
 
 You should see a window pop up which demonstrates the color functionality
 available. If not, there is likely an issue with the environment the REPL is
 running in - check to make sure it has access to your `$DISPLAY` (on linux).
 
+There are also test harnesses for the layout code, audio processing, and gamepad
+input:
+
+```clojure
+user=> (layout-harness/start!)
+user=> (audio-harness/start!)
+user=> (audio-harness/stop!)
+user=> (gamepad-harness/start!)
+user=> (gamepad-harness/stop!)
+```
+
 ## Local Simulation
 
-Finally, try running the local Wonderdome system! In your REPL:
+Finally, try running the local Wonderdome system from your REPL:
 
 ```clojure
 (go!)
