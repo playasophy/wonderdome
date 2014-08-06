@@ -69,7 +69,7 @@
   [radius]
   (into
     (sorted-set-by cartesian/edge-comparator)
-    (-> radius
+    (-> (bigdec radius)
         (geodesic/edges 3)
         geodesic/ground-slice
         (cartesian/dedupe-edges 0.05))))

@@ -58,6 +58,31 @@
      (+ (* y sin-t) (* z cos-t))]))
 
 
+(defn- canonize-point
+  [p]
+  (vec (map #(BigDecimal. % (java.math.MathContext. 5)) p)))
+
+
+(defn point-comparator
+  [a b]
+  (compare (vec (reverse b)) (vec (reverse a))))
+
+
+(defn- canonize-edge
+  [e]
+  (->> e (map canonize-point) (sort point-comparator) vec))
+
+
+(defn edge-comparator
+  [x y]
+  (let [[ax bx] x
+        [ay by] y
+        ca (point-comparator ax ay)]
+    (if (zero? ca)
+      (point-comparator bx by)
+      ca)))
+
+
 (defn dedupe-edges
   "Deduplicates a set of edges by unifying point values which lie within a certain
   distance epsilon of each other."
@@ -73,13 +98,7 @@
             a' (some-point points a)
             b' (some-point points b)
             points' (conj points a' b')
-            result' (conj result (vec (sort [a' b'])))]
+            result' (conj result (canonize-edge [a' b']))]
         (if (next edges)
           (recur points' (next edges) result')
           result')))))
-
-
-(defn edge-comparator
-  [a b]
-  (let [edge-key (fn [[a b]] (vec (map (comp vec sort) (reverse (map vector a b)))))]
-    (compare (edge-key b) (edge-key a))))
