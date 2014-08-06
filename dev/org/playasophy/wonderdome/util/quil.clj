@@ -6,11 +6,15 @@
     [quil.core :as quil]))
 
 
+(def ^:dynamic *scale-factor*
+  1.0)
+
+
 (defn screen-scale
   "Determines how much to scale distances by based on how big the processing
   display is."
   ([]
-   (/ (min (quil/width) (quil/height)) 10.0))
+   (* *scale-factor* 1/10 (min (quil/width) (quil/height))))
   ([v]
    (* v (screen-scale))))
 

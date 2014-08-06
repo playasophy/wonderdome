@@ -5,7 +5,7 @@
     [org.playasophy.wonderdome.display.core :as display]
     (org.playasophy.wonderdome.geometry
       [geodesic :as geodesic])
-    [org.playasophy.wonderdome.util.quil :refer [scale-point draw-axes]]
+    [org.playasophy.wonderdome.util.quil :refer [*scale-factor* scale-point draw-axes]]
     (quil
       [applet :as applet]
       [core :as quil])))
@@ -62,15 +62,16 @@
 (defn- render
   [display]
   (quil/background 0)
-  (quil/translate (* 0.50 (quil/width)) (* 0.60 (quil/height)) 0)
-  (quil/rotate-x 1.2)
+  (quil/translate (* 1/2 (quil/width)) (* 3/4 (quil/height)) 0)
+  (quil/rotate-x 2.3)
   (quil/rotate-z (* (quil/frame-count) 0.003))
-  (draw-axes 0.5)
-  ;(draw-ground 4.0)
-  (draw-dome (:dome display))
-  (draw-pixel-strips
-    (:layout display)
-    @(:colors display)))
+  (binding [*scale-factor* 1.5]
+    (draw-axes 0.5)
+    ;(draw-ground 4.0)
+    (draw-dome (:dome display))
+    (draw-pixel-strips
+      (:layout display)
+      @(:colors display))))
 
 
 
