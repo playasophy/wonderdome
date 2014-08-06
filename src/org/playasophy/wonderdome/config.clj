@@ -22,7 +22,7 @@
             (load-string (slurp path)))
           (catch Exception e
             (log/error e (str "Error loading config file: " path))
-            nil)
+            (throw e))
           (finally (remove-ns temp-ns)))))))
 
 
