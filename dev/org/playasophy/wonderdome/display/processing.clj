@@ -46,11 +46,12 @@
   coordinate map."
   [coordinate color]
   (quil/stroke-weight 3)
-  (quil/stroke color)
-  (->> coordinate
-       :coord
-       scale-point
-       (apply quil/point)))
+  (when-not (zero? (quil/brightness color))
+    (quil/stroke color)
+    (->> coordinate
+         :coord
+         scale-point
+         (apply quil/point))))
 
 
 (defn- draw-pixel-strips
