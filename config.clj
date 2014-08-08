@@ -5,7 +5,7 @@
     :radius 3.688
     :pixel-spacing 0.02
     :strut-pixels
-    [48 64 64 64]
+    [50 62 64 64]
     :strip-struts
     [[0 6 15 8]
      [2 14 22 16]
