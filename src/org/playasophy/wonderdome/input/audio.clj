@@ -33,6 +33,7 @@
   (let [^FFT fft (FFT. (.bufferSize input) (.sampleRate input))
         ^BeatDetect beats (BeatDetect.)]
     (.logAverages fft 50 3)
+    (.window fft FFT/GAUSS)
     (fn []
       (try
         (loop []
