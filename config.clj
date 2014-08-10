@@ -36,6 +36,9 @@
   {:rainbow
    (mode/rainbow)
 
+   :tunes
+   (mode/tunes)
+
    :strobe
    (mode/strobe
      [(color/rgb 1 0 0)
@@ -46,6 +49,7 @@
    (mode/lantern 0.5)}
 
   :playlist
-  [:rainbow
+  [:tunes
+   :rainbow
    :strobe
    :lantern])
