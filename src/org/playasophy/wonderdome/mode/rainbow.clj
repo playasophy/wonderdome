@@ -25,6 +25,7 @@
         (assoc this :offset offset'))
 
       ; TODO: add controls for adjusting speed and scale
+      ; TODO: add reset button
 
       [:button/repeat :x-axis]
       (let [delta (* (or (:value event) 0)

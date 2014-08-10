@@ -115,7 +115,6 @@
   [spacing pixels [a b]]
   (let [strut-length (cartesian/distance a b)
         margin (/ (- strut-length (* (dec pixels) spacing)) 2)]
-    (println "Placing" pixels "pixels with spacing" spacing "along" strut-length "m strut")
     (for [i (range pixels)]
       (let [p (/ (+ margin (* i spacing)) strut-length)]
         (cartesian/midpoint p a b)))))
@@ -131,7 +130,6 @@
   (let [dome-struts (vec (geodesic-dome radius))
         struts->pixels
         (fn [strut-indexes]
-          (println "Converting strut indexes to pixels:" (pr-str strut-indexes))
           (->> strut-indexes
                (map (partial nth dome-struts))
                align-struts
