@@ -142,7 +142,7 @@
               {:strip i
                :pixel j
                :coord coord
-               :sphere (cartesian/->sphere coord)})
+               :sphere (sphere/normalize (cartesian/->sphere coord))})
             strip
             (range)))
         (map struts->pixels strip-struts)
