@@ -24,7 +24,8 @@
   (-> state/update-mode
       handler/mode-selector
       (handler/autocycle-modes
-        (comp #{:button/press :button/repeat} :type)))
+        (comp #{:button/press :button/repeat} :type))
+      handler/system-reset)
 
   :web-options
   {:port 8080

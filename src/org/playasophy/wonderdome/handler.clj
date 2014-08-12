@@ -25,6 +25,37 @@
      (handler state event))))
 
 
+(defn system-reset
+  "Resets the system by exiting the JVM when the start button is held down."
+  [handler & {:keys [threshold]
+              :or {threshold 5000}}]
+  (let [button-state (atom [false 0])
+        inc-held (fn [[pressed? elapsed] dt]
+                   (if pressed?
+                     [true (+ elapsed dt)]
+                     [false 0]))]
+    (fn [state event]
+      ; Update button state.
+      (case [(:type event) (:button event)]
+        [:time/tick nil]
+        (swap! button-state inc-held (:elapsed event 0))
+
+        [:button/press :start]
+        (reset! button-state [true 0])
+
+        [:button/release :start]
+        (reset! button-state [false 0])
+
+        nil)
+      ; Check for reset condition.
+      (let [[pressed? elapsed] @button-state]
+        (when (and pressed? (> elapsed threshold))
+          (log/warn "Resetting system because start button held for " elapsed " ms!")
+          (System/exit 0)))
+      ; Otherwise, pass on to handler chain.
+      (handler state event))))
+
+
 (defn mode-selector
   "Uses :select button presses to change the current mode."
   [handler]
