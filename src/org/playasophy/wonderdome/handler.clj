@@ -27,12 +27,12 @@
 
 (defn mode-selector
   "Uses :select button presses to change the current mode."
-  ([handler]
-   (fn [state event]
-     (if (and (= (:type event) :button/press)
-              (= (:button event) :select))
-       (state/next-mode state)
-       (handler state event)))))
+  [handler]
+  (fn [state event]
+    (if (and (= (:type event) :button/press)
+             (= (:button event) :select))
+      (state/next-mode state)
+      (handler state event))))
 
 
 (defn autocycle-modes

@@ -5,11 +5,6 @@
     [org.playasophy.wonderdome.util.color :as color]))
 
 
-(def ^:private ^:const move-rate
-  "Rate at which the angles change in radians per millisecond."
-  0.0005)
-
-
 (defrecord TunesMode
   [gain falloff]
 
@@ -41,9 +36,9 @@
           beat-elapsed (- now (:beat/at this))
           saturation (Math/exp (/ beat-elapsed -100.0))]
       (color/hsv
-        (/ a sphere/tau)
-        (if (neg? a) 0.0 1.0)
-        1.0))))
+        a ;(/ a sphere/tau)
+        1
+        1))))
 
 
 (defn tunes

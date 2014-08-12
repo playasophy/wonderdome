@@ -124,9 +124,10 @@
   respectively."
   [h s v]
   {:pre [(number? h) (number? s) (number? v)]}
-  (Color/HSBtoRGB (float h)
-                  (max 0.0 (min 1.0 (float s)))
-                  (max 0.0 (min 1.0 (float v)))))
+  (Color/HSBtoRGB
+    (float h)
+    (max 0.0 (min 1.0 (float s)))
+    (max 0.0 (min 1.0 (float v)))))
 
 
 (defmethod pack :hsv
