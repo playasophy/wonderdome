@@ -49,4 +49,7 @@
   (.addShutdownHook
     (Runtime/getRuntime)
     (Thread. ^Runnable stop! "Wonderdome Shutdown Hook"))
-  (log/info "System started, entering active mode..."))
+  (log/info "System started, entering active mode...")
+  (Thread/sleep 1000)
+  (log/info "Force-rendering current mode state")
+  (system/render-current system))

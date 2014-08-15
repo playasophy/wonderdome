@@ -1,6 +1,6 @@
 (ns org.playasophy.wonderdome.system
   (:require
-    [clojure.core.async :as async]
+    [clojure.core.async :as async :refer [>!!]]
     [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
     (org.playasophy.wonderdome
@@ -108,3 +108,10 @@
 
     (add-input :gamepad gamepad/snes
       (async/chan (async/dropping-buffer 10)))))
+
+
+(defn render-current
+  "Forcibly renders the current mode state."
+  [{:keys [mode-channel state-agent]}]
+  (when-let [current (state/current-mode @state-agent)]
+    (>!! mode-channel current)))
