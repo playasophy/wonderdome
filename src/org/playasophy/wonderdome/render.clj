@@ -28,9 +28,12 @@
   set-colors! on the display. The mode should not have any mutable internal
   state."
   [mode layout display]
-  (display/set-colors! display
-    (map (partial pmap (partial mode/render mode))
-         layout)))
+  (try
+    (display/set-colors! display
+      (map (partial pmap (partial mode/render mode))
+           layout))
+    (catch Exception e
+      (log/error e "Caught exception in render!"))))
 
 
 (defrecord DisplayRenderer

@@ -33,7 +33,7 @@
     [this pixel]
     (let [[r p a] (:sphere pixel)
           now (System/currentTimeMillis)
-          beat-elapsed (- now (:beat/at this))
+          beat-elapsed (- now (or (:beat/at this) 0))
           saturation (Math/exp (/ beat-elapsed -100.0))]
       (color/hsv
         a ;(/ a sphere/tau)

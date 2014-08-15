@@ -32,7 +32,11 @@
   updated mode state."
   [state event]
   (if (current-mode state)
-    (update-in state [:mode/map (:mode/current state)] mode/update event)
+    (try
+      (update-in state [:mode/map (:mode/current state)] mode/update event)
+      (catch Exception e
+        (log/error e (str "Error updating " (:mode/current state) " mode state"))
+        state))
     state))
 
 
