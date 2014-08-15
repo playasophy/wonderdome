@@ -11,6 +11,9 @@ config_file="config.clj"
 echo "Packaging code..."
 lein uberjar
 
+echo "Stopping service..."
+ssh $host "sudo service wonderdome stop"
+
 echo "Deploying uberjar..."
 scp target/uberjar/$jar_name-*-standalone.jar $home/wonderdome.jar
 
@@ -21,5 +24,4 @@ echo "Deploying configuration..."
 scp $config_file $home/$config_file
 
 echo "Restarting service..."
-#curl -i -X POST http://wonderdome/admin -d "button=restart"
-ssh $host "sudo service wonderdome restart"
+ssh $host "sudo service wonderdome start"
