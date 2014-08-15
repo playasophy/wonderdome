@@ -48,4 +48,5 @@
   (alter-var-root #'system (constantly (start! config-path)))
   (.addShutdownHook
     (Runtime/getRuntime)
-    (Thread. ^Runnable stop! "Wonderdome Shutdown Hook")))
+    (Thread. ^Runnable stop! "Wonderdome Shutdown Hook"))
+  (log/info "System started, entering active mode..."))

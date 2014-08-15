@@ -12,7 +12,7 @@ echo "Packaging code..."
 lein uberjar
 
 echo "Deploying uberjar..."
-scp target/$jar_name-*-standalone.jar $home/wonderdome.jar
+scp target/uberjar/$jar_name-*-standalone.jar $home/wonderdome.jar
 
 echo "Deploying native libraries..."
 scp -r target/native/linux/ $home/lib/
