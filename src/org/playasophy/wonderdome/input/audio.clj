@@ -23,7 +23,20 @@
 
 
 
-;;;;; AUDIO PROCESSING LOOP ;;;;;
+;;;;; HELPER FUNCTIONS ;;;;;
+
+(defn- get-line-in
+  "Acquires an audio line input and returns the constructed Minim and input
+  objects."
+  []
+  (let [fsh (FileSystemHandler. (System/getProperty "user.dir"))
+        minim (Minim. fsh)
+        input (.getLineIn minim Minim/MONO buffer-size)]
+    (when-not input
+      (.stop minim)
+      (throw (IllegalStateException. "Unable to get an audio line input")))
+    [minim input]))
+
 
 (defn- audio-loop
   "Constructs a new runnable looping function which puts events on the given
@@ -51,6 +64,9 @@
           nil)))))
 
 
+
+;;;;; AUDIO INPUT COMPONENT ;;;;;
+
 (defrecord AudioInput
   [channel
    period
@@ -66,17 +82,20 @@
       (do
         (log/info "AudioInput already started")
         this)
-      (do
+      (try
         (log/info (str "Starting AudioInput..."))
-        (let [minim (Minim. (FileSystemHandler. (System/getProperty "user.dir")))
-              input (.getLineIn minim Minim/MONO buffer-size)]
-        (assoc this
-          :minim minim
-          :input input
-          :process
-          (doto (Thread. (audio-loop period input channel) "AudioInput")
-            (.setDaemon true)
-            (.start)))))))
+        (if-let [[minim input] (get-line-in)]
+          (assoc this
+            :minim minim
+            :input input
+            :process
+            (doto (Thread. (audio-loop period input channel) "AudioInput")
+              (.setDaemon true)
+              (.start)))
+          this)
+        (catch Exception e
+          (log/error e "Failed to start AudioInput")
+          this))))
 
 
   (stop

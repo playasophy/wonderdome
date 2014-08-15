@@ -22,7 +22,11 @@
   does not return an input, the channel will be closed."
   [system k input-fn channel & args]
   {:pre [(some? channel)]}
-  (if-let [input (apply input-fn channel args)]
+  (if-let [input (try
+                   (apply input-fn channel args)
+                   (catch Exception e
+                     (log/error e "Failed to initialize input!")
+                     nil))]
     (-> system
         (update-in [:mixer :inputs] conj channel)
         (assoc k input))
