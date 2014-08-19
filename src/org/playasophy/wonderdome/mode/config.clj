@@ -5,6 +5,7 @@
       lantern
       rainbow
       strobe
+      dart 
       tunes)
     potemkin))
 
@@ -13,4 +14,5 @@
   (org.playasophy.wonderdome.mode.lantern lantern)
   (org.playasophy.wonderdome.mode.rainbow rainbow)
   (org.playasophy.wonderdome.mode.strobe strobe)
+  (org.playasophy.wonderdome.mode.dart dart)
   (org.playasophy.wonderdome.mode.tunes tunes))

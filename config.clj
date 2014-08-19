@@ -37,6 +37,9 @@
   {:rainbow
    (mode/rainbow)
 
+   :dart
+   (mode/dart)
+
    :tunes
    (mode/tunes)
 
@@ -50,7 +53,8 @@
    (mode/lantern 0.5)}
 
   :playlist
-  [:tunes
+  [:dart
+   :tunes
    :rainbow
    :strobe
    :lantern])
