@@ -23,7 +23,7 @@
 
 (def ^:private ^:const adjustment-rate
   "Rate at which the deg-per-ms changes per-ms"
-  0.0005)
+  0.000005)
 
 (def ^:private ^:const max-rate
   ""
@@ -54,6 +54,7 @@
                      adjustment-rate)
             new-rate (-> deg-per-ms (+ delta) (min max-rate) (max min-rate))]
         (assoc this :deg-per-ms new-rate))
+
       this))
 
   (render
