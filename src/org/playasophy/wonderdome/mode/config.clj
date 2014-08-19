@@ -2,6 +2,7 @@
   "Collected mode configurations."
   (:require
     (org.playasophy.wonderdome.mode
+      ant
       lantern
       rainbow
       strobe
@@ -10,6 +11,7 @@
 
 
 (potemkin/import-vars
+  (org.playasophy.wonderdome.mode.ant ant)
   (org.playasophy.wonderdome.mode.lantern lantern)
   (org.playasophy.wonderdome.mode.rainbow rainbow)
   (org.playasophy.wonderdome.mode.strobe strobe)

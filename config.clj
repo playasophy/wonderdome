@@ -34,11 +34,14 @@
    :max-queued 25}
 
   :modes
-  {:rainbow
-   (mode/rainbow)
+  {:ant
+   (mode/ant 2.0 4)
 
-   :tunes
-   (mode/tunes)
+   :lantern
+   (mode/lantern 0.5)
+
+   :rainbow
+   (mode/rainbow)
 
    :strobe
    (mode/strobe
@@ -46,11 +49,12 @@
       (color/rgb 0 1 0)
       (color/rgb 0 0 1)])
 
-   :lantern
-   (mode/lantern 0.5)}
+   :tunes
+   (mode/tunes)}
 
   :playlist
   [:tunes
    :rainbow
    :strobe
-   :lantern])
+   :lantern
+   :ant])
