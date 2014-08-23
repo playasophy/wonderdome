@@ -37,6 +37,9 @@
   {:ant
    (mode/ant 2.0 4)
 
+   :dart
+   (mode/dart)
+
    :lantern
    (mode/lantern 0.5)
 
@@ -57,8 +60,8 @@
 
   :playlist
   [:pulse
-   :tunes
-   :rainbow
+   :dart
    :strobe
+   :rainbow
    :lantern
    :ant])
