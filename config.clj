@@ -40,6 +40,9 @@
    :dart
    (mode/dart)
 
+   :flicker
+   (mode/flicker 5 240)
+
    :lantern
    (mode/lantern 0.5)
 
@@ -59,7 +62,8 @@
    (mode/tunes)}
 
   :playlist
-  [:pulse
+  [:flicker
+   :pulse
    :dart
    :strobe
    :rainbow

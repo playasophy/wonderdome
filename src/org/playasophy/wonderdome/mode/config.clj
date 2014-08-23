@@ -3,6 +3,7 @@
   (:require
     (org.playasophy.wonderdome.mode
       ant
+      flicker
       lantern
       pulse
       rainbow
@@ -14,6 +15,7 @@
 
 (potemkin/import-vars
   (org.playasophy.wonderdome.mode.ant ant)
+  (org.playasophy.wonderdome.mode.flicker flicker)
   (org.playasophy.wonderdome.mode.lantern lantern)
   (org.playasophy.wonderdome.mode.pulse pulse)
   (org.playasophy.wonderdome.mode.rainbow rainbow)
