@@ -114,18 +114,24 @@
 (defn konami-code
   "Detects a custom key sequence and activates a secret mode."
   [handler & {:keys [buttons mode]
-              :or {buttons [:B :A :start] mode :strobe}}]
-;              :or {buttons [:up :up :down :down :left :right :left :right :b :a :start]}}]
+              :or {buttons [:A :B :X :Y :L :R :start] mode :strobe}}]
   (let [matched-prefix-len (atom 0)]
     (fn [state event]
-      (if (= (:type event) :button/press)
-        (if (= (:button event) (get buttons @matched-prefix-len))
+      (let [button (:button event)
+            _ (if-not (nil? button) (println "got button: " button))]
+        (cond
+          (not (= (:type event) :button/press))
+          (handler state event)
+
+          (= (:button event) (get buttons @matched-prefix-len))
           (do
             (swap! matched-prefix-len inc)
             (if (= @matched-prefix-len (count buttons))
               (assoc state :mode/current mode)
               (handler state event)))
+
+          :else
           (do
             (reset! matched-prefix-len (if (= (first buttons) (:button event)) 1 0))
             (handler state event)))
-        (handler state event)))))
+        ))))
