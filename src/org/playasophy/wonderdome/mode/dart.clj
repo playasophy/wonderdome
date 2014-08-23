@@ -18,8 +18,8 @@
 
   (update
     [this event]
-    (case [(:type event)]
-      [:time/tick]
+    (case (:type event)
+      :time/tick
       (let [elapsed (or (:elapsed event) 0.0)
             offset' (+ offset (* (/ move-rate 1000) elapsed))
             offset' (if (> offset' 4.0) (- offset' 4.0) offset')]
@@ -31,11 +31,11 @@
 
   (render
     [this pixel]
-    (let [angle (sphere/angle-offset (:sphere pixel) [0 0 0])
-          polar (nth (:sphere pixel) 2)
-          index (* scale (- angle offset))
-          white (if (< (+ polar angle) offset) (+ polar offset) 0.0)]
-      (color/rainbow white))))
+    (let [[_ polar] (:sphere pixel)]
+      (if (< (* 2 polar) offset)
+        (color/rainbow (+ polar offset))
+        0))))
+
 
 (defn dart
   "Creates a new dart mode."
