@@ -25,7 +25,8 @@
       handler/mode-selector
       (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type))
-      handler/system-reset)
+      handler/system-reset
+      handler/konami-code)
 
   :web-options
   {:port 8080
@@ -65,7 +66,6 @@
   [:flicker
    :pulse
    :dart
-   :strobe
    :rainbow
    :lantern
    :ant])

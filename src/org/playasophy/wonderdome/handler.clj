@@ -111,3 +111,21 @@
 ; last input was too far in the past, clears the buffer. If the sequence matches
 ; the code, changes the current mode to the easter-egg mode. Probably lets the
 ; autocycle or manual mode change handle switching out of it.
+(defn konami-code
+  "Detects a custom key sequence and activates a secret mode."
+  [handler & {:keys [buttons mode]
+              :or {buttons [:B :A :start] mode :strobe}}]
+;              :or {buttons [:up :up :down :down :left :right :left :right :b :a :start]}}]
+  (let [matched-prefix-len (atom 0)]
+    (fn [state event]
+      (if (= (:type event) :button/press)
+        (if (= (:button event) (get buttons @matched-prefix-len))
+          (do
+            (swap! matched-prefix-len inc)
+            (if (= @matched-prefix-len (count buttons))
+              (assoc state :mode/current mode)
+              (handler state event)))
+          (do
+            (reset! matched-prefix-len (if (= (first buttons) (:button event)) 1 0))
+            (handler state event)))
+        (handler state event)))))
