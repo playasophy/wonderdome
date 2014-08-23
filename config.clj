@@ -40,6 +40,9 @@
    :lantern
    (mode/lantern 0.5)
 
+   :pulse
+   (mode/pulse (color/rgb 1 0 0))
+
    :rainbow
    (mode/rainbow)
 
@@ -53,7 +56,8 @@
    (mode/tunes)}
 
   :playlist
-  [:tunes
+  [:pulse
+   :tunes
    :rainbow
    :strobe
    :lantern
