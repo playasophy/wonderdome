@@ -67,5 +67,4 @@
    :pulse
    :dart
    :rainbow
-   :lantern
    :ant])
