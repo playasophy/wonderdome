@@ -24,7 +24,8 @@
   (-> state/update-mode
       handler/mode-selector
       (handler/autocycle-modes
-        (comp #{:button/press :button/repeat} :type))
+        (comp #{:button/press :button/repeat} :type)
+        :period 90)
       handler/system-reset
       handler/konami-code)
 
