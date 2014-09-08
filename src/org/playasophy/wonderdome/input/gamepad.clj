@@ -34,26 +34,33 @@
 (defn- button-events
   "Calculates button press and release events. Returns a seq of events."
   [buttons old-state new-state]
-  (for [button buttons]
+  (for [[button default] buttons]
     (let [old-val (get old-state button)
           new-val (get new-state button)]
-      (cond
-        (and new-val (not old-val))
-        {:type :button/press, :button button, :source :gamepad}
-
-        (and old-val (not new-val))
-        {:type :button/release, :button button, :source :gamepad}))))
+      (when (not= old-val new-val)
+        (if (number? new-val)
+          (cond
+            (= default new-val)
+            {:type :button/release, :source :gamepad, :button button, :value new-val}
+            (= default old-val)
+            {:type :button/press, :source :gamepad, :button button, :value new-val})
+          (cond
+            new-val
+            {:type :button/press, :button button, :source :gamepad}
+            old-val
+            {:type :button/release, :button button, :source :gamepad}))))))
 
 
 (defn- repeat-events
   "Calculates repeated button 'hold' events, where the value differs from some
   default value. Sends an event with the button and the elapsed ms it has been
   pressed for."
-  [defaults state elapsed]
-  (for [[button default] defaults]
+  [buttons state elapsed]
+  (for [[button default] buttons]
     (let [value (get state button)]
       (when (and (some? value) (not= value default))
         {:type :button/repeat
+         :source :gamepad
          :button button
          :value value
          :elapsed elapsed}))))
@@ -125,12 +132,10 @@
 
 (defn- snes-state-events
   [old-state new-state elapsed]
-  (let [axes {:x-axis 0.0, :y-axis 0.0}
-        buttons (remove #{:x-axis :y-axis} (keys new-state))]
-    (remove nil?
-      (concat
-        (repeat-events axes old-state elapsed)
-        (button-events buttons old-state new-state)))))
+  (remove nil?
+    (concat
+      (repeat-events snes-defaults old-state elapsed)
+      (button-events snes-defaults old-state new-state))))
 
 
 (defn snes
