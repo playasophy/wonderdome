@@ -26,10 +26,10 @@
       (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type)
         :period 90)
-      (handler/control-code
+      (handler/control-code :konami
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
-      handler/system-reset))
+      handler/system-reset)
 
   :web-options
   {:port 8080

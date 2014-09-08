@@ -116,8 +116,6 @@
                      :x-axis (if (neg? (:value event)) :left :right)
                      :y-axis (if (pos? (:value event)) :up   :down)
                      (:button event))]
-        (when (and button (= (:type event) :button/press))
-          (println (:type event) button))
         (cond
           (not= (:type event) :button/press)
           (handler state event)
@@ -129,9 +127,7 @@
               (do
                 (log/info (str "Detected " k " code, switching mode to " mode))
                 (assoc state :mode/current mode))
-              (do
-                (println @matched-prefix-len)
-                (handler state event))))
+              (handler state event)))
 
           :else
           (do
