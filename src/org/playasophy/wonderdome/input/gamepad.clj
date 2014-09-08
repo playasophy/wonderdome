@@ -80,7 +80,7 @@
 (def ^:const snes-product-id 0xd015)
 
 
-(def ^:private snes-buttons
+(def ^:private snes-bits
   {:X      [3 0]
    :A      [3 1]
    :B      [3 2]
@@ -89,6 +89,19 @@
    :R      [3 5]
    :select [4 0]
    :start  [4 1]})
+
+
+(def ^:private snes-defaults
+  {:x-axis 0.0
+   :y-axis 0.0
+   :X      false
+   :A      false
+   :B      false
+   :Y      false
+   :L      false
+   :R      false
+   :select false
+   :start  false})
 
 
 (defn- snes-read-state
@@ -105,7 +118,7 @@
       (str "Incomplete data read from SNES controller: "
            (apply str (map (partial format "%02X") (take len buffer)))))
     (assoc
-      (read-buttons snes-buttons buffer)
+      (read-buttons snes-bits buffer)
       :x-axis (byte-axis (aget buffer 0))
       :y-axis (- (byte-axis (aget buffer 1))))))
 
