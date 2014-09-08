@@ -25,8 +25,10 @@
       handler/mode-selector
       (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type))
-      handler/system-reset
-      handler/konami-code)
+      (handler/control-code
+        :code [:up :up :down :down :left :right :left :right :B :A :start]
+        :mode :strobe)
+      handler/system-reset)
 
   :web-options
   {:port 8080

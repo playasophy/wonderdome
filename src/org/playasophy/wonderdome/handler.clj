@@ -106,32 +106,34 @@
         (handler event)))))
 
 
-; Konami code middleware:
-; Watches button inputs, keeping track of the sequence of input events; if the
-; last input was too far in the past, clears the buffer. If the sequence matches
-; the code, changes the current mode to the easter-egg mode. Probably lets the
-; autocycle or manual mode change handle switching out of it.
-(defn konami-code
+(defn control-code
   "Detects a custom key sequence and activates a secret mode."
-  [handler & {:keys [buttons mode]
-              :or {buttons [:A :B :X :Y :L :R :start] mode :strobe}}]
+  [handler k & {:keys [code mode]
+                :or {code [:A :B :X :Y :L :R :start]}}]
   (let [matched-prefix-len (atom 0)]
     (fn [state event]
-      (let [button (:button event)
-            _ (if-not (nil? button) (println "got button: " button))]
+      (let [button (case (:button event)
+                     :x-axis (if (neg? (:value event)) :left :right)
+                     :y-axis (if (pos? (:value event)) :up   :down)
+                     (:button event))]
+        (when (and button (= (:type event) :button/press))
+          (println (:type event) button))
         (cond
-          (not (= (:type event) :button/press))
+          (not= (:type event) :button/press)
           (handler state event)
 
-          (= (:button event) (get buttons @matched-prefix-len))
+          (= button (get code @matched-prefix-len))
           (do
             (swap! matched-prefix-len inc)
-            (if (= @matched-prefix-len (count buttons))
-              (assoc state :mode/current mode)
-              (handler state event)))
+            (if (= @matched-prefix-len (count code))
+              (do
+                (log/info (str "Detected " k " code, switching mode to " mode))
+                (assoc state :mode/current mode))
+              (do
+                (println @matched-prefix-len)
+                (handler state event))))
 
           :else
           (do
-            (reset! matched-prefix-len (if (= (first buttons) (:button event)) 1 0))
-            (handler state event)))
-        ))))
+            (reset! matched-prefix-len (if (= (first code) (:button event)) 1 0))
+            (handler state event)))))))
