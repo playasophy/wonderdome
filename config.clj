@@ -24,11 +24,12 @@
   (-> state/update-mode
       handler/mode-selector
       (handler/autocycle-modes
-        (comp #{:button/press :button/repeat} :type))
+        (comp #{:button/press :button/repeat} :type)
+        :period 90)
       (handler/control-code
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
-      handler/system-reset)
+      handler/system-reset))
 
   :web-options
   {:port 8080
@@ -69,5 +70,4 @@
    :pulse
    :dart
    :rainbow
-   :lantern
    :ant])

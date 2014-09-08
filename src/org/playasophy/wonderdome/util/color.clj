@@ -7,6 +7,9 @@
 ; TODO: use deftypes instead of vectors with metadata and protocols instead of multimethods
 ; should be much higher performance
 
+(def none 0)
+
+
 
 ;;;;; HELPER FUNCTIONS ;;;;;
 
