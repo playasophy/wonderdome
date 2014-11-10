@@ -128,12 +128,12 @@
   "Detects a custom key sequence and activates a secret mode."
   [handler k & {:keys [code mode]
                 :or {code [:A :B :X :Y :L :R :start]}}]
-   (let [reversed-code (reverse code)
-         code-length (count code)]
-     (fn [state event]
-       (if (and (= (:type event) :button/press)
-                (= reversed-code (take code-length (:button-history state))))
-         (do
-           (log/info (str "Detected " k " code, switching mode to " mode))
-           (assoc state :mode/current mode))
-         (handler state event)))))
+  (let [reversed-code (reverse code)
+        code-length (count code)]
+    (fn [state event]
+      (if (and (= (:type event) :button/press)
+               (= reversed-code (take code-length (:button-history state))))
+        (do
+          (log/info (str "Detected " k " code, switching mode to " mode))
+          (assoc state :mode/current mode))
+        (handler state event)))))
