@@ -106,30 +106,34 @@
         (handler event)))))
 
 
+(defn- rolling-append
+  [s size x]
+  (take size (cons x s)))
+
+
+(defn buffer-keys
+  "Maintains a buffer of the most recent key presses."
+  ([handler]
+   (buffer-keys handler 20))
+  ([handler size]
+   (fn [state event]
+     (handler
+       (if (= (:type event) :button/press)
+         (update-in state [:button-history] rolling-append size (:button event))
+         state)
+       event))))
+
+
 (defn control-code
   "Detects a custom key sequence and activates a secret mode."
   [handler k & {:keys [code mode]
                 :or {code [:A :B :X :Y :L :R :start]}}]
-  (let [matched-prefix-len (atom 0)]
-    (fn [state event]
-      (let [button (case (:button event)
-                     :x-axis (if (neg? (:value event)) :left :right)
-                     :y-axis (if (pos? (:value event)) :up   :down)
-                     (:button event))]
-        (cond
-          (not= (:type event) :button/press)
-          (handler state event)
-
-          (= button (get code @matched-prefix-len))
-          (do
-            (swap! matched-prefix-len inc)
-            (if (= @matched-prefix-len (count code))
-              (do
-                (log/info (str "Detected " k " code, switching mode to " mode))
-                (assoc state :mode/current mode))
-              (handler state event)))
-
-          :else
-          (do
-            (reset! matched-prefix-len (if (= (first code) (:button event)) 1 0))
-            (handler state event)))))))
+   (let [reversed-code (reverse code)
+         code-length (count code)]
+     (fn [state event]
+       (if (and (= (:type event) :button/press)
+                (= reversed-code (take code-length (:button-history state))))
+         (do
+           (log/info (str "Detected " k " code, switching mode to " mode))
+           (assoc state :mode/current mode))
+         (handler state event)))))

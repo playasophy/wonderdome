@@ -29,6 +29,7 @@
       (handler/control-code :konami
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
+      (handler/buffer-keys 20)
       handler/system-reset)
 
   :web-options
