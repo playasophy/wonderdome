@@ -31,37 +31,42 @@
     (into {})))
 
 
-(defn- button-events
-  "Calculates button press and release events. Returns a seq of events."
+(defn- button-state-events
+  "Calculates button press and release events. Returns a sequence of button
+  press and release events."
   [buttons old-state new-state]
-  (for [[button default] buttons]
+  (for [button buttons]
     (let [old-val (get old-state button)
           new-val (get new-state button)]
       (when (not= old-val new-val)
-        (if (number? new-val)
-          (cond
-            (= default new-val)
-            {:type :button/release, :source :gamepad, :button button, :value new-val}
-            (= default old-val)
-            {:type :button/press, :source :gamepad, :button button, :value new-val})
-          (cond
-            new-val
-            {:type :button/press, :button button, :source :gamepad}
-            old-val
-            {:type :button/release, :button button, :source :gamepad}))))))
-
-
-(defn- repeat-events
-  "Calculates repeated button 'hold' events, where the value differs from some
-  default value. Sends an event with the button and the elapsed ms it has been
-  pressed for."
-  [buttons state elapsed]
-  (for [[button default] buttons]
-    (let [value (get state button)]
-      (when (and (some? value) (not= value default))
-        {:type :button/repeat
+        {:type (if new-val :button/press :button/release)
          :source :gamepad
-         :button button
+         :button button}))))
+
+
+(defn- button-hold-events
+  "Calculates repeated button hold events. Returns a sequence of events with
+  the button and the elapsed ms it has been pressed for."
+  [buttons state elapsed]
+  (for [button buttons]
+    (if (get state button)
+      {:type :button/hold
+       :source :gamepad
+       :button button
+       :elapsed elapsed})))
+
+
+(defn- axis-direction-events
+  "Calculates repeated axis direction events. Returns a sequence of events with
+  the axis, the current value in [-1.0, 1.0], and the elapsed ms it has had
+  that value."
+  [axes state elapsed]
+  (for [[axis default] axes]
+    (let [value (get state axis)]
+      (when (not= default value)
+        {:type :axis/direction
+         :source :gamepad
+         :axis axis
          :value value
          :elapsed elapsed}))))
 
@@ -86,6 +91,12 @@
 (def ^:const snes-vendor-id  0x12bd)
 (def ^:const snes-product-id 0xd015)
 
+(def ^:private snes-axes
+  {:x-axis 0.0
+   :y-axis 0.0})
+
+(def ^:private snes-buttons
+  #{:X :A :B :Y :L :R :select :start})
 
 (def ^:private snes-bits
   {:X      [3 0]
@@ -96,19 +107,6 @@
    :R      [3 5]
    :select [4 0]
    :start  [4 1]})
-
-
-(def ^:private snes-defaults
-  {:x-axis 0.0
-   :y-axis 0.0
-   :X      false
-   :A      false
-   :B      false
-   :Y      false
-   :L      false
-   :R      false
-   :select false
-   :start  false})
 
 
 (defn- snes-read-state
@@ -124,6 +122,7 @@
     (log/warn
       (str "Incomplete data read from SNES controller: "
            (apply str (map (partial format "%02X") (take len buffer)))))
+    ; TODO: virtual d-pad buttons
     (assoc
       (read-buttons snes-bits buffer)
       :x-axis (byte-axis (aget buffer 0))
@@ -134,8 +133,9 @@
   [old-state new-state elapsed]
   (remove nil?
     (concat
-      (repeat-events snes-defaults old-state elapsed)
-      (button-events snes-defaults old-state new-state))))
+      (axis-direction-events snes-axes old-state elapsed)
+      (button-hold-events snes-buttons old-state elapsed)
+      (button-state-events snes-buttons old-state new-state))))
 
 
 (defn snes
