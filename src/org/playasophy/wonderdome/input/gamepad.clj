@@ -41,7 +41,7 @@
       (when (not= old-val new-val)
         {:type (if new-val :button/press :button/release)
          :source :gamepad
-         :button button}))))
+         :input button}))))
 
 
 (defn- button-hold-events
@@ -52,7 +52,7 @@
     (if (get state button)
       {:type :button/hold
        :source :gamepad
-       :button button
+       :input button
        :elapsed elapsed})))
 
 
@@ -66,7 +66,7 @@
       (when (not= default value)
         {:type :axis/direction
          :source :gamepad
-         :axis axis
+         :input axis
          :value value
          :elapsed elapsed}))))
 

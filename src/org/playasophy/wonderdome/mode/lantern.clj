@@ -16,14 +16,14 @@
 
   (update
     [this event]
-    (condp = [(:type event) (:button event)]
+    (condp = [(:type event) (:input event)]
       [:button/press :L]
       (assoc this :brightness 0.0)
 
       [:button/press :R]
       (assoc this :brightness 1.0)
 
-      [:button/repeat :y-axis]
+      [:axis/direction :y-axis]
       (let [delta (* (or (:value event) 0)
                      (or (:elapsed event) 0)
                      adjustment-rate)
