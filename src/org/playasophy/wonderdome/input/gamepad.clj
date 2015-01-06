@@ -96,7 +96,7 @@
    :y-axis 0.0})
 
 (def ^:private snes-buttons
-  #{:X :A :B :Y :L :R :select :start})
+  #{:X :A :B :Y :L :R :select :start :left :right :up :down})
 
 (def ^:private snes-bits
   {:X      [3 0]
@@ -123,10 +123,16 @@
       (str "Incomplete data read from SNES controller: "
            (apply str (map (partial format "%02X") (take len buffer)))))
     ; TODO: virtual d-pad buttons
-    (assoc
-      (read-buttons snes-bits buffer)
-      :x-axis (byte-axis (aget buffer 0))
-      :y-axis (- (byte-axis (aget buffer 1))))))
+    (let [x-axis (byte-axis (aget buffer 0))
+          y-axis (- (byte-axis (aget buffer 1)))]
+      (assoc
+        (read-buttons snes-bits buffer)
+        :x-axis x-axis
+        :y-axis y-axis
+        :left (neg? x-axis)
+        :right (pos? x-axis)
+        :down (neg? y-axis)
+        :up (pos? y-axis)))))
 
 
 (defn- snes-state-events
