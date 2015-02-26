@@ -122,17 +122,16 @@
     (log/warn
       (str "Incomplete data read from SNES controller: "
            (apply str (map (partial format "%02X") (take len buffer)))))
-    ; TODO: virtual d-pad buttons
     (let [x-axis (byte-axis (aget buffer 0))
           y-axis (- (byte-axis (aget buffer 1)))]
       (assoc
         (read-buttons snes-bits buffer)
         :x-axis x-axis
         :y-axis y-axis
-        :left (neg? x-axis)
+        :left  (neg? x-axis)
         :right (pos? x-axis)
-        :down (neg? y-axis)
-        :up (pos? y-axis)))))
+        :down  (neg? y-axis)
+        :up    (pos? y-axis)))))
 
 
 (defn- snes-state-events
