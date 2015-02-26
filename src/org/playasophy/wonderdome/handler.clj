@@ -36,7 +36,7 @@
                      [false 0]))]
     (fn [state event]
       ; Update button state.
-      (case [(:type event) (:button event)]
+      (case [(:type event) (:input event)]
         [:time/tick nil]
         (swap! button-state inc-held (:elapsed event 0))
 
@@ -61,7 +61,7 @@
   [handler]
   (fn [state event]
     (if (and (= (:type event) :button/press)
-             (= (:button event) :select))
+             (= (:input event) :select))
       (state/next-mode state)
       (handler state event))))
 
@@ -119,7 +119,7 @@
    (fn [state event]
      (handler
        (if (= (:type event) :button/press)
-         (update-in state [:button-history] rolling-append size (:button event))
+         (update-in state [:button-history] rolling-append size (:input event))
          state)
        event))))
 

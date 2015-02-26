@@ -12,21 +12,21 @@
 
   (update
     [this event]
-    (case [(:type event) (:button event)]
+    (case [(:type event) (:input event)]
       [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)
             offset' (+ offset (* (/ speed 1000) elapsed))
             offset' (if (> offset' 1.0) (- offset' 1.0) offset')]
         (assoc this :offset offset'))
 
-      [:button/repeat :x-axis]
+      [:axis/direction :x-axis]
       (assoc this :scale
              (control/adjust scale event
                              :rate 0.5
                              :min-val 0.1
                              :max-val 5.0))
 
-      [:button/repeat :y-axis]
+      [:axis/direction :y-axis]
       (assoc this :speed
              (control/adjust speed event
                              :rate 0.5

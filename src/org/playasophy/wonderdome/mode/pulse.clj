@@ -40,15 +40,15 @@
 
   (update
    [this event]
-    (case [(:type event) (:button event)]
+    (case [(:type event) (:input event)]
       [:time/tick nil]
-      (assoc this 
+      (assoc this
         :accum-time
         (+ (:accum-time this) (:elapsed event))
         :colors
         (generate-color (:accum-time this) alpha deg-per-ms))
 
-      [:button/repeat :x-axis]
+      [:axis/direction :x-axis]
       (let [delta (* (or (:value event) 0)
                      (or (:elapsed event) 0)
                      adjustment-rate)

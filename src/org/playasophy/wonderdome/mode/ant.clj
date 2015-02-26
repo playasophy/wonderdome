@@ -12,7 +12,7 @@
 
   (update
     [this event]
-    (condp = [(:type event) (:button event)]
+    (condp = [(:type event) (:input event)]
       [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)
             hue' (+ (or hue 0.0) (* elapsed 0.00002))
@@ -34,10 +34,10 @@
       [:button/press :B]
       (assoc this :length 10)
 
-      [:button/repeat :x-axis]
+      [:axis/direction :x-axis]
       (assoc this :hue (control/adjust hue event :rate 0.20 :min-val -1.0 :max-val 2.0))
 
-      [:button/repeat :y-axis]
+      [:axis/direction :y-axis]
       (assoc this :saturation (control/adjust saturation event :rate 0.3))
 
       this))

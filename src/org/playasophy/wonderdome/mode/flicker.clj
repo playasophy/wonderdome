@@ -45,20 +45,20 @@
 
   (update
     [this event]
-    (case [(:type event) (:button event)]
+    (case [(:type event) (:input event)]
       [:time/tick nil]
       (assoc this :pixels
         (vec (map #(vec (map (partial update-pixel this (:elapsed event)) %))
                   pixels)))
 
-      [:button/repeat :x-axis]
+      [:axis/direction :x-axis]
       (let [delta (* (or (:value event) 0)
                      (or (:elapsed event) 0)
                      speed-rate)
             speed' (-> speed (+ delta) (min max-speed) (max 0))]
         (assoc this :speed speed'))
 
-      [:button/repeat :y-axis]
+      [:axis/direction :y-axis]
       (let [delta (* (or (:value event) 0)
                      (or (:elapsed event) 0)
                      brightness-rate)
