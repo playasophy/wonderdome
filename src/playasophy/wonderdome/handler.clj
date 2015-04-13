@@ -61,7 +61,7 @@
   [handler]
   (fn [state event]
     (if (and (= (:type event) :button/press)
-             (= (:button event) :select))
+             (= (:input event) :select))
       (state/next-mode state)
       (handler state event))))
 
