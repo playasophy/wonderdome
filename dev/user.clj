@@ -8,18 +8,18 @@
     [clojure.string :as str]
     [clojure.tools.namespace.repl :refer [refresh]]
     [com.stuartsierra.component :as component]
-    (org.playasophy.wonderdome
+    (playasophy.wonderdome
       [config :as config]
       [system :as system])
-    (org.playasophy.wonderdome.display
+    (playasophy.wonderdome.display
       [processing :as processing])
-    (org.playasophy.wonderdome.geometry
+    (playasophy.wonderdome.geometry
       [layout :as layout]
       [layout-harness :as layout-harness])
-    (org.playasophy.wonderdome.input
+    (playasophy.wonderdome.input
       [audio-harness :as audio-harness]
       [gamepad-harness :as gamepad-harness])
-    (org.playasophy.wonderdome.util
+    (playasophy.wonderdome.util
       [color-harness :as color-harness])
     [ring.middleware.reload :refer [wrap-reload]]))
 
