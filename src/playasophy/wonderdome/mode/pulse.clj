@@ -5,14 +5,11 @@
 
 (defn generate-value
   [t alpha deg-per-ms]
-    (+
-     (*
-      (/
-       (Math/sin
-        (* t deg-per-ms))
-       4)
-      alpha)
-     0.75))
+  (-> (* t deg-per-ms)
+      (Math/sin)
+      (/ 4)
+      (* alpha)
+      (+ 0.75)))
 
 
 (defn generate-color

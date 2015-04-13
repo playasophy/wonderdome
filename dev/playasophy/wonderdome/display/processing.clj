@@ -106,10 +106,10 @@
       (if (< dt 80)
         ; Repeated key-press events
         (case new-key
-          :left  {:type :button/repeat, :input :x-axis, :value -1.0, :elapsed dt}
-          :right {:type :button/repeat, :input :x-axis, :value  1.0, :elapsed dt}
-          :down  {:type :button/repeat, :input :y-axis, :value -1.0, :elapsed dt}
-          :up    {:type :button/repeat, :input :y-axis, :value  1.0, :elapsed dt}
+          :left  {:type :axis/direction, :input :x-axis, :value -1.0, :elapsed dt}
+          :right {:type :axis/direction, :input :x-axis, :value  1.0, :elapsed dt}
+          :down  {:type :axis/direction, :input :y-axis, :value -1.0, :elapsed dt}
+          :up    {:type :axis/direction, :input :y-axis, :value  1.0, :elapsed dt}
           nil)
         ; New press of same key
         (when-not (axis-keys new-key)
