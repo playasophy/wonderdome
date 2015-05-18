@@ -9,7 +9,8 @@
       rainbow
       strobe
       dart 
-      tunes)
+      tunes
+      strip_eq)
     potemkin))
 
 
@@ -21,4 +22,5 @@
   (playasophy.wonderdome.mode.rainbow rainbow)
   (playasophy.wonderdome.mode.strobe strobe)
   (playasophy.wonderdome.mode.dart dart)
-  (playasophy.wonderdome.mode.tunes tunes))
+  (playasophy.wonderdome.mode.tunes tunes)
+  (playasophy.wonderdome.mode.strip_eq strip_eq))

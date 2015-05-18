@@ -30,7 +30,8 @@
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
       (handler/buffer-keys 20)
-      handler/system-reset)
+      handler/system-reset
+      handler/log-events)
 
   :web-options
   {:port 8080
@@ -56,6 +57,9 @@
 
    :rainbow
    (mode/rainbow)
+
+   :strip_eq
+   (mode/strip_eq)
 
    :strobe
    (mode/strobe
