@@ -57,6 +57,9 @@
    :rainbow
    (mode/rainbow)
 
+   :strip_eq
+   (mode/strip_eq)
+
    :strobe
    (mode/strobe
      [(color/rgb 1 0 0)
