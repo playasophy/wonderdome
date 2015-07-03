@@ -43,7 +43,7 @@
     :dependencies
     [[quil "2.2.6"]
      [org.clojure/tools.namespace "0.2.10"]
-     [ring/ring-devel "1.3.3"]]}
+     [ring/ring-devel "1.3.2"]]}
 
    :uberjar
    {:aot :all
