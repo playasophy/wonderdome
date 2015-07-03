@@ -44,7 +44,7 @@
       (color/rainbow index))))
 
 
-(defn rainbow
+(defn init
   "Creates a new rainbow color-cycling mode."
   []
   (RainbowMode. 1.0 1.0 0.0))

@@ -25,6 +25,16 @@
           (finally (remove-ns temp-ns)))))))
 
 
+(defmacro init-mode
+  "Initializes a new mode, assuming it's in the standard namespace location and
+  the constructor is named `init`."
+  [mode-name & opts]
+  (let [mode-ns (symbol (str "playasophy.wonderdome.mode." mode-name))
+        mode-var (symbol (str mode-ns) "init")]
+    `(do (require '~mode-ns)
+         (~mode-var ~@opts))))
+
+
 (defn load
   "Load a system configuration file."
   [path]
@@ -32,6 +42,6 @@
     path
     '[playasophy.wonderdome.geometry.layout :as layout]
     '[playasophy.wonderdome.handler :as handler]
-    '[playasophy.wonderdome.mode.config :as mode]
     '[playasophy.wonderdome.state :as state]
-    '[playasophy.wonderdome.util.color :as color]))
+    '[playasophy.wonderdome.util.color :as color]
+    '[playasophy.wonderdome.config :refer [init-mode]]))

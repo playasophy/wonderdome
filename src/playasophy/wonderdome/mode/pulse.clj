@@ -58,7 +58,8 @@
    [this pixel]
    (apply color/hsv colors)))
 
-(defn pulse
+
+(defn init
+  "Creates a pulse mode starting at the given color/hsv."
   [color]
-  "Creates a pulse mode starting at the given color/hsv"
   (PulseMode. color 1.0 (/ 6.0 100000.0) 0))

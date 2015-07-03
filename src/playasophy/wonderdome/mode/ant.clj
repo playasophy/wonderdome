@@ -50,7 +50,7 @@
       color/none)))
 
 
-(defn ant
+(defn init
   "Creates a new ant mode with starting speed, and length."
   [speed length]
   (AntMode. 0 speed length 0.0 1.0))

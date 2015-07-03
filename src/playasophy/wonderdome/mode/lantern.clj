@@ -38,7 +38,7 @@
     (color/gray brightness)))
 
 
-(defn lantern
+(defn init
   "Creates a new lantern mode with starting brightness."
   [brightness]
   (LanternMode. brightness))

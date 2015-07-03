@@ -88,7 +88,7 @@
       (color/blend-hsv (/ elapsed duration) start target))))
 
 
-(defn flicker
+(defn init
   "Creates a new flicker mode with the given color sequence."
   [strips strip-pixels]
   (let [config (FlickerMode. 1500 1.0 0.137 nil)

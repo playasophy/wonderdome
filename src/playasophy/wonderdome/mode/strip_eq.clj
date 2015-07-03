@@ -1,4 +1,4 @@
-(ns playasophy.wonderdome.mode.strip_eq
+(ns playasophy.wonderdome.mode.strip-eq
   (:require
     [playasophy.wonderdome.geometry.sphere :as sphere]
     [playasophy.wonderdome.mode.core :as mode]
@@ -61,8 +61,8 @@
   )
 )
 
-(defn strip_eq
+
+(defn init
   "Creates a new StripEQ visualizer mode."
   []
-  (StripEqMode. 5 256)
-)
+  (StripEqMode. 5 256))

@@ -40,34 +40,34 @@
 
   :modes
   {:ant
-   (mode/ant 2.0 4)
+   (init-mode ant 2.0 4)
 
    :dart
-   (mode/dart)
+   (init-mode dart)
 
    :flicker
-   (mode/flicker 5 240)
+   (init-mode flicker 5 240)
 
    :lantern
-   (mode/lantern 0.5)
+   (init-mode lantern 0.5)
 
    :pulse
-   (mode/pulse (color/rgb 1 0 0))
+   (init-mode pulse (color/rgb 1 0 0))
 
    :rainbow
-   (mode/rainbow)
+   (init-mode rainbow)
 
-   :strip_eq
-   (mode/strip_eq)
+   :strip-eq
+   (init-mode strip-eq)
 
    :strobe
-   (mode/strobe
+   (init-mode strobe
      [(color/rgb 1 0 0)
       (color/rgb 0 1 0)
       (color/rgb 0 0 1)])
 
    :tunes
-   (mode/tunes)}
+   (init-mode tunes)}
 
   :playlist
   [:flicker

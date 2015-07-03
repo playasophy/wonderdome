@@ -21,7 +21,7 @@
     (nth colors index)))
 
 
-(defn strobe
+(defn init
   "Creates a new strobe mode with the given color sequence."
   [colors]
   (StrobeMode. (vec colors) 0))

@@ -41,7 +41,7 @@
         1))))
 
 
-(defn tunes
+(defn init
   "Creates a new rainbow color-cycling mode."
   []
   (TunesMode. 0.0 0.0))

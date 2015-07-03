@@ -37,7 +37,7 @@
         0))))
 
 
-(defn dart
+(defn init
   "Creates a new dart mode."
   []
   (DartMode. 1.0 1.0))
