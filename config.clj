@@ -68,6 +68,7 @@
 
   :playlist
   [:flicker
+   :strip_eq
    :pulse
    :dart
    :rainbow

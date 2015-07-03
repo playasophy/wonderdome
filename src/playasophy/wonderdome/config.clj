@@ -18,7 +18,6 @@
             (clojure.core/refer-clojure)
             (when (seq requirements)
               (apply require requirements))
-            (def defsystem hash-map) ; FIXME
             (load-string (slurp path)))
           (catch Exception e
             (log/error e (str "Error loading config file: " path))

@@ -8,20 +8,19 @@
   [["mvxcvi" "http://mvxcvi.com/libs/repo"]]
 
   :dependencies
-  [[ch.qos.logback/logback-classic "1.1.2"]
-   [compojure "1.1.8"]
+  [[ch.qos.logback/logback-classic "1.1.3"]
+   [compojure "1.3.4"]
    [com.codeminders/hidapi "1.1"]
    [com.heroicrobot/pixelpusher "20130916"]
-   [com.stuartsierra/component "0.2.1"]
+   [com.stuartsierra/component "0.2.3"]
    [ddf.minim "2.2.0"]
    [hiccup "1.0.5"]
    [org.clojure/clojure "1.6.0"]
    [org.clojure/core.async "0.1.303.0-886421-alpha"]
-   [org.clojure/tools.logging "0.3.0"]
-   [org.slf4j/jul-to-slf4j "1.7.6"]
-   [potemkin "0.3.4"]
-   [ring/ring-core "1.3.0"]
-   [ring/ring-jetty-adapter "1.3.0"]]
+   [org.clojure/tools.logging "0.3.1"]
+   [org.slf4j/jul-to-slf4j "1.7.12"]
+   [ring/ring-core "1.3.2"]
+   [ring/ring-jetty-adapter "1.3.2"]]
 
   :native-path "target/native"
   :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
@@ -42,9 +41,9 @@
   {:dev
    {:source-paths ["dev"]
     :dependencies
-    [[quil "2.1.0"]
-     [org.clojure/tools.namespace "0.2.5"]
-     [ring/ring-devel "1.3.0"]]}
+    [[quil "2.2.6"]
+     [org.clojure/tools.namespace "0.2.10"]
+     [ring/ring-devel "1.3.3"]]}
 
    :uberjar
    {:aot :all
