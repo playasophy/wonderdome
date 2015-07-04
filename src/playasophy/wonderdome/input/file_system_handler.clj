@@ -1,4 +1,4 @@
-(ns playasophy.wonderdome.input.FileSystemHandler
+(ns playasophy.wonderdome.input.file-system-handler
   (:gen-class
     :name playasophy.wonderdome.input.FileSystemHandler
     :state root

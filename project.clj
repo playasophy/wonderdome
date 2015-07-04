@@ -26,7 +26,7 @@
   :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
 
   :aot
-  [playasophy.wonderdome.input.FileSystemHandler]
+  [playasophy.wonderdome.input.file-system-handler]
 
   :hiera
   {:cluster-depth 4
