@@ -40,12 +40,16 @@
   :profiles
   {:dev
    {:source-paths ["dev"]
-    :dependencies
-    [[quil "2.2.6"]
-     [org.clojure/tools.namespace "0.2.10"]
-     [ring/ring-devel "1.3.2"]]}
+    :dependencies [[quil "2.2.6"]
+                   [org.clojure/tools.namespace "0.2.10"]
+                   #_ [ring/ring-devel "1.3.2"]]
+    :jvm-opts ["-DLOGBACK_APPENDER=repl"
+               "-DWONDERDOME_LOG_LEVEL=DEBUG"]}
+
+   :test {:jvm-opts ["-DLOGBACK_APPENDER=nop"
+                     "-DWONDERDOME_LOG_LEVEL=TRACE"] }
 
    :uberjar
    {:aot :all
     :target-path "target/uberjar"
-    :main org.playasophy.wonderdome.main}})
+    :main playasophy.wonderdome.main}})

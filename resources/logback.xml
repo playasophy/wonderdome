@@ -3,22 +3,36 @@
     <resetJUL>true</resetJUL>
   </contextListener>
 
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <appender name="nop" class="ch.qos.logback.core.helpers.NOPAppender"/>
+
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-20([%thread]) %-5level %-30logger{30}  %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${wonderdome.log}</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>${wonderdome.log}.%d{yyyy-MM-dd}</fileNamePattern>
       <maxHistory>7</maxHistory>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS} [%thread] %-5level %-28logger{28}  %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS} %-20([%thread]) %-5level %-30logger{30}  %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="repl" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-32([%green(%thread)]) %highlight(%-5level) %cyan(%-30logger{30})  %msg%n</pattern>
     </encoder>
   </appender>
 
   <root level="INFO">
-    <appender-ref ref="FILE"/>
+    <appender-ref ref="${LOGBACK_APPENDER:-stdout}"/>
   </root>
 
   <logger name="com.heroicrobot.dropbit.registry.DeviceRegistry" level="INFO"/>
   <logger name="org.eclipse.jetty" level="INFO"/>
-  <logger name="org.playasophy.wonderdome" level="DEBUG"/>
+  <logger name="org.playasophy.wonderdome" level="${WONDERDOME_LOG_LEVEL:-INFO}"/>
 </configuration>
