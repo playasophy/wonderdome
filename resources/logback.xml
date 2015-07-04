@@ -12,9 +12,9 @@
   </appender>
 
   <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${wonderdome.log}</file>
+    <file>${wonderdome.log:-wonderdome.log}</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${wonderdome.log}.%d{yyyy-MM-dd}</fileNamePattern>
+      <fileNamePattern>${wonderdome.log:-wonderdome.log}.%d{yyyy-MM-dd}</fileNamePattern>
       <maxHistory>7</maxHistory>
     </rollingPolicy>
     <encoder>

@@ -6,6 +6,11 @@
 
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
+  :native-path "target/native"
+
+  :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
+
+  ;:aot [playasophy.wonderdome.input.audio]
 
   :repositories
   [["mvxcvi" "http://mvxcvi.com/libs/repo"]]
@@ -24,9 +29,6 @@
    [org.slf4j/jul-to-slf4j "1.7.12"]
    [ring/ring-core "1.3.2"]
    [ring/ring-jetty-adapter "1.3.2"]]
-
-  :native-path "target/native"
-  :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
 
   :hiera
   {:cluster-depth 4
