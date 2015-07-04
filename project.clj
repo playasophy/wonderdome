@@ -4,7 +4,8 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
-  :java-source-paths ["java"]
+  :source-paths ["src/clojure"]
+  :java-source-paths ["src/java"]
 
   :repositories
   [["mvxcvi" "http://mvxcvi.com/libs/repo"]]
