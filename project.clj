@@ -4,6 +4,8 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
+  :java-source-paths ["java"]
+
   :repositories
   [["mvxcvi" "http://mvxcvi.com/libs/repo"]]
 
@@ -25,9 +27,6 @@
   :native-path "target/native"
   :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
 
-  :aot
-  [playasophy.wonderdome.input.file-system-handler]
-
   :hiera
   {:cluster-depth 4
    :vertical? false
@@ -42,7 +41,7 @@
    {:source-paths ["dev"]
     :dependencies [[quil "2.2.6"]
                    [org.clojure/tools.namespace "0.2.10"]
-                   #_ [ring/ring-devel "1.3.2"]]
+                   [ring/ring-devel "1.3.2"]]
     :jvm-opts ["-DLOGBACK_APPENDER=repl"
                "-DWONDERDOME_LOG_LEVEL=DEBUG"]}
 
