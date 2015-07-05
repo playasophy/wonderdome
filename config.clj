@@ -30,6 +30,7 @@
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
       (handler/buffer-keys 20)
+      (handler/log-events (comp #{:button/press} :type))
       handler/system-reset)
 
   :web-options
@@ -71,7 +72,7 @@
 
   :playlist
   [:flicker
-   :strip_eq
+   :strip-eq
    :pulse
    :dart
    :rainbow

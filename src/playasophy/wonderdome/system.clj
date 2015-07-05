@@ -7,7 +7,6 @@
       [render :as render]
       [state :as state])
     (playasophy.wonderdome.input
-      [audio :as audio]
       [gamepad :as gamepad]
       [mixer :as mixer]
       [timer :as timer])
@@ -101,10 +100,6 @@
     (add-input :timer timer/timer
       (async/chan (async/dropping-buffer 3))
       timer-period)
-
-    (add-input :audio audio/audio-input
-      (async/chan (async/sliding-buffer 10))
-      audio-period)
 
     (add-input :gamepad gamepad/snes
       (async/chan (async/dropping-buffer 10)))))

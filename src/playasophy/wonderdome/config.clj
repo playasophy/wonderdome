@@ -3,7 +3,17 @@
   (:refer-clojure :exclude [load])
   (:require
     [clojure.java.io :as io]
-    [clojure.tools.logging :as log]))
+    [clojure.tools.logging :as log]
+    (playasophy.wonderdome.mode
+      [ant :as ant]
+      [dart :as dart]
+      [flicker :as flicker]
+      [lantern :as lantern]
+      [pulse :as pulse]
+      [rainbow :as rainbow]
+      [strip-eq :as strip-eq]
+      [strobe :as strobe]
+      [tunes :as tunes])))
 
 
 (defn- load-with-requires

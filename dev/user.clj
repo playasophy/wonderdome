@@ -17,7 +17,6 @@
       [layout :as layout]
       [layout-harness :as layout-harness])
     (playasophy.wonderdome.input
-      [audio-harness :as audio-harness]
       [gamepad-harness :as gamepad-harness])
     (playasophy.wonderdome.util
       [color-harness :as color-harness])

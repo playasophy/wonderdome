@@ -42,7 +42,7 @@
    {:source-paths ["dev"]
     :dependencies [[quil "2.2.6"]
                    [org.clojure/tools.namespace "0.2.10"]
-                   #_ [ring/ring-devel "1.3.2"]]
+                   [ring/ring-devel "1.3.2"]]
     :jvm-opts ["-DLOGBACK_APPENDER=repl"
                "-DWONDERDOME_LOG_LEVEL=DEBUG"]}
 
