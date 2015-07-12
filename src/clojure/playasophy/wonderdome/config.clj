@@ -64,9 +64,10 @@
         mode-var (symbol (str mode-ns) "init")]
     `(try
        (require '~mode-ns)
-       (swap! next-config
-         assoc-in [:modes ~mode-kw]
-         (~mode-var ~@opts))
+       (let [init-fn# (ns-resolve 'playasophy.wonderdome.config '~mode-var)]
+         (swap! next-config
+           assoc-in [:modes ~mode-kw]
+           (init-fn# ~@opts)))
        (catch Exception ex#
          (log/error ex# ~(str "Failed to initialize mode " mode-name))))))
 
