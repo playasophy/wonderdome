@@ -11,6 +11,25 @@
 
 ;;;;; HELPER FUNCTIONS ;;;;;
 
+(defn join
+  "Produce a layout by combining multiple layout vectors."
+  [& layouts]
+  (vec (apply concat layouts)))
+
+
+(defn translate
+  "Translate a layout in cartesian space."
+  [layout offset]
+  (mapv (fn [strip]
+          (mapv (fn [point]
+                  (let [coord' (cartesian/translate (:coord point) offset)]
+                    (assoc point
+                      :coord coord'
+                      :sphere (cartesian/->sphere coord'))))
+                strip))
+        layout))
+
+
 (defn place-pixels
   "Takes a placement function and maps it over a number of strips and pixels,
   returning a vector of vectors of pixel coordinates. The placement function
@@ -49,16 +68,33 @@
 
 (defn star
   "Constructs a new star layout with the given dimensions."
-  [& {:keys [radius pixel-spacing strips strip-pixels]}]
-  (let [strip-angle (/ tau strips)
-        pixel-angle (* 2 (Math/asin (/ pixel-spacing 2 radius)))]
+  [radius n strip]
+  (let [strip-angle (/ tau n)
+        pixel-angle (* 2 (Math/asin (/ (:spacing strip) 2 radius)))]
     (place-pixels
-      strips strip-pixels
-      (fn [strip pixel]
+      n (:pixels strip)
+      (fn [s p]
         {:sphere
          [radius
-          (* pixel-angle (+ pixel 5))
-          (* strip-angle strip)]}))))
+          (* pixel-angle (+ p 5))
+          (* strip-angle s)]}))))
+
+
+(defn barrel
+  "Constructs a barrel layout with `radius` and `n` strips wound around it in a
+  spiral. Each strip moves `vertical-spacing` meters down the barrel per turn."
+  [radius vertical-spacing n strip]
+  (let [angle-between-strips (/ tau n)
+        pixel-angle (* 2 (Math/asin (/ (:spacing strip) 2 radius)))
+        pixel-vertical-spacing (* vertical-spacing (/ pixel-angle tau))]
+    (place-pixels
+      n (:pixels strip)
+      (fn [s p]
+        (let [theta (+ (* s angle-between-strips) (* p pixel-angle))]
+          {:coord
+           [(* radius (Math/cos theta))
+            (* radius (Math/sin theta))
+            (- (* p pixel-vertical-spacing))]})))))
 
 
 
@@ -122,7 +158,7 @@
 
 (defn geodesic-grid
   "Constructs a new geodesic layout with the given dimensions."
-  [& {:keys [radius pixel-spacing strut-pixels strip-struts]}]
+  [radius & {:keys [pixel-spacing strut-pixels strip-struts]}]
   {:pre [(number? radius)
          (number? pixel-spacing)
          (sequential? strut-pixels)
