@@ -82,12 +82,19 @@
 
 (defn barrel
   "Constructs a barrel layout with `radius` and `n` strips wound around it in a
-  spiral. Each strip moves `spacing` meters down the barrel per turn."
-  [radius spacing n strip]
-  ; each strip starts at tau/n angle and the top of the barrel
-  ; each pixel makes some delta around the angle of the barrel
-  ; each pixel is spacing*delta/tau lower down the barrel
-  [])
+  spiral. Each strip moves `vertical-spacing` meters down the barrel per turn."
+  [radius vertical-spacing n strip]
+  (let [angle-between-strips (/ tau n)
+        pixel-angle (* 2 (Math/asin (/ (:spacing strip) 2 radius)))
+        pixel-vertical-spacing (* vertical-spacing (/ pixel-angle tau))]
+    (place-pixels
+      n (:pixels strip)
+      (fn [s p]
+        (let [theta (+ (* s angle-between-strips) (* p pixel-angle))]
+          {:coord
+           [(* radius (Math/cos theta))
+            (* radius (Math/sin theta))
+            (- (* p pixel-vertical-spacing))]})))))
 
 
 

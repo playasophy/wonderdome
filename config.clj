@@ -14,8 +14,8 @@
 (defconfig :layout
   (layout/join
     (layout/translate
-      (layout/barrel 0.198 0.068 2 pixel-strip)
-      [0 0 0])
+      (layout/barrel 0.099 0.068 2 pixel-strip)
+      [0 0 (- dome-radius 0.1)])
     (layout/geodesic-grid
       dome-radius
       :pixel-spacing (:spacing pixel-strip)
