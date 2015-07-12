@@ -3,56 +3,27 @@
     [clojure.core.async :as async :refer [>!!]]
     [clojure.tools.logging :as log]
     [com.stuartsierra.component :as component]
-    (playasophy.wonderdome
-      [render :as render]
-      [state :as state])
-    (playasophy.wonderdome.input
-      [gamepad :as gamepad]
-      [mixer :as mixer]
-      [timer :as timer])
+    [playasophy.wonderdome.render :as render]
+    [playasophy.wonderdome.state :as state]
+    [playasophy.wonderdome.input.mixer :as mixer]
     [playasophy.wonderdome.web.app :as web]))
 
 
-;;;;; SYSTEM INITIALIZATION ;;;;;
-
-(defn add-input
-  "Associates a new input source component into a system map. The input
-  function should take an output channel as the first argument. If the function
-  does not return an input, the channel will be closed."
-  [system k input-fn channel & args]
-  {:pre [(some? channel)]}
-  (if-let [input (try
-                   (apply input-fn channel args)
-                   (catch Exception e
-                     (log/error e "Failed to initialize input!")
-                     nil))]
-    (-> system
-        (update-in [:mixer :inputs] conj channel)
-        (assoc k input))
-    (do
-      (async/close! channel)
-      system)))
-
-
 (defn initialize
-  [{:keys [layout display event-handler modes playlist audio-period
-           timer-period web-options]
-    :or {event-handler state/update-mode
-         audio-period 100
-         timer-period 30}
-    :as config}]
+  [config]
   (log/info "Initializing system components...")
   (when-not config
     (throw (IllegalArgumentException.
              "Cannot initialize system without config map")))
-  (->
+  (merge
     (component/system-map
       ; The input mixer manages independently-buffered channels from each input
       ; source and mixes them into the common event channel.
       :mixer
       (component/using
         (mixer/channel-mixer)
-        {:output :event-channel})
+        {:inputs :input-channels
+         :output :event-channel})
 
       :event-channel
       (async/chan 25)
@@ -61,7 +32,7 @@
       ; to the state agent via the event handler function.
       :processor
       (component/using
-        (state/processor event-handler)
+        (state/processor (:event-handler config state/update-mode))
         {:input :event-channel
          :state-agent :state-agent})
 
@@ -70,7 +41,7 @@
       ; sending assoc's which alter the necessary configuration state.
       :state-agent
       (agent
-        (state/initialize modes playlist)
+        (state/initialize (:modes config) (:playlist config))
         :error-handler
         (fn [a ex]
           (log/error ex "Error updating agent state!")))
@@ -85,24 +56,12 @@
         (render/renderer)
         [:mode-channel :state-agent :layout :display])
 
-      :layout layout
-      :display display
-
       :web
       (component/using
-        (web/server web-options)
+        (web/server (:web-options config))
         [:event-channel :state-agent]))
-
-    ; Input sources run whatever processes are necessary and stick input events
-    ; into a channel which is mixed into a common event channel. Use 'add-input'
-    ; to update the system with new input components.
-
-    (add-input :timer timer/timer
-      (async/chan (async/dropping-buffer 3))
-      timer-period)
-
-    (add-input :gamepad gamepad/snes
-      (async/chan (async/dropping-buffer 10)))))
+    (select-keys config [:input-channels :layout :display])
+    (:inputs config)))
 
 
 (defn render-current

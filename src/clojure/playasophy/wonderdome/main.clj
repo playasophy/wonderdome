@@ -27,10 +27,10 @@
   [config-path]
   (log/info "Starting Wonderdome system...")
   (->
-    (config/load config-path)
+    (config/read-file config-path)
+    (system/initialize)
     (assoc :display (pixel-pusher/display))
-    system/initialize
-    component/start))
+    (component/start)))
 
 
 (defn- stop!

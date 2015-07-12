@@ -9,7 +9,42 @@
       [sphere :as sphere :refer [tau]])))
 
 
-;;;;; HELPER FUNCTIONS ;;;;;
+;; ## Helper Functions
+
+(defn join
+  "Produce a layout by combining multiple layout vectors."
+  [& layouts]
+  (vec (apply concat layouts)))
+
+
+(defn update-pixels
+  "Apply a function to each pixel in the given layout and return the updated
+  version of the layout."
+  [layout f & args]
+  (mapv (partial mapv #(apply f % args)) layout))
+
+
+(defn group
+  "Apply a group to all pixels in a layout."
+  [group-name layout]
+  (update-pixels layout assoc :group group-name))
+
+
+(defn translate-pixel
+  "Translates a single pixel in cartesian space. Updates the spherical
+  coordinate to match."
+  [point offset]
+  (let [coord' (cartesian/translate (:coord point) offset)]
+    (assoc point
+      :coord coord'
+      :sphere (cartesian/->sphere coord'))))
+
+
+(defn translate
+  "Translate a layout in cartesian space."
+  [offset layout]
+  (update-pixels layout translate-pixel offset))
+
 
 (defn place-pixels
   "Takes a placement function and maps it over a number of strips and pixels,
@@ -19,50 +54,65 @@
   vector. The other vector will be generated, and the strip and pixel indices
   added."
   [strips pixels f]
-  (let [range-mapvec (fn [r g] (vec (map g (range r))))]
-    (range-mapvec strips
+  (let [maprv (fn [r g] (mapv g (range r)))]
+    (maprv strips
       (fn [s]
-        (range-mapvec pixels
+        (maprv pixels
           (fn [p]
             (let [place (f s p)]
-              (cond
-                (:sphere place)
-                (assoc place
-                  :strip s
-                  :pixel p
-                  :coord (sphere/->cartesian (:sphere place)))
+              (->
+                (cond
+                  (:sphere place)
+                    (assoc place :coord (sphere/->cartesian (:sphere place)))
 
-                (:coord place)
-                (assoc place
-                  :strip s
-                  :pixel p
-                  :sphere (cartesian/->sphere (:coord place)))
+                  (:coord place)
+                    (assoc place :sphere (cartesian/->sphere (:coord place)))
 
-                :else
-                (throw (IllegalStateException.
-                         (str "Placement function did not return either a cartesian or spherical coordinate: "
-                              (pr-str place))))))))))))
+                  :else
+                    (throw (IllegalStateException.
+                             (str "Placement function did not return either a "
+                                  "cartesian or spherical coordinate: "
+                                  (pr-str place)))))
+                (assoc :strip s
+                       :pixel p)))))))))
 
 
 
-;;;;; SIMPLE LAYOUTS ;;;;;
+;; ## Simple Layouts
 
 (defn star
   "Constructs a new star layout with the given dimensions."
-  [& {:keys [radius pixel-spacing strips strip-pixels]}]
-  (let [strip-angle (/ tau strips)
-        pixel-angle (* 2 (Math/asin (/ pixel-spacing 2 radius)))]
+  [radius n strip]
+  (let [strip-angle (/ tau n)
+        pixel-angle (* 2 (Math/asin (/ (:spacing strip) 2 radius)))]
     (place-pixels
-      strips strip-pixels
-      (fn [strip pixel]
+      n (:pixels strip)
+      (fn [s p]
         {:sphere
          [radius
-          (* pixel-angle (+ pixel 5))
-          (* strip-angle strip)]}))))
+          (* pixel-angle (+ p 5))
+          (* strip-angle s)]}))))
+
+
+(defn barrel
+  "Constructs a barrel layout with `radius` and `n` strips wound around it in a
+  spiral. Each strip moves `vertical-spacing` meters down the barrel per turn."
+  [radius vertical-spacing n strip]
+  (let [angle-between-strips (/ tau n)
+        pixel-angle (* 2 (Math/asin (/ (:spacing strip) 2 radius)))
+        pixel-vertical-spacing (* vertical-spacing (/ pixel-angle tau))]
+    (place-pixels
+      n (:pixels strip)
+      (fn [s p]
+        (let [theta (+ (* s angle-between-strips) (* p pixel-angle))]
+          {:coord
+           [(* radius (Math/cos theta))
+            (* radius (Math/sin theta))
+            (- (* p pixel-vertical-spacing))]})))))
 
 
 
-;;;;; GEODESIC LAYOUT ;;;;;
+;; ## Geodesic Layout
 
 (defn geodesic-dome
   "Builds a sorted set of struts forming the wonder dome's geodesic frame."
@@ -122,7 +172,7 @@
 
 (defn geodesic-grid
   "Constructs a new geodesic layout with the given dimensions."
-  [& {:keys [radius pixel-spacing strut-pixels strip-struts]}]
+  [radius & {:keys [pixel-spacing strut-pixels strip-struts]}]
   {:pre [(number? radius)
          (number? pixel-spacing)
          (sequential? strut-pixels)
@@ -134,16 +184,15 @@
                (map (partial nth dome-struts))
                align-struts
                (mapcat (partial place-segment pixel-spacing) strut-pixels)))]
-    (vec
-      (map
-        (fn [strip i]
-          (map
-            (fn [coord j]
-              {:strip i
-               :pixel j
-               :coord coord
-               :sphere (sphere/normalize (cartesian/->sphere coord))})
-            strip
-            (range)))
-        (map struts->pixels strip-struts)
-        (range)))))
+    (mapv
+      (fn [strip i]
+        (map
+          (fn [coord j]
+            {:strip i
+             :pixel j
+             :coord coord
+             :sphere (sphere/normalize (cartesian/->sphere coord))})
+          strip
+          (range)))
+      (map struts->pixels strip-struts)
+      (range))))

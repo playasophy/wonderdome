@@ -17,10 +17,10 @@
       [layout :as layout]
       [layout-harness :as layout-harness])
     (playasophy.wonderdome.input
+      [audio-harness :as audio-harness]
       [gamepad-harness :as gamepad-harness])
     (playasophy.wonderdome.util
-      [color-harness :as color-harness])
-    [ring.middleware.reload :refer [wrap-reload]]))
+      [color-harness :as color-harness])))
 
 
 (def dome-radius
@@ -34,16 +34,16 @@
 (defn init!
   "Initialize the wonderdome system for local development."
   [config-path]
-  (alter-var-root #'system
-    (constantly
-      (->
-        (config/load config-path)
-        (assoc-in [:web-options :ring/wrapper] wrap-reload)
-        (assoc :display
-          (component/using
-            (processing/display [1000 600] dome-radius)
-            [:layout :event-channel]))
-        system/initialize)))
+  (config/clear!)
+  (-> config-path
+      (config/read-file)
+      (system/initialize)
+      (assoc :display
+        (component/using
+          (processing/display [1000 600] dome-radius)
+          [:layout :event-channel]))
+      (constantly)
+      (->> (alter-var-root #'system)))
   :init)
 
 
