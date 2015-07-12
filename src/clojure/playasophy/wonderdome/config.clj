@@ -1,47 +1,89 @@
 (ns playasophy.wonderdome.config
   "Functions for loading system configuration."
-  (:refer-clojure :exclude [load])
   (:require
+    [clojure.core.async :as async]
     [clojure.java.io :as io]
-    [clojure.tools.logging :as log]))
+    [clojure.tools.logging :as log]
+    [playasophy.wonderdome.geometry.layout :as layout]
+    [playasophy.wonderdome.handler :as handler]
+    (playasophy.wonderdome.input
+      [audio :as audio]
+      [gamepad :as gamepad]
+      [timer :as timer])
+    [playasophy.wonderdome.state :as state]
+    [playasophy.wonderdome.util.color :as color]))
 
 
-(defn- load-with-requires
-  "Reads a Clojure configuration file. The given require forms will be loaded
-  and made available to the configuration."
-  [path & requirements]
-  (let [file (io/file path)]
-    (when (.exists file)
-      (let [temp-ns (gensym)]
-        (try
-          (binding [*ns* (create-ns temp-ns)]
-            (clojure.core/refer-clojure)
-            (when (seq requirements)
-              (apply require requirements))
-            (load-string (slurp path)))
-          (catch Exception e
-            (log/error e (str "Error loading config file: " path))
-            (throw e))
-          (finally (remove-ns temp-ns)))))))
+(def empty-config
+  "The uninitialized config map."
+  {:input-channels []
+   :modes {}})
 
 
-(defmacro init-mode
+(def next-config
+  "This var holds the configuration under construction."
+  (atom nil))
+
+
+(defn clear!
+  "Removes the existing configuration."
+  []
+  (reset! next-config empty-config))
+
+
+(defn defconfig
+  "Configure the system by adding an entry to the config map."
+  [k v]
+  (swap! next-config assoc k v))
+
+
+(defn definput
+  "Associates a new input source component into a system map. The input
+  function should take an output channel as the first argument. If the function
+  does not return an input, the channel will be closed."
+  [k input-fn channel & args]
+  {:pre [(some? channel)]}
+  (if-let [input (try
+                   (apply input-fn channel args)
+                   (catch Exception e
+                     (log/error e "Failed to initialize input!")
+                     nil))]
+    (swap! next-config
+      #(-> %
+           (update-in [:input-channels] conj channel)
+           (assoc-in [:inputs k] input)))
+    (async/close! channel)))
+
+
+(defmacro defmode
   "Initializes a new mode, assuming it's in the standard namespace location and
   the constructor is named `init`."
   [mode-name & opts]
-  (let [mode-ns (symbol (str "playasophy.wonderdome.mode." mode-name))
+  (let [mode-kw (keyword (name mode-name))
+        mode-ns (symbol (str "playasophy.wonderdome.mode." mode-name))
         mode-var (symbol (str mode-ns) "init")]
-    `(do (require '~mode-ns)
-         (~mode-var ~@opts))))
+    `(try
+       (require '~mode-ns)
+       (swap! next-config
+         assoc-in [:modes ~mode-kw]
+         (~mode-var ~@opts))
+       (catch Exception ex#
+         (log/error ex# ~(str "Failed to initialize mode " mode-name))))))
 
 
-(defn load
-  "Load a system configuration file."
+(defn read-file
+  "Loads a system configuration file and returns the config."
   [path]
-  (load-with-requires
-    path
-    '[playasophy.wonderdome.geometry.layout :as layout]
-    '[playasophy.wonderdome.handler :as handler]
-    '[playasophy.wonderdome.state :as state]
-    '[playasophy.wonderdome.util.color :as color]
-    '[playasophy.wonderdome.config :refer [init-mode]]))
+  (let [file (io/file path)]
+    (if (.isDirectory file)
+      (do
+        (log/info "Reading config files in" file)
+        (doseq [f (file-seq file)]
+          (read-file (.toString f))))
+      (try
+        (log/info "Reading config file" path)
+        (binding [*ns* (find-ns 'playasophy.wonderdome.config)]
+          (load-file path))
+        (catch Exception ex
+          (log/error ex "Failed to load config file" path)))))
+  @next-config)

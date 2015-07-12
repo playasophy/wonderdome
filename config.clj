@@ -1,6 +1,6 @@
-(hash-map
+;; System configuration
 
-  :layout
+(defconfig :layout
   (layout/geodesic-grid
     :radius 3.688
     :pixel-spacing 0.02
@@ -15,14 +15,15 @@
 
   #_
   (layout/star
-    :radius 3.688         ; 12.1'
-    :pixel-spacing 0.02   ; 2 cm
+    :radius 3.688        ; 12.1'
+    :pixel-spacing 0.02  ; 2 cm
     :strip-pixels 240
-    :strips 6)
+    :strips 6))
 
-  :event-handler
+
+(defconfig :event-handler
   (-> state/update-mode
-      handler/mode-selector
+      (handler/mode-selector)
       (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type)
         :period 90)
@@ -30,49 +31,64 @@
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
       (handler/buffer-keys 20)
-      handler/system-reset)
+      (handler/system-reset)))
 
-  :web-options
+
+(defconfig :web-options
   {:port 8080
    :min-threads 2
    :max-threads 5
-   :max-queued 25}
+   :max-queued 25})
 
-  :modes
-  {:ant
-   (init-mode ant 2.0 4)
 
-   :dart
-   (init-mode dart)
 
-   :flicker
-   (init-mode flicker 5 240)
+;; Inputs
 
-   :lantern
-   (init-mode lantern 0.5)
+(definput :timer
+  timer/timer
+  (async/chan (async/dropping-buffer 3))
+  33)
 
-   :pulse
-   (init-mode pulse (color/rgb 1 0 0))
 
-   :rainbow
-   (init-mode rainbow)
+(definput :audio
+  audio/audio-input
+  (async/chan (async/sliding-buffer 10))
+  100)
 
-   :strip-eq
-   (init-mode strip-eq)
 
-   :strobe
-   (init-mode strobe
-     [(color/rgb 1 0 0)
-      (color/rgb 0 1 0)
-      (color/rgb 0 0 1)])
+(definput :gamepad
+  gamepad/snes
+  (async/chan (async/dropping-buffer 10)))
 
-   :tunes
-   (init-mode tunes)}
 
-  :playlist
+
+;; Modes
+
+(defmode ant 2.0 4)
+
+(defmode dart)
+
+(defmode flicker 5 240)
+
+(defmode lantern 0.5)
+
+(defmode pulse (color/rgb 1 0 0))
+
+(defmode rainbow)
+
+(defmode strip-eq)
+
+(defmode strobe
+  [(color/rgb 1 0 0)
+   (color/rgb 0 1 0)
+   (color/rgb 0 0 1)])
+
+(defmode tunes)
+
+
+(defconfig :playlist
   [:flicker
-   :strip_eq
-   :pulse
+   :strip-eq
    :dart
    :rainbow
    :ant])
