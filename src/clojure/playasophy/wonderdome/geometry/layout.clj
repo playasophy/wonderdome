@@ -68,16 +68,26 @@
 
 (defn star
   "Constructs a new star layout with the given dimensions."
-  [& {:keys [radius pixel-spacing strips strip-pixels]}]
-  (let [strip-angle (/ tau strips)
-        pixel-angle (* 2 (Math/asin (/ pixel-spacing 2 radius)))]
+  [radius n strip]
+  (let [strip-angle (/ tau n)
+        pixel-angle (* 2 (Math/asin (/ (:spacing strip) 2 radius)))]
     (place-pixels
-      strips strip-pixels
-      (fn [strip pixel]
+      n (:pixels strip)
+      (fn [s p]
         {:sphere
          [radius
-          (* pixel-angle (+ pixel 5))
-          (* strip-angle strip)]}))))
+          (* pixel-angle (+ p 5))
+          (* strip-angle s)]}))))
+
+
+(defn barrel
+  "Constructs a barrel layout with `radius` and `n` strips wound around it in a
+  spiral. Each strip moves `spacing` meters down the barrel per turn."
+  [radius spacing n strip]
+  ; each strip starts at tau/n angle and the top of the barrel
+  ; each pixel makes some delta around the angle of the barrel
+  ; each pixel is spacing*delta/tau lower down the barrel
+  [])
 
 
 
@@ -141,7 +151,7 @@
 
 (defn geodesic-grid
   "Constructs a new geodesic layout with the given dimensions."
-  [& {:keys [radius pixel-spacing strut-pixels strip-struts]}]
+  [radius & {:keys [pixel-spacing strut-pixels strip-struts]}]
   {:pre [(number? radius)
          (number? pixel-spacing)
          (sequential? strut-pixels)
