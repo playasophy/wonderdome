@@ -2,34 +2,34 @@
 
 
 (def dome-radius
-  "Inside radius of the geodesic dome frame. ~12.1'"
+  "Inside radius of the geodesic dome frame in meters. Approximately 12.1 feet."
   3.688)
 
 
 (def pixel-strip
+  "Strip definition with pixel count and inter-pixel spacing."
   {:spacing 0.02  ; 2 cm
    :pixels 240})
 
 
 (defconfig :layout
   (layout/join
-    (layout/translate
-      (layout/barrel 0.099 0.068 2 pixel-strip)
-      [0 0 (- dome-radius 0.1)])
-    (layout/geodesic-grid
-      dome-radius
-      :pixel-spacing (:spacing pixel-strip)
-      :strut-pixels
-      [50 62 64 64]
-      :strip-struts
-      [[0 6 15 8]
-       [2 14 22 16]
-       [4 18 20 23]
-       [3 10 12 19]
-       [1 5 7 11]]))
-
-  #_
-  (layout/star dome-radius 6 pixel-strip))
+    (layout/group :lantern
+      (layout/translate
+        [0 0 (- dome-radius 0.1)]
+        (layout/barrel 0.099 0.068 2 pixel-strip)))
+    (layout/group :dome
+      (layout/geodesic-grid
+        dome-radius
+        :pixel-spacing (:spacing pixel-strip)
+        :strut-pixels
+        [50 62 64 64]
+        :strip-struts
+        [[0 6 15 8]
+         [2 14 22 16]
+         [4 18 20 23]
+         [3 10 12 19]
+         [1 5 7 11]]))))
 
 
 (defconfig :event-handler
