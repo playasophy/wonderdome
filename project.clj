@@ -1,4 +1,4 @@
-(defproject playasophy/wonderdome "2.0.0"
+(defproject playasophy/wonderdome "2.0.0-SNAPSHOT"
   :description "Control and rendering software for driving an LED strip art project with various visualizations."
   :url "https://github.com/playasophy/wonderdome"
   :license {:name "Public Domain"
