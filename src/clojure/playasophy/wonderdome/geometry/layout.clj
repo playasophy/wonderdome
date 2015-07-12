@@ -11,6 +11,25 @@
 
 ;;;;; HELPER FUNCTIONS ;;;;;
 
+(defn join
+  "Produce a layout by combining multiple layout vectors."
+  [& layouts]
+  (vec (apply concat layouts)))
+
+
+(defn translate
+  "Translate a layout in cartesian space."
+  [layout offset]
+  (mapv (fn [strip]
+          (mapv (fn [point]
+                  (let [coord' (cartesian/translate (:coord point) offset)]
+                    (assoc point
+                      :coord coord'
+                      :sphere (cartesian/->sphere coord'))))
+                strip))
+        layout))
+
+
 (defn place-pixels
   "Takes a placement function and maps it over a number of strips and pixels,
   returning a vector of vectors of pixel coordinates. The placement function

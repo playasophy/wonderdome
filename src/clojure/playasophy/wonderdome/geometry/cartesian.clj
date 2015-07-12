@@ -9,6 +9,12 @@
   (vec (map (partial * s) p)))
 
 
+(defn translate
+  "Moves a coordinate vector in space."
+  [a b]
+  (mapv + a b))
+
+
 (defn magnitude
   "Determines the magnitude of the vector from the origin to the given point."
   [p]
