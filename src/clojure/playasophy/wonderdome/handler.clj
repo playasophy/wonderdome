@@ -21,7 +21,7 @@
   ([handler pred]
    (fn [state event]
      (when (pred event)
-       (log/debug (pr-str event)))
+       (log/warn (pr-str event)))
      (handler state event))))
 
 

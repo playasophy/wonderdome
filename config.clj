@@ -45,7 +45,7 @@
         :code [:L :R :L :R :L :R :start]
         :mode :lantern)
       (handler/buffer-keys 20)
-      #_(handler/log-events (comp #{:button/press} :type))
+      (handler/log-events (comp #{:button/press} :type))
       (handler/system-reset)))
 
 

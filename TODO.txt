@@ -1,0 +1,31 @@
+Wonderdome TODO
+===============
+
+-'/log' view which dumps most recent ~100 lines of stdout and stderr (n.b. max pipe buffer size is
+probably 16KB)
+  -Script should save in-memory ring-buffer but also append to file
+  -For ring buffer: Strip lines starting with "Updated device:"
+-Wonderdome settings: FIXED_MODE, MANUAL_CYCLE, AUTO_CYCLE, RANDOM
+-Hold pause for 10 seconds causes processing reboot
+
+--- Tentative Cut Bar ---
+-Re-detect NES controller if it gets disconnected
+-Add audio input
+-Add leapmotion input
+
+--- Mode Ideas ---
+Firefly
+Rain (with lightning)
+Bouncing ball
+Test pattern - moves through each LED/color one at a time
+Color sphere - up/down adjust hue of TL pixel, LR adjust saturation, A inverts colors, B ???
+Game of life
+Wave
+Gradual color cycle
+"Cloud of dots" - there is a "center point" that moves in a random walk, and each cycle a few points
+are randomly picke din the "cloud" around the center to be turned on to full white; then they fade
+slowly
+Shifting shapes - every 2-3s a new set of colored shapes are generated
+Spiral in, spiral out
+Rolling primaries - RGB waves, inputs adjusts speed/brightness?
+Filters: Swap every pixel with its neighbor; rotate N degrees; Make "inside-out"
