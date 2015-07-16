@@ -1,6 +1,9 @@
 Wonderdome TODO
 ===============
 
+Critical 2015 notes
+-Dude suggested looking at something called NeoPixel (similar style LED strip, may be cheaper?)
+
 -'/log' view which dumps most recent ~100 lines of stdout and stderr (n.b. max pipe buffer size is
 probably 16KB)
   -Script should save in-memory ring-buffer but also append to file
@@ -14,7 +17,9 @@ probably 16KB)
 -Add leapmotion input
 
 --- Mode Ideas ---
-Firefly
+-Columns of color
+-Fire
+-Barber pole
 Rain (with lightning)
 Bouncing ball
 Test pattern - moves through each LED/color one at a time
@@ -28,4 +33,5 @@ slowly
 Shifting shapes - every 2-3s a new set of colored shapes are generated
 Spiral in, spiral out
 Rolling primaries - RGB waves, inputs adjusts speed/brightness?
+Firefly
 Filters: Swap every pixel with its neighbor; rotate N degrees; Make "inside-out"

@@ -5,6 +5,10 @@
   "Inside radius of the geodesic dome frame in meters. Approximately 12.1 feet."
   3.688)
 
+(def barrel-radius
+  "Outside radius of the barrel lantern in meters. Approximately 12.1 feet."
+  0.099)
+
 
 (def pixel-strip
   "Strip definition with pixel count and inter-pixel spacing."
@@ -17,7 +21,8 @@
     (layout/group :lantern
       (layout/translate
         [0 0 (- dome-radius 0.1)]
-        (layout/barrel 0.099 0.068 2 pixel-strip)))
+        (layout/barrel barrel-radius 0.068 2 pixel-strip)))
+    #_
     (layout/group :dome
       (layout/geodesic-grid
         dome-radius
@@ -42,8 +47,14 @@
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
       (handler/control-code :konami
-        :code [:L :R :L :R :L :R :start]
+        :code [:X :X :X :X :X :Y]
+        :mode :strobe)
+      (handler/control-code :konami
+        :code [:L :R :L :R :X :Y]
         :mode :lantern)
+      (handler/control-code :konami
+        :code [:A :A :A :A :X :Y]
+        :mode :bombs)
       (handler/buffer-keys 20)
       (handler/log-events (comp #{:button/press} :type))
       (handler/system-reset)))
@@ -81,6 +92,8 @@
 
 (defmode ant 2.0 4)
 
+(defmode bombs)
+
 (defmode dart)
 
 (defmode flicker 5 240)
@@ -90,6 +103,8 @@
 (defmode pulse (color/rgb 1 0 0))
 
 (defmode rainbow)
+
+(defmode ring)
 
 (defmode strip-eq)
 
@@ -104,5 +119,6 @@
 (defconfig :playlist
   [:flicker
    :dart
-   :rainbow
-   :ant])
+   :ant
+   :rainbow])
+

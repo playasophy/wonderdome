@@ -109,12 +109,10 @@
            [(* radius (Math/cos theta))
             (* radius (Math/sin theta))
             (- (* p pixel-vertical-spacing))]
-           :barrel-theta
-           theta
-           :barrel-z
-           (* p pixel-vertical-spacing)
-           :barrel-z-relative
-           (/ p (:pixels strip))})))))
+           :barrel
+           {:theta (mod theta tau)
+            :z (* (- (:pixels strip) p 1) pixel-vertical-spacing)
+            :normalized-z (/ p (:pixels strip))}})))))
 
 
 
