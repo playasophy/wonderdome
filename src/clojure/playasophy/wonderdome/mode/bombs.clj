@@ -24,8 +24,9 @@
   [barrel-radius pixel bomb]
   (do
     #_(log/warn pixel bomb)
-    (let [delta (distance barrel-radius (:center bomb) (:barrel pixel))
-          radius (* (:age bomb) 0.00003)]
+    (let [speed (:speed bomb)
+          delta (distance barrel-radius (:center bomb) (:barrel pixel))
+          radius (* (:age bomb) speed)]
       (if (<= delta radius)
         (color/rainbow (/ delta radius))
         color/none))))
@@ -41,10 +42,10 @@
       [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)]
         (assoc this :bombs
-          (map (fn [bomb]
+          (mapv (fn [bomb]
                  (let [age' (+ (:age bomb) elapsed)]
                    (assoc bomb :age age')))
-               (filter #(< (:age %) 10000) bombs))))
+                (filter #(< (:age %) 10000) bombs))))
 
       [:axis/direction :y-axis]
       (assoc-in this [:cursor-position :z]
@@ -64,7 +65,19 @@
 
       [:button/press :A]
       (assoc-in this [:bombs]
-        (conj bombs {:center cursor-position :age 0}))
+        (conj bombs {:center cursor-position :age 0 :speed 0.00001}))
+
+      [:button/press :B]
+      (assoc-in this [:bombs]
+        (conj bombs {:center cursor-position :age 0 :speed 0.00003}))
+
+      [:button/press :X]
+      (assoc-in this [:bombs]
+        (conj bombs {:center cursor-position :age 0 :speed 0.00006}))
+
+      [:button/press :Y]
+      (assoc-in this [:bombs]
+        (conj bombs {:center cursor-position :age 0 :speed 0.00012}))
 
       this))
 
@@ -73,7 +86,7 @@
     [this pixel]
     (do
       #_(log/warn pixel bombs)
-      (let [bomb-colors (map (partial bomb-color barrel-radius pixel) bombs)
+      (let [bomb-colors (mapv (partial bomb-color barrel-radius pixel) bombs)
             cursor-delta (distance barrel-radius (:barrel pixel) cursor-position)
             cursor-color (if (< cursor-delta 0.04) (color/gray 1.0) color/none)]
         (overlay (conj bomb-colors cursor-color))))))
