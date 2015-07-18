@@ -40,19 +40,20 @@
 (defconfig :event-handler
   (-> state/update-mode
       (handler/mode-selector)
+      (handler/toggle-autocycle)
       (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type)
-        :period 90)
+        :period 60)
       (handler/control-code :konami
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
-      (handler/control-code :konami
+      (handler/control-code :strobe-shortcut
         :code [:X :X :X :X :X :Y]
         :mode :strobe)
-      (handler/control-code :konami
+      (handler/control-code :lantern
         :code [:L :R :L :R :X :Y]
         :mode :lantern)
-      (handler/control-code :konami
+      (handler/control-code :bombs
         :code [:A :A :A :A :X :Y]
         :mode :bombs)
       (handler/buffer-keys 20)

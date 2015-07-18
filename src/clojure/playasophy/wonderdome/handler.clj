@@ -137,3 +137,18 @@
           (log/info (str "Detected " k " code, switching mode to " mode))
           (assoc state :mode/current mode))
         (handler state event)))))
+
+
+(defn toggle-autocycle
+  "Detects a custom key sequence and activates a secret mode."
+  [handler & {:keys [code]
+              :or {code [:R :R :R :R]}}]
+  (let [reversed-code (reverse code)
+        code-length (count code)]
+    (fn [state event]
+      (if (and (= (:type event) :button/press)
+               (= reversed-code (take code-length (:button-history state))))
+        (do
+          (log/info (str "Detected toggle autocycle code, toggling autocycle"))
+          (update-in state [:autocycle/enabled] not))
+        (handler state event)))))
