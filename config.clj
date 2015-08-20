@@ -6,9 +6,8 @@
   3.688)
 
 (def barrel-radius
-  "Outside radius of the barrel lantern in meters. Approximately 12.1 feet."
+  "Outside radius of the barrel lantern in meters. Approximately 4 inches."
   0.099)
-
 
 (def pixel-strip
   "Strip definition with pixel count and inter-pixel spacing."
