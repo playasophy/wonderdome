@@ -26,9 +26,11 @@
 (defn- set-pixels!
   "Renders a sequence of pixel colors to an LED strip."
   [^Strip strip colors]
-  (dorun (map #(when %2 (.setPixel strip (unchecked-int %2) (int %1)))
-              (range (.getLength strip))
-              colors)))
+  (if strip
+    (dorun (map #(when %2 (.setPixel strip (unchecked-int %2) (int %1)))
+                (range (.getLength strip))
+                colors))
+    (log/warn "set-pixels called on nil strip!")))
 
 
 
