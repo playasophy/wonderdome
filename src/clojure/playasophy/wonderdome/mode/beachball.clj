@@ -7,6 +7,8 @@
     [playasophy.wonderdome.util.control :as control]))
 
 
+(def speed-bounds [(/ sphere/tau 36) (* sphere/tau 3)])
+
 (defrecord BeachballMode
   [theta speed colors]
 
@@ -14,30 +16,24 @@
 
   (update
     [this event]
-    (condp = [(:type event) (:input event)]
+    (case [(:type event) (:input event)]
       [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)
             delta (* (/ elapsed 1000) speed)
             theta' (mod (+ theta delta) sphere/tau)]
         (assoc this :theta theta'))
 
-#_(      [:button/press :L]
-      (assoc this :speed 1)
+      [:button/press :L]
+      (assoc this :speed (first speed-bounds))
 
       [:button/press :R]
-      (assoc this :speed 10)
-
-      [:button/press :A]
-      (assoc this :length 2)
-
-      [:button/press :B]
-      (assoc this :length 10)
-
-      [:axis/direction :x-axis]
-      (assoc this :hue (control/adjust hue event :rate 0.20 :min-val -1.0 :max-val 2.0))
+      (assoc this :speed (second speed-bounds))
 
       [:axis/direction :y-axis]
-      (assoc this :saturation (control/adjust saturation event :rate 0.3)))
+      (assoc this :speed (control/adjust speed event
+                                         :rate (/ sphere/tau 12)
+                                         :min-val (first speed-bounds)
+                                         :max-val (second speed-bounds)))
 
       this))
 
