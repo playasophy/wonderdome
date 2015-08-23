@@ -90,12 +90,12 @@
 
 ;; Modes
 
-(defmode ant 2.0 4)
+(defmode ant 6.0 7)
 
 (def beachball-colors
   [color/white color/red color/white color/yellow color/white color/blue])
 (def american-colors
-  [color/blue color/blue color/blue color/white color/red color/white color/red color/white color/red])
+  [color/blue color/blue color/blue color/white color/red color/white color/red color/white color/red color/white])
 
 (defmode beachball
   [beachball-colors american-colors])
