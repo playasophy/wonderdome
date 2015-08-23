@@ -6,6 +6,13 @@
 
 (defn bound
   [[lower-bound upper-bound] value]
+  (let [normalized-value (- value lower-bound)
+        modulus (- upper-bound lower-bound)
+        wrapped-value (mod normalized-value modulus)]
+    (+ wrapped-value lower-bound)))
+
+(defn wrap
+  [[lower-bound upper-bound] value]
   (-> value (max lower-bound) (min upper-bound)))
 
 (defn adjust
@@ -27,10 +34,5 @@
   (let [delta (* (or (:value event) 0)
                  (or (:elapsed event) 0)
                  1/1000
-                 rate)
-        normalized-v (- v min-val)
-        normalized-v' (+ normalized-v delta)
-        modulus (- max-val min-val)
-        wrapped-v' (mod normalized-v' modulus)
-        v' (+ wrapped-v' min-val)]
-    v'))
+                 rate)]
+    (wrap [min-val max-val] (+ v delta))))

@@ -10,7 +10,7 @@
 (def speed-bounds [(/ sphere/tau 36) (* sphere/tau 3)])
 
 (defrecord BeachballMode
-  [theta speed colors]
+  [theta speed color-lists index]
 
   mode/Mode
 
@@ -29,6 +29,12 @@
       [:button/press :R]
       (assoc this :speed (second speed-bounds))
 
+      [:button/press :X]
+      (assoc this :index (control/wrap [0 (dec (count color-lists))] (inc index)))
+
+      [:button/press :Y]
+      (assoc this :index (control/wrap [0 (dec (count color-lists))] (dec index)))
+
       [:axis/direction :y-axis]
       (assoc this :speed (control/adjust speed event
                                          :rate (/ sphere/tau 12)
@@ -40,7 +46,8 @@
 
   (render
     [this pixel]
-    (let [color-arc (/ sphere/tau (count colors))
+    (let [colors (nth color-lists index)
+          color-arc (/ sphere/tau (count colors))
           pixel-theta (-> pixel :barrel :theta)
           theta' (+ pixel-theta (:theta this))
           theta' (mod theta' sphere/tau)
@@ -50,7 +57,7 @@
 
 (defn init
   "Creates a new beachball mode with starting speed and seq of colors."
-  ([colors]
-   (init (/ sphere/tau 4) colors))
-  ([speed colors]
-   (BeachballMode. 0 speed colors)))
+  ([color-lists]
+   (init (/ sphere/tau 4) color-lists))
+  ([speed color-lists]
+   (BeachballMode. 0 speed color-lists 0)))

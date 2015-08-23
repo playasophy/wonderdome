@@ -7,8 +7,6 @@
 ; TODO: use deftypes instead of vectors with metadata and protocols instead of multimethods
 ; should be much higher performance
 
-(def none 0)
-
 
 
 ;;;;; HELPER FUNCTIONS ;;;;;
@@ -304,3 +302,17 @@
       (blend-cubehelix (* 2 (- p 0.5))
         (rainbow-points 1)
         (rainbow-points 2)))))
+
+
+
+;;;;; COLOR CONSTANTS ;;;;;
+
+(def none 0)
+(def black none)
+(def white (rgb 1 1 1))
+(def red (rgb 1 0 0))
+(def green (rgb 0 1 0))
+(def blue (rgb 0 0 1))
+(def yellow (rgb 1 1 0))
+(def teal (rgb 0 1 1))
+(def magenta (rgb 1 0 1))
