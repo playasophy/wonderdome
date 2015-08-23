@@ -4,6 +4,10 @@
 
 
 
+(defn bound
+  [[lower-bound upper-bound] value]
+  (-> value (max lower-bound) (min upper-bound)))
+
 (defn adjust
   [v event & {:keys [rate min-val max-val]
                    :or {rate 1.0
@@ -13,7 +17,7 @@
                  (or (:elapsed event) 0)
                  1/1000
                  rate)]
-    (-> v (+ delta) (min max-val) (max min-val))))
+    (bound [min-val max-val] (+ v delta))))
 
 (defn adjust-wrapped
   [v event & {:keys [rate min-val max-val]
