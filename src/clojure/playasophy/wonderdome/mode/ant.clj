@@ -5,6 +5,13 @@
     [playasophy.wonderdome.util.control :as control]))
 
 
+(def speed-bounds [1 10])
+(def length-bounds [2 10])
+
+(defn- bound
+  [[lower-bound upper-bound] value]
+  (-> value (max lower-bound) (min upper-bound)))
+
 (defrecord AntMode
   [position speed length hue saturation]
 
@@ -23,16 +30,22 @@
           :hue hue'))
 
       [:button/press :L]
-      (assoc this :speed 1)
+      (assoc this :speed (first speed-bounds) :length (second length-bounds))
 
       [:button/press :R]
-      (assoc this :speed 10)
+      (assoc this :speed (second speed-bounds) :length (first length-bounds))
 
       [:button/press :A]
-      (assoc this :length 2)
+      (assoc this :length (bound length-bounds (inc length)))
 
       [:button/press :B]
-      (assoc this :length 10)
+      (assoc this :length (bound length-bounds (dec length)))
+
+      [:button/press :X]
+      (assoc this :speed (bound speed-bounds (inc speed)))
+
+      [:button/press :Y]
+      (assoc this :speed (bound speed-bounds (dec speed)))
 
       [:axis/direction :x-axis]
       (assoc this :hue (control/adjust hue event :rate 0.20 :min-val -1.0 :max-val 2.0))
