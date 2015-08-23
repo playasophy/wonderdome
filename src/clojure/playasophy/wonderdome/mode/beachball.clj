@@ -37,7 +37,7 @@
 
       [:axis/direction :y-axis]
       (assoc this :speed (control/adjust speed event
-                                         :rate (/ sphere/tau 12)
+                                         :rate (/ sphere/tau 6)
                                          :min-val (first speed-bounds)
                                          :max-val (second speed-bounds)))
 
