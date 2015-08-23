@@ -6,14 +6,14 @@
 
 (defn bound
   [[lower-bound upper-bound] value]
+  (-> value (max lower-bound) (min upper-bound)))
+
+(defn wrap
+  [[lower-bound upper-bound] value]
   (let [normalized-value (- value lower-bound)
         modulus (- upper-bound lower-bound)
         wrapped-value (mod normalized-value modulus)]
     (+ wrapped-value lower-bound)))
-
-(defn wrap
-  [[lower-bound upper-bound] value]
-  (-> value (max lower-bound) (min upper-bound)))
 
 (defn adjust
   [v event & {:keys [rate min-val max-val]
