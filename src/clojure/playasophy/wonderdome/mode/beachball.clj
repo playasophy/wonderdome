@@ -7,44 +7,47 @@
     [playasophy.wonderdome.util.control :as control]))
 
 
+(def speed-bounds [(/ sphere/tau 36) (* sphere/tau 3)])
+
 (defrecord BeachballMode
-  [theta speed colors]
+  [theta speed color-lists index]
 
   mode/Mode
 
   (update
     [this event]
-    (condp = [(:type event) (:input event)]
+    (case [(:type event) (:input event)]
       [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)
             delta (* (/ elapsed 1000) speed)
             theta' (mod (+ theta delta) sphere/tau)]
         (assoc this :theta theta'))
 
-#_(      [:button/press :L]
-      (assoc this :speed 1)
+      [:button/press :L]
+      (assoc this :speed (first speed-bounds))
 
       [:button/press :R]
-      (assoc this :speed 10)
+      (assoc this :speed (second speed-bounds))
 
-      [:button/press :A]
-      (assoc this :length 2)
+      [:button/press :X]
+      (assoc this :index (control/wrap [0 (count color-lists)] (inc index)))
 
-      [:button/press :B]
-      (assoc this :length 10)
-
-      [:axis/direction :x-axis]
-      (assoc this :hue (control/adjust hue event :rate 0.20 :min-val -1.0 :max-val 2.0))
+      [:button/press :Y]
+      (assoc this :index (control/wrap [0 (count color-lists)] (dec index)))
 
       [:axis/direction :y-axis]
-      (assoc this :saturation (control/adjust saturation event :rate 0.3)))
+      (assoc this :speed (control/adjust speed event
+                                         :rate (/ sphere/tau 4)
+                                         :min-val (first speed-bounds)
+                                         :max-val (second speed-bounds)))
 
       this))
 
 
   (render
     [this pixel]
-    (let [color-arc (/ sphere/tau (count colors))
+    (let [colors (nth color-lists index)
+          color-arc (/ sphere/tau (count colors))
           pixel-theta (-> pixel :barrel :theta)
           theta' (+ pixel-theta (:theta this))
           theta' (mod theta' sphere/tau)
@@ -54,7 +57,7 @@
 
 (defn init
   "Creates a new beachball mode with starting speed and seq of colors."
-  ([colors]
-   (init (/ sphere/tau 4) colors))
-  ([speed colors]
-   (BeachballMode. 0 speed colors)))
+  ([color-lists]
+   (init (/ sphere/tau 4) color-lists))
+  ([speed color-lists]
+   (BeachballMode. 0 speed color-lists 0)))

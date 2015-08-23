@@ -31,15 +31,15 @@ class wonderdome (
   $java_heap   = '1024M',
   $java_opts   = [
     '-server',
-    #'-XX:+UseConcMarkSweepGC',
-    #'-XX:+UseParNewGC',
-    #'-XX:+CMSIncrementalPacing',
-    #'-XX:ParallelGCThreads=2',
-    #'-XX:+AggressiveOpts',
+    '-XX:+UseConcMarkSweepGC',
+    '-XX:+UseParNewGC',
+    '-XX:+CMSIncrementalPacing',
+    '-XX:ParallelGCThreads=2',
+    '-XX:+AggressiveOpts',
     #'-XX:+PrintGC'
-    '-Dcom.sun.management.jmxremote.port=1098',
-    '-Dcom.sun.management.jmxremote.authenticate=false',
-    '-Dcom.sun.management.jmxremote.ssl=false',
+    #'-Dcom.sun.management.jmxremote.port=1098',
+    #'-Dcom.sun.management.jmxremote.authenticate=false',
+    #'-Dcom.sun.management.jmxremote.ssl=false',
   ],
 ) {
 
@@ -64,6 +64,7 @@ class wonderdome (
   }
 
 
+
   ### SERVICE USER ###
 
   $home = "/srv/${user}"
@@ -83,6 +84,12 @@ class wonderdome (
     mode   => '0644',
   }
 
+  # TODO: add ssh-keys to ~wonder/.ssh/authorized_keys
+
+  # TODO: add sudoers line to allow wonder to restart its own service without a password
+  # wonder  ALL=(root) NOPASSWD:/usr/sbin/service wonderdome *
+
+
 
   ### LOGGING CONFIG ###
 
@@ -96,6 +103,7 @@ class wonderdome (
     mode    => '0644',
     require => User[$user],
   }
+
 
 
   ### SERVICE CONFIG ###
@@ -138,6 +146,7 @@ class wonderdome (
                       $service_config,
                       $upstart_config],
   }
+
 
 
   ### NGINX REVERSE PROXY ###
