@@ -30,10 +30,10 @@
       (assoc this :speed (second speed-bounds))
 
       [:button/press :X]
-      (assoc this :index (control/wrap [0 (dec (count color-lists))] (inc index)))
+      (assoc this :index (control/wrap [0 (count color-lists)] (inc index)))
 
       [:button/press :Y]
-      (assoc this :index (control/wrap [0 (dec (count color-lists))] (dec index)))
+      (assoc this :index (control/wrap [0 (count color-lists)] (dec index)))
 
       [:axis/direction :y-axis]
       (assoc this :speed (control/adjust speed event
