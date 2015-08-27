@@ -126,7 +126,6 @@
 
 (defconfig :playlist
   [:flicker
-   :dart
    :ant
    :beachball
    :rainbow])
