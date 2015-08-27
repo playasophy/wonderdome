@@ -96,9 +96,11 @@
   [color/white color/red color/white color/yellow color/white color/blue])
 (def american-colors
   [color/blue color/blue color/blue color/white color/red color/white color/red color/white color/red color/white])
+(def rainbow-colors
+  (map color/rainbow (range 0 1 0.1)))
 
 (defmode beachball
-  [beachball-colors american-colors])
+  [beachball-colors american-colors rainbow-colors])
 
 (defmode bombs)
 

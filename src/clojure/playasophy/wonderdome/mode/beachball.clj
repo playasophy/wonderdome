@@ -52,7 +52,7 @@
           theta' (+ pixel-theta (:theta this))
           theta' (mod theta' sphere/tau)
           color-index (int (/ theta' color-arc))]
-      (get colors color-index))))
+      (nth colors color-index))))
 
 
 (defn init
