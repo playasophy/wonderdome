@@ -39,12 +39,19 @@
 
   (render
     [this pixel]
-    (let [[_ angle _] (:sphere pixel)
-          index (- (* scale angle) offset)]
-      (color/rainbow index))))
+    (case (:group pixel)
+      :lantern
+      (let [z (-> pixel :barrel :normalized-z)
+            index (+ (* scale z) offset)]
+        (color/rainbow index))
+
+      :dome
+      (let [[_ angle _] (:sphere pixel)
+            index (- (* scale angle) offset)]
+        (color/rainbow index)))))
 
 
 (defn init
   "Creates a new rainbow color-cycling mode."
   []
-  (RainbowMode. 1.0 1.0 0.0))
+  (RainbowMode. 1.0 0.5 0.0))
