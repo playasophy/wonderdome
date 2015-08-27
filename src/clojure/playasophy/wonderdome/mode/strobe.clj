@@ -4,6 +4,8 @@
     [playasophy.wonderdome.util.control :as control]))
 
 
+(def frames-per-color-bounds [1 30])
+
 (defrecord StrobeMode
   [colors index frames-per-color frame-index]
 
@@ -20,11 +22,18 @@
         (assoc this
                :frame-index (inc frame-index)))
 
-      [:button/press :up]
-      (assoc this :frames-per-color (min (inc frames-per-color) 100))
+      [:axis/direction :y-axis]
+      (assoc this :frames-per-color
+             (control/adjust frames-per-color event
+                             :rate -1.0
+                             :min-val (first frames-per-color-bounds)
+                             :max-val (second frames-per-color-bounds)))
 
-      [:button/press :down]
-      (assoc this :frames-per-color (max (dec frames-per-color) 1))
+      [:button/press :L]
+      (assoc this :frames-per-color (second frames-per-color-bounds))
+
+      [:button/press :R]
+      (assoc this :frames-per-color (first frames-per-color-bounds))
 
       this))
 
