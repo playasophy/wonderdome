@@ -96,9 +96,14 @@
   [color/white color/red color/white color/yellow color/white color/blue])
 (def american-colors
   [color/blue color/blue color/blue color/white color/red color/white color/red color/white color/red color/white])
+(def rainbow-colors
+  (map color/rainbow (range 0 1 0.1)))
+(def fire-colors
+  (let [colors [(color/rgb 156/256 42/256 34/256) (color/rgb 226/256 87/256 34/256) (color/rgb 1.0 73/256 73/256) (color/rgb 1.0 189/256 91/256) (color/rgb 253/256 207/256 88/256)]]
+    (repeatedly 12 #(rand-nth colors))))
 
 (defmode beachball
-  [beachball-colors american-colors])
+  [beachball-colors american-colors rainbow-colors fire-colors])
 
 (defmode bombs)
 
@@ -126,7 +131,6 @@
 
 (defconfig :playlist
   [:flicker
-   :dart
    :ant
    :beachball
    :rainbow])

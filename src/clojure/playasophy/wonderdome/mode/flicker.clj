@@ -1,18 +1,19 @@
 (ns playasophy.wonderdome.mode.flicker
   (:require
     [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.color :as color]))
+    [playasophy.wonderdome.util.color :as color]
+    [playasophy.wonderdome.util.control :as control]))
 
 
 (def ^:const ^:private hue-range 0.137)
 (def ^:const ^:private hue-delta 0.05)
 
-(def ^:const ^:private brightness-rate 0.027)
+(def ^:const ^:private brightness-rate 0.05)
 
 ; TODO: 'speed' is more like 'delay'
-(def ^:const ^:private min-speed 10)
+(def ^:const ^:private min-speed 5)
 (def ^:const ^:private max-speed 3500)
-(def ^:const ^:private speed-rate 100)
+(def ^:const ^:private speed-rate -200)
 
 
 (defn- retarget-pixel
@@ -52,32 +53,22 @@
                   pixels)))
 
       [:axis/direction :x-axis]
-      (let [delta (* (or (:value event) 0)
-                     (or (:elapsed event) 0)
-                     speed-rate)
-            speed' (-> speed (+ delta) (min max-speed) (max 0))]
-        (assoc this :speed speed'))
+      (assoc this :speed (control/adjust speed event :rate speed-rate :min-val min-speed :max-val max-speed))
 
       [:axis/direction :y-axis]
-      (let [delta (* (or (:value event) 0)
-                     (or (:elapsed event) 0)
-                     brightness-rate)
-            max-brightness' (-> max-brightness (+ delta) (min 1.0) (max 0.0))]
-        (assoc this :max-brightness max-brightness'))
+      (assoc this :max-brightness (control/adjust max-brightness event :rate brightness-rate))
+
+      [:button/press :L]
+      (assoc this :speed max-speed)
+
+      [:button/press :R]
+      (assoc this :speed min-speed)
 
       [:button/press :A]
-      (assoc this :hue
-        (let [hue' (- hue hue-delta)]
-          (if (neg? hue')
-            (+ hue 1.0)
-            hue')))
+      (assoc this :hue (control/wrap [0.0 1.0] (- hue hue-delta)))
 
       [:button/press :B]
-      (assoc this :hue
-        (let [hue' (+ hue hue-delta)]
-          (if (> hue' 1.0)
-            (- hue' 1.0)
-            hue')))
+      (assoc this :hue (control/wrap [0.0 1.0] (+ hue hue-delta)))
 
       this))
 
