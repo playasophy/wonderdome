@@ -63,8 +63,12 @@
 (defn- render
   [display]
   (quil/background 0)
-  (quil/translate (* 1/2 (quil/width)) (* 0.98 (quil/height)) (* 0.61 (quil/height)))
-  (quil/rotate-x 1.3)
+  ; Full view:
+  (quil/translate (* 1/2 (quil/width)) (* 3/4 (quil/height)) 0)
+  (quil/rotate-x 2.3)
+  ; Lantern focused:
+  ;(quil/translate (* 1/2 (quil/width)) (* 0.98 (quil/height)) (* 0.61 (quil/height)))
+  ;(quil/rotate-x 1.3)
   (quil/rotate-z (* (quil/frame-count) 0.003))
   (binding [*scale-factor* 1.5]
     (draw-axes 0.5)

@@ -17,11 +17,11 @@
 
 (defconfig :layout
   (layout/join
+    #_
     (layout/group :lantern
       (layout/translate
         [0 0 (- dome-radius 0.1)]
         (layout/barrel barrel-radius 0.068 2 pixel-strip)))
-    #_
     (layout/group :dome
       (layout/geodesic-grid
         dome-radius
@@ -62,8 +62,8 @@
 
 (defconfig :web-options
   {:port 8080
-   :min-threads 2
-   :max-threads 5
+   :min-threads 3
+   :max-threads 10
    :max-queued 25})
 
 
