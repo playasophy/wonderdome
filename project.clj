@@ -4,18 +4,13 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
-  :source-paths ["src/clojure"]
-  :java-source-paths ["src/java"]
-  :native-path "target/native"
+  ; TODO: write some simple dev code to search for dot files in the doc folder and generate SVG graphs.
+  ;:aliases {"sysgraph" ["dot" "-Tsvg" "<" "doc/system-processes.dot" ">" "target/system-processes.svg"]}
 
-  ;:prep-tasks ["javac" "compile"]
-  :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
-
-  ;:aot [playasophy.wonderdome.input.audio]
   :pedantic? :warn
 
   :repositories
-  [["mvxcvi" "http://mvxcvi.com/libs/repo"]]
+  [["playasophy" "http://playasophy.org/repositories/jars"]]
 
   :dependencies
   [[org.clojure/clojure "1.8.0"]
@@ -34,17 +29,23 @@
    [compojure "1.5.1"]
    [com.stuartsierra/component "0.3.1"]
    [hiccup "1.0.5"]
+   [org.slf4j/jul-to-slf4j "1.7.21"]
    [ring/ring-core "1.5.0"]
    [ring/ring-jetty-adapter "1.5.0"]]
+
+  :source-paths ["src/clojure"]
+  :java-source-paths ["src/java"]
+  :native-path "target/native"
+
+  :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
+
+  ;:aot [playasophy.wonderdome.input.audio]
 
   :hiera
   {:cluster-depth 4
    :vertical? false
    :show-external? false
    :ignore-ns #{user}}
-
-  ; TODO: write some simple dev code to search for dot files in the doc folder and generate SVG graphs.
-  ;:aliases {"sysgraph" ["dot" "-Tsvg" "<" "doc/system-processes.dot" ">" "target/system-processes.svg"]}
 
   :profiles
   {:repl
