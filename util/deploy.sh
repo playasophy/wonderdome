@@ -14,9 +14,8 @@ srv_home=$srv:/srv/wonder
 jar_name="wonderdome"
 config_file="config.clj"
 
-
 echo "Packaging code..."
-lein uberjar
+[[ -f target/uberjar/$jar_name-*-standalone.jar ]] || lein uberjar
 
 echo "Backing up deployed jar..."
 ssh $srv "cp /srv/wonder/wonderdome.jar /srv/wonder/wonderdome.jar.bak"
