@@ -1,4 +1,5 @@
-(ns playasophy.wonderdome.mode.core)
+(ns playasophy.wonderdome.mode.core
+  (:refer-clojure :exclude [update]))
 
 
 (defprotocol Mode
