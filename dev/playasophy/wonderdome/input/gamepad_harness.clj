@@ -42,3 +42,13 @@
   (when system
     (alter-var-root #'system component/stop))
   :stop)
+
+
+(defn read-gamepad!
+  [device]
+  (let [buffer (byte-array 16)
+        len (.readTimeout device buffer 100)]
+    (when (pos? len)
+      (->> (take len buffer)
+           (map (partial format "%02X"))
+           (apply println)))))
