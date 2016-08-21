@@ -39,8 +39,6 @@
 
   :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
 
-  ;:aot [playasophy.wonderdome.input.audio]
-
   :hiera
   {:cluster-depth 4
    :vertical? false
@@ -60,6 +58,6 @@
                "-DWONDERDOME_LOG_LEVEL=TRACE"] }
 
    :uberjar
-   {:aot :all
-    :target-path "target/uberjar"
-    :main playasophy.wonderdome.main}})
+   {:target-path "target/uberjar"
+    :main playasophy.wonderdome.main
+    :aot [playasophy.wonderdome.main]}})
