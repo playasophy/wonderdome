@@ -128,9 +128,12 @@
 
 (defmode tunes)
 
+(defmode worms)
+
 
 (defconfig :playlist
-  [:flicker
+  [:worms
+   :pulse
+   :flicker
    :ant
-   :beachball
    :rainbow])
