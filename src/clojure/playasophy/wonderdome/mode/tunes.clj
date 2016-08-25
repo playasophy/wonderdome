@@ -13,7 +13,7 @@
 ;; - As time passes, rotate the angular offset of slices in physical space.
 ;; - As time passes, rotate the offset into the rainbow for each slice.
 ;; - Maintain a rolling average of the power in a particular frequency. Power
-;; decay is controlled by `falloff` parameter.
+;; decay is controlled by `decay` parameter.
 ;; - Adjust the gain per segment based on recently observed history to try to
 ;; keep values normalized.
 ;;
@@ -26,6 +26,36 @@
 ;;
 ;; As a stretch goal, if beats are detected, color the first few pixels of the
 ;; strips (up to a max) a totally different color which fades back to zero.
+
+(def power-factor 9/10)
+(def power-decay 1/200)
+
+
+(defrecord FrequencyBand
+  [gain    ; Multiplier for the energy input to this band
+   energy  ; Smoothed recent energy levels after applying gain
+   power   ; Power output integral over a longer time period (no gain)
+   ])
+
+
+(defn- apply-decay
+  "Updats a frequency band to indicate time has passed and decayed the value."
+  [band elapsed decay]
+  (-> band
+      (update :energy * (ctl/bound [0.0 1.0] (- 1.0 (* 1/1000 decay elapsed))))
+      (update :power  * (ctl/bound [0.0 1.0] (- 1.0 (* power-decay elapsed))))))
+
+
+(defn- update-energy
+  "Updates a frequency band with a new input energy sample."
+  [band energy smoothing]
+  (assoc band
+         :energy (+ (* smoothing (or (:energy band) 0.0))
+                    (* (- 1 smoothing)
+                       (or (:gain band) 0.0)
+                       (or energy 0.0)))
+         :power (+ (* power-factor (or (:power band) 0.0))
+                   (* (- 1 power-factor) (or energy 0.0)))))
 
 
 (defn- azimuth->bands
@@ -46,11 +76,10 @@
      (- angle-div low-band)]))
 
 
-
 (defrecord TunesMode
   [bands          ; Average energy per band
    gain           ; Gain per band (static for now)
-   falloff        ; How quickly energy levels decay (frac/ms)
+   decay          ; How quickly energy levels decay (frac/s)
    smoothing      ; Proportion to smooth input samples by (fraction of old average to keep)
    rotation       ; How much to rotate each band spatially
    rotation-rate  ; How fast the rotation changes over time
@@ -68,7 +97,7 @@
       (let [elapsed (or (:elapsed event) 0.0)]
         (cond->
           (assoc this
-               :bands (mapv (fn [p] (* p (ctl/bound [0.0 1.0] (- 1.0 (* falloff elapsed))))) bands)
+               :bands (mapv #(apply-decay % elapsed decay) bands)
                :rotation (sphere/wrap-angle (+ rotation (* elapsed (/ rotation-rate 1000))))
                :color-shift (ctl/wrap [0.0 1.0] (+ color-shift (* elapsed (/ shift-rate 1000)))))
           (compare-and-set! log-next? true false)
@@ -80,19 +109,14 @@
 
       [:audio/freq nil]
       (assoc this
-             :bands (mapv
-                      (fn [avg band-gain energy]
-                        (+ (* smoothing (or avg 0.0))
-                           (* (- 1 smoothing)
-                              (or band-gain 0.0)
-                              (or energy 0.0))))
-                      bands gain (:spectrum event)))
+             :bands (mapv #(update-energy %1 %2 smoothing)
+                          bands (:spectrum event)))
 
       [:button/press :A]
       (do (reset! log-next? true)
           this)
 
-      ; TODO: add controls for adjusting gain, falloff, rotation-rate, shift-rate
+      ; TODO: add controls for adjusting gain, decay, rotation-rate, shift-rate
 
       ; default
       this))
@@ -103,11 +127,11 @@
     (let [[_ polar azimuth] (:sphere pixel)
           [i1 i2 p] (azimuth->bands (count bands) (+ azimuth rotation))
           hue-index (/ (+ i1 p) (count bands))
-          energy (+ (* (nth bands i1) (- 1 p))
-                    (* (nth bands i2) p))
-          polar-max (* 1/6 tau)
+          energy (+ (* (:energy (nth bands i1)) (- 1 p))
+                    (* (:energy (nth bands i2)) p))
+          polar-max (* 1/5 tau)
           transition-point (* polar-max (- 1 (Math/exp (- energy))))
-          transition-width (/ tau 16)
+          transition-width (* 1/16 tau)
           brightness (cond
                        (< polar (- transition-point transition-width))
                          1.0
@@ -127,13 +151,14 @@
   [n & {:as opts}]
   (map->TunesMode
     (merge
-      {:gain (vec (take n (repeat 1.0)))
-       :falloff 0.005
+      {:decay 5.0
        :smoothing 0.3
        :rotation-rate 0.5
        :shift-rate 0.0}
       opts
-      {:bands (vec (take n (repeat 0.0)))
+      {:bands (vec (take n (repeatedly #(map->FrequencyBand {:gain 1.0
+                                                             :energy 0.0
+                                                             :power 0.0}))))
        :rotation 0.0
        :color-shift 0.0
        :log-next? (atom false)})))
