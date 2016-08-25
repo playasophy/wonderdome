@@ -16,11 +16,11 @@
   [period channel]
   (fn []
     (try
-      (loop [t (System/currentTimeMillis)]
+      (loop [t (System/nanoTime)]
         (when-not (Thread/interrupted)
           (Thread/sleep period)
-          (let [now (System/currentTimeMillis)]
-            (>!! channel {:type :time/tick, :elapsed (- now t)})
+          (let [now (System/nanoTime)]
+            (>!! channel {:type :time/tick, :elapsed (/ (- now t) 1000000.0)})
             (recur now))))
       (catch InterruptedException e
         nil))))
