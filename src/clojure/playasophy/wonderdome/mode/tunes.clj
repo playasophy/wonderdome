@@ -56,6 +56,7 @@
    rotation-rate  ; How fast the rotation changes over time
    color-shift    ; How much to shift the colors
    shift-rate     ; How fast the color shifts over time
+   log-next?      ; Debugging helper state
    ]
 
   mode/Mode
@@ -65,10 +66,13 @@
     (case [(:type event) (:input event)]
       [:time/tick nil]
       (let [elapsed (or (:elapsed event) 0.0)]
-        (assoc this
-               :bands (mapv (fn [p] (* p (- 1.0 (* falloff elapsed)))) bands)
+        (cond->
+          (assoc this
+               :bands (mapv (fn [p] (* p (ctl/bound [0.0 1.0] (- 1.0 (* falloff elapsed))))) bands)
                :rotation (sphere/wrap-angle (+ rotation (* elapsed (/ rotation-rate 1000))))
-               :color-shift (ctl/wrap [0.0 1.0] (+ color-shift (* elapsed (/ shift-rate 1000))))))
+               :color-shift (ctl/wrap [0.0 1.0] (+ color-shift (* elapsed (/ shift-rate 1000)))))
+          (compare-and-set! log-next? true false)
+            (doto prn)))
 
       [:audio/beat nil]
       ; TODO: something
@@ -84,6 +88,10 @@
                               (or energy 0.0))))
                       bands gain (:spectrum event)))
 
+      [:button/press :A]
+      (do (reset! log-next? true)
+          this)
+
       ; TODO: add controls for adjusting gain, falloff, rotation-rate, shift-rate
 
       ; default
@@ -95,14 +103,23 @@
     (let [[_ polar azimuth] (:sphere pixel)
           [i1 i2 p] (azimuth->bands (count bands) (+ azimuth rotation))
           hue-index (/ (+ i1 p) (count bands))
-          e1 (ctl/bound [0.0 1.0] (- 1 (Math/exp (- (nth bands i1)))))
-          e2 (ctl/bound [0.0 1.0] (- 1 (Math/exp (- (nth bands i2)))))]
+          energy (+ (* (nth bands i1) (- 1 p))
+                    (* (nth bands i2) p))
+          polar-max (* 1/6 tau)
+          transition-point (* polar-max (- 1 (Math/exp (- energy))))
+          transition-width (/ tau 16)
+          brightness (cond
+                       (< polar (- transition-point transition-width))
+                         1.0
+                       (> polar (+ transition-point transition-width))
+                         0.0
+                       :else
+                         (- 1.0 (/ (- polar (- transition-point transition-width))
+                                   transition-width)))]
       (color/hsv
-        (color/rainbow (+ hue-index color-shift))
-        1 ; TODO: something fun with saturation
-        ; TODO: calculate value based on polar angle
-        (+ (* (- 1 p) e1) (* p e2))
-        ))))
+        (ctl/wrap [0.0 1.0] (+ hue-index color-shift))
+        1
+        brightness))))
 
 
 (defn init
@@ -111,11 +128,12 @@
   (map->TunesMode
     (merge
       {:gain (vec (take n (repeat 1.0)))
-       :falloff 0.1
-       :smoothing 0.2
-       :rotation-rate 0.1
-       :shift-rate 0.1}
+       :falloff 0.005
+       :smoothing 0.3
+       :rotation-rate 0.5
+       :shift-rate 0.0}
       opts
       {:bands (vec (take n (repeat 0.0)))
        :rotation 0.0
-       :color-shift 0.0})))
+       :color-shift 0.0
+       :log-next? (atom false)})))
