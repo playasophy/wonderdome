@@ -76,6 +76,13 @@
      (- angle-div low-band)]))
 
 
+(defn- dt-update
+  "Updates the given value by applying the rate (in seconds) multiplied by the
+  elapsed time (in milliseconds)."
+  [value rate elapsed]
+  (+ value (* 1/1000 elapsed rate)))
+
+
 (defrecord TunesMode
   [bands          ; Average energy per band
    gain           ; Gain per band (static for now)
@@ -98,8 +105,8 @@
         (cond->
           (assoc this
                :bands (mapv #(apply-decay % elapsed decay) bands)
-               :rotation (sphere/wrap-angle (+ rotation (* elapsed (/ rotation-rate 1000))))
-               :color-shift (ctl/wrap [0.0 1.0] (+ color-shift (* elapsed (/ shift-rate 1000)))))
+               :rotation (sphere/wrap-angle (dt-update rotation rotation-rate elapsed))
+               :color-shift (ctl/wrap [0.0 1.0] (dt-update color-shift shift-rate elapsed)))
           (compare-and-set! log-next? true false)
             (doto prn)))
 
