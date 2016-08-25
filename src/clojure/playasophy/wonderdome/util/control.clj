@@ -3,10 +3,10 @@
     [playasophy.wonderdome.util.color :as color]))
 
 
-
 (defn bound
   [[lower-bound upper-bound] value]
   (-> value (max lower-bound) (min upper-bound)))
+
 
 (defn wrap
   [[lower-bound upper-bound] value]
@@ -15,22 +15,24 @@
         wrapped-value (mod normalized-value modulus)]
     (+ wrapped-value lower-bound)))
 
+
 (defn adjust
   [v event & {:keys [rate min-val max-val]
-                   :or {rate 1.0
-                        min-val 0.0
-                        max-val 1.0}}]
+              :or {rate 1.0
+                   min-val 0.0
+                   max-val 1.0}}]
   (let [delta (* (or (:value event) 0)
                  (or (:elapsed event) 0)
                  1/1000
                  rate)]
     (bound [min-val max-val] (+ v delta))))
 
+
 (defn adjust-wrapped
   [v event & {:keys [rate min-val max-val]
-                   :or {rate 1.0
-                        min-val 0.0
-                        max-val 1.0}}]
+              :or {rate 1.0
+                   min-val 0.0
+                   max-val 1.0}}]
   (let [delta (* (or (:value event) 0)
                  (or (:elapsed event) 0)
                  1/1000
