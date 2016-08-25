@@ -31,7 +31,7 @@
   []
   (let [fsh (FileSystemHandler. (System/getProperty "user.dir"))
         minim (Minim. fsh)
-        input (.getLineIn minim Minim/MONO buffer-size)]
+        input (.getLineIn minim Minim/MONO buffer-size 44100.0 16)]
     (when-not input
       (.stop minim)
       (throw (IllegalStateException. "Unable to get an audio line input")))
