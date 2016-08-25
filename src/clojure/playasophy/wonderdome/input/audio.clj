@@ -43,10 +43,10 @@
   output channel. The loop can be terminated by interrupting the thread."
   ^Runnable
   [^long period ^ddf.minim.AudioInput input channel]
-  (let [^FFT fft (FFT. (.bufferSize input) (.sampleRate input))
+  (let [^FFT fft (doto (FFT. (.bufferSize input) (.sampleRate input))
+                   (.logAverages 50 3)
+                   (.window FFT/GAUSS))
         ^BeatDetect beats (BeatDetect.)]
-    (.logAverages fft 50 3)
-    (.window fft FFT/GAUSS)
     (fn []
       (try
         (loop []
