@@ -48,7 +48,7 @@
     [this pixel]
     (let [colors (nth color-lists index)
           color-arc (/ sphere/tau (count colors))
-          pixel-theta (-> pixel :barrel :theta)
+          [_ _ pixel-theta] (:sphere pixel)
           theta' (+ pixel-theta (:theta this))
           theta' (mod theta' sphere/tau)
           color-index (int (/ theta' color-arc))]

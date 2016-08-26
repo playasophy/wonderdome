@@ -127,12 +127,13 @@
    (color/rgb 0 1 0)
    (color/rgb 0 0 1)])
 
-(defmode tunes 25)
+(defmode tunes 27)
 
 
 (defconfig :playlist
-  [:tunes
-   :pulse
+  [:beachball
+   :dart
+   :tunes
    :flicker
    :rainbow
    :strip-eq
