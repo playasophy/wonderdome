@@ -129,11 +129,29 @@
              :bands (mapv #(update-energy %1 %2 smoothing)
                           bands (:spectrum event)))
 
-      [:button/press :A]
+      [:button/press :L]
       (do (reset! log-next? true)
           this)
 
-      ; TODO: add controls for adjusting gain, decay, rotation-rate, shift-rate
+      [:button/press :A]
+      (update this :decay #(ctl/bound [0.1 10.0] (* 1.1 %)))
+
+      [:button/press :B]
+      (update this :decay #(ctl/bound [0.1 10.0] (* 0.9 %)))
+
+      [:axis/direction :x-axis]
+      (update this :rotation-rate
+              ctl/adjust event
+              :rate 0.2
+              :min-val -2.0
+              :max-val 2.0)
+
+      [:axis/direction :y-axis]
+      (update this :shift-rate
+              ctl/adjust event
+              :rate 0.2
+              :min-val -5.0
+              :max-val 5.0)
 
       ; default
       this))
