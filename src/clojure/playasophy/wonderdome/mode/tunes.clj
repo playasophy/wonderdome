@@ -29,6 +29,7 @@
 
 (def power-factor 9/10)
 (def power-decay 1/200)
+(def power-target 2.0)
 
 
 (defrecord FrequencyBand
@@ -43,7 +44,17 @@
   [band elapsed decay]
   (-> band
       (update :energy * (ctl/bound [0.0 1.0] (- 1.0 (* 1/1000 decay elapsed))))
-      (update :power  * (ctl/bound [0.0 1.0] (- 1.0 (* power-decay elapsed))))))
+      (update :power  * (ctl/bound [0.0 1.0] (- 1.0 (* power-decay elapsed))))
+      (assoc :gain (ctl/bound [0.2 5.0]
+                              (cond
+                                ; If power is lower than we want, add gain
+                                (< (/ (:power band) power-target) 0.8)
+                                  (* (:gain band) 1.01)
+                                ; If power is higher than we want, back off gain
+                                (> (/ (:power band) power-target) 1.2)
+                                  (* (:gain band) 0.99)
+                                :else
+                                  (:gain band))))))
 
 
 (defn- update-energy
@@ -85,7 +96,6 @@
 
 (defrecord TunesMode
   [bands          ; Average energy per band
-   gain           ; Gain per band (static for now)
    decay          ; How quickly energy levels decay (frac/s)
    smoothing      ; Proportion to smooth input samples by (fraction of old average to keep)
    rotation       ; How much to rotate each band spatially
