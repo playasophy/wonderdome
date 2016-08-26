@@ -57,7 +57,7 @@
         :code [:A :A :A :A :X :Y :start]
         :mode :bombs)
       (handler/buffer-keys 20)
-      (handler/log-events (comp #{:button/press} :type))
+      #_(handler/log-events (comp #{:audio/beat :button/press} :type))
       (handler/system-reset)))
 
 
