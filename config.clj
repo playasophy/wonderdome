@@ -39,7 +39,8 @@
 (defconfig :event-handler
   (-> state/update-mode
       (handler/mode-selector)
-      (handler/toggle-autocycle)
+      (handler/toggle-autocycle
+        :code [:R :R :R :R :start])
       (handler/autocycle-modes
         (comp #{:button/press :button/repeat} :type)
         :period 60)
@@ -47,13 +48,13 @@
         :code [:up :up :down :down :left :right :left :right :B :A :start]
         :mode :strobe)
       (handler/control-code :strobe-shortcut
-        :code [:X :X :X :X :X :Y]
+        :code [:X :X :X :X :X :Y :start]
         :mode :strobe)
       (handler/control-code :lantern
-        :code [:L :R :L :R :X :Y]
+        :code [:L :R :L :R :X :Y :start]
         :mode :lantern)
       (handler/control-code :bombs
-        :code [:A :A :A :A :X :Y]
+        :code [:A :A :A :A :X :Y :start]
         :mode :bombs)
       (handler/buffer-keys 20)
       (handler/log-events (comp #{:button/press} :type))
@@ -126,11 +127,13 @@
    (color/rgb 0 1 0)
    (color/rgb 0 0 1)])
 
-(defmode tunes)
+(defmode tunes 25)
 
 
 (defconfig :playlist
-  [:flicker
-   :ant
-   :beachball
-   :rainbow])
+  [:tunes
+   :pulse
+   :flicker
+   :rainbow
+   :strip-eq
+   :ant])

@@ -31,7 +31,7 @@
   []
   (let [fsh (FileSystemHandler. (System/getProperty "user.dir"))
         minim (Minim. fsh)
-        input (.getLineIn minim Minim/MONO buffer-size)]
+        input (.getLineIn minim Minim/MONO buffer-size 44100.0 16)]
     (when-not input
       (.stop minim)
       (throw (IllegalStateException. "Unable to get an audio line input")))
@@ -43,10 +43,10 @@
   output channel. The loop can be terminated by interrupting the thread."
   ^Runnable
   [^long period ^ddf.minim.AudioInput input channel]
-  (let [^FFT fft (FFT. (.bufferSize input) (.sampleRate input))
+  (let [^FFT fft (doto (FFT. (.bufferSize input) (.sampleRate input))
+                   (.logAverages 50 3)
+                   (.window FFT/GAUSS))
         ^BeatDetect beats (BeatDetect.)]
-    (.logAverages fft 50 3)
-    (.window fft FFT/GAUSS)
     (fn []
       (try
         (loop []
