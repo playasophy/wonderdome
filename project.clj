@@ -22,6 +22,8 @@
    [org.clojure/tools.logging "0.3.1"]
    [org.clojure/tools.reader "1.0.0-beta2"]
 
+   [org.scala-lang/scala-library "2.11.7"]
+
    [com.codeminders/hidapi "1.1"]
    [com.heroicrobot/pixelpusher "20130916"
     :exclusions [joda-time]]
