@@ -2,8 +2,7 @@ package playasophy.wonderdome.mode;
 
 
 import clojure.lang.Associative;
-
-import java.awt.Color;
+import playasophy.wonderdome.util.Color;
 
 
 /**
@@ -20,8 +19,7 @@ public class BlueMode implements Mode<BlueMode> {
 
     @Override
     public int render(Associative pixel) {
-        // All blue, all the time.
-        return Color.BLUE.getRGB();
+        return Color.BLUE;
     }
 
 }
