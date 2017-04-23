@@ -1,6 +1,20 @@
 (ns playasophy.wonderdome.geometry.graph
   "Functions for working with layouts as a graph structure.")
 
+;;         11
+;;        /   \
+;;       /     \
+;;      6-------2
+;;     /|\     /|\
+;;    / |  \  / | \
+;;  10  |   1   |  7
+;;    \ |  /|\  | /
+;;     \|/  |  \|/
+;;      5---4---3
+;;      |  / \  |
+;;      |/     \|
+;;      9       8
+
 
 (def edges-by-strip
   [[[:v1 :v2 50] [:v2 :v6 62] [:v6 :v11 64] [:v11 :v2 64]]
