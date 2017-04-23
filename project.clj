@@ -6,11 +6,15 @@
 
   ; TODO: write some simple dev code to search for dot files in the doc folder and generate SVG graphs.
   ;:aliases {"sysgraph" ["dot" "-Tsvg" "<" "doc/system-processes.dot" ">" "target/system-processes.svg"]}
+  :aliases {"scalac" ["shell" "./util/build-scala.sh"]}
 
   :pedantic? :warn
 
   :repositories
   [["playasophy" "http://playasophy.org/repositories/jars"]]
+
+  :plugins
+  [[lein-shell "0.5.0"]]
 
   :dependencies
   [[org.clojure/clojure "1.8.0"]
@@ -33,8 +37,10 @@
    [ring/ring-core "1.5.0"]
    [ring/ring-jetty-adapter "1.5.0"]]
 
+  :prep-tasks ["javac" "scalac" "compile"]
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
+  :scala-source-path "src/scala"
   :native-path "target/native"
 
   :jvm-opts ^:replace ["-Djava.library.path=target/native/linux"]
