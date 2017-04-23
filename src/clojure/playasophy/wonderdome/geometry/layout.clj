@@ -6,6 +6,7 @@
     (playasophy.wonderdome.geometry
       [cartesian :as cartesian]
       [geodesic :as geodesic]
+      [graph :as graph]
       [sphere :as sphere :refer [tau]])))
 
 
@@ -192,10 +193,12 @@
       (fn [strip i]
         (map
           (fn [coord j]
-            {:strip i
-             :pixel j
-             :coord coord
-             :sphere (sphere/normalize (cartesian/->sphere coord))})
+            (merge
+              {:strip i
+               :pixel j
+               :coord coord
+               :sphere (sphere/normalize (cartesian/->sphere coord))}
+              (graph/strip-index->edge-offset i j)))
           strip
           (range)))
       (map struts->pixels strip-struts)
