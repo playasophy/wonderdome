@@ -58,18 +58,17 @@
 (defmacro defmode
   "Initializes a new mode, assuming it's in the standard namespace location and
   the constructor is named `init`."
-  [mode-name & opts]
-  (let [mode-kw (keyword (name mode-name))
-        mode-ns (symbol (str "playasophy.wonderdome.mode." mode-name))
+  [k & opts]
+  (let [mode-ns (symbol (str "playasophy.wonderdome.mode." (name k)))
         mode-var (symbol (str mode-ns) "init")]
     `(try
        (require '~mode-ns)
        (let [init-fn# (ns-resolve 'playasophy.wonderdome.config '~mode-var)]
          (swap! next-config
-           assoc-in [:modes ~mode-kw]
+           assoc-in [:modes ~k]
            (init-fn# ~@opts)))
        (catch Exception ex#
-         (log/error ex# ~(str "Failed to initialize mode " mode-name))))))
+         (log/error ex# ~(str "Failed to initialize mode " k))))))
 
 
 (defn read-file
