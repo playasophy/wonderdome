@@ -1,8 +1,7 @@
 package playasophy.wonderdome.mode;
 
 import clojure.lang.Associative;
-
-import java.awt.Color;
+import playasophy.wonderdome.util.Color;
 
 /**
  * A ludicrously simple test mode. As the name implies, it just sets every pixel to pure blue and ignores all inputs.
@@ -17,8 +16,7 @@ public class BlueMode implements Mode<BlueMode> {
 
     @Override
     public int render(Associative pixel) {
-        // All blue, all the time.
-        return Color.BLUE.getRGB();
+        return Color.BLUE;
     }
 
 }
