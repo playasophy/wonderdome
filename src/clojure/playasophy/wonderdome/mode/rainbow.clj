@@ -1,14 +1,15 @@
 (ns playasophy.wonderdome.mode.rainbow
   (:require
-    [playasophy.wonderdome.mode.core :as mode]
     [playasophy.wonderdome.util.color :as color]
-    [playasophy.wonderdome.util.control :as control]))
+    [playasophy.wonderdome.util.control :as control])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (defrecord RainbowMode
   [scale speed offset]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -54,4 +55,4 @@
 (defn init
   "Creates a new rainbow color-cycling mode."
   []
-  (RainbowMode. 1.0 0.5 0.0))
+  (->RainbowMode 1.0 0.5 0.0))

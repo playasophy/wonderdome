@@ -1,8 +1,9 @@
 (ns playasophy.wonderdome.mode.flicker
   (:require
-    [playasophy.wonderdome.mode.core :as mode]
     [playasophy.wonderdome.util.color :as color]
-    [playasophy.wonderdome.util.control :as control]))
+    [playasophy.wonderdome.util.control :as control])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (def ^:const ^:private hue-range 0.137)
@@ -42,7 +43,7 @@
 (defrecord FlickerMode
   [speed max-brightness hue pixels]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -82,7 +83,7 @@
 (defn init
   "Creates a new flicker mode with the given color sequence."
   [strips strip-pixels]
-  (let [config (FlickerMode. 1500 1.0 0.137 nil)
+  (let [config (->FlickerMode 1500 1.0 0.137 nil)
         fresh-pixel #(retarget-pixel config {:target 0})
         fresh-strip #(vec (repeatedly strip-pixels fresh-pixel))]
     (assoc config :pixels

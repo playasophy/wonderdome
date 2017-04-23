@@ -1,10 +1,13 @@
 package playasophy.wonderdome.mode;
 
+
 import clojure.lang.Associative;
 import playasophy.wonderdome.util.Color;
 
+
 /**
- * A ludicrously simple test mode. As the name implies, it just sets every pixel to pure blue and ignores all inputs.
+ * A ludicrously simple test mode. As the name implies, it just sets every
+ * pixel to pure blue and ignores all inputs.
  */
 public class BlueMode implements Mode<BlueMode> {
 

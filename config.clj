@@ -91,7 +91,7 @@
 
 ;; Modes
 
-(defmode ant 6.0 7)
+(defmode :ant 6.0 7)
 
 (def beachball-colors
   [color/white color/red color/white color/yellow color/white color/blue])
@@ -103,35 +103,42 @@
   (let [colors [(color/rgb 156/256 42/256 34/256) (color/rgb 226/256 87/256 34/256) (color/rgb 1.0 73/256 73/256) (color/rgb 1.0 189/256 91/256) (color/rgb 253/256 207/256 88/256)]]
     (repeatedly 12 #(rand-nth colors))))
 
-(defmode beachball
+(defmode :beachball
   [beachball-colors american-colors rainbow-colors fire-colors])
 
-(defmode bombs)
+(defmode :bombs)
 
-(defmode dart)
+(defmode :dart)
 
-(defmode flicker 5 240)
+(defmode :flicker 5 240)
 
-(defmode lantern 0.5)
+(defmode :lantern 0.5)
 
-(defmode pulse (color/rgb 1 0 0))
+(defmode :pulse (color/rgb 1 0 0))
 
-(defmode rainbow)
+(defmode :rainbow)
 
-(defmode ring)
+(defmode :ring)
 
-(defmode strip-eq)
+(defmode :strip-eq)
 
-(defmode strobe
+(defmode :strobe
   [(color/rgb 1 0 0)
    (color/rgb 0 1 0)
    (color/rgb 0 0 1)])
 
-(defmode tunes 27)
+(defmode :tunes 27)
+
+(defmode :worms)
+
+(register-mode :blue
+  (playasophy.wonderdome.mode.BlueMode.))
+
 
 
 (defconfig :playlist
   [:beachball
+   :worms
    :dart
    :tunes
    :flicker

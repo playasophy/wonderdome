@@ -1,7 +1,22 @@
 (ns playasophy.wonderdome.mode.pulse
   (:require
-    [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.color :as color]))
+    [playasophy.wonderdome.util.color :as color])
+  (:import
+    playasophy.wonderdome.mode.Mode))
+
+
+(def ^:private ^:const adjustment-rate
+  "Rate at which the deg-per-ms changes per-ms"
+  0.000005)
+
+
+(def ^:private ^:const max-rate
+  (/ 1.0 1000))
+
+
+(def ^:private ^:const min-rate
+  0.0)
+
 
 (defn generate-value
   [t alpha deg-per-ms]
@@ -18,22 +33,11 @@
         h (mod (* t deg-per-ms) 360)]
     (color/hsv* h 1.0 v)))
 
-(def ^:private ^:const adjustment-rate
-  "Rate at which the deg-per-ms changes per-ms"
-  0.000005)
-
-(def ^:private ^:const max-rate
-  ""
-  (/ 1.0 1000))
-
-(def ^:private ^:const min-rate
-  ""
-  0.0)
 
 (defrecord PulseMode
   [colors alpha deg-per-ms accum-time]
 
-  mode/Mode
+  Mode
 
   (update
    [this event]
@@ -62,4 +66,4 @@
 (defn init
   "Creates a pulse mode starting at the given color/hsv."
   [color]
-  (PulseMode. color 1.0 (/ 6.0 100000.0) 0))
+  (->PulseMode color 1.0 (/ 6.0 100000.0) 0))

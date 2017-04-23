@@ -1,15 +1,18 @@
 (ns playasophy.wonderdome.mode.strobe
   (:require
-    [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.control :as control]))
+    [playasophy.wonderdome.util.control :as control])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
-(def frames-per-color-bounds [1 30])
+(def frames-per-color-bounds
+  [1 30])
+
 
 (defrecord StrobeMode
   [colors index frames-per-color frame-index]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -46,4 +49,4 @@
 (defn init
   "Creates a new strobe mode with the given color sequence."
   [colors]
-  (StrobeMode. (vec colors) 0 1 0))
+  (->StrobeMode (vec colors) 0 1 0))

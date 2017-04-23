@@ -2,8 +2,9 @@
   (:require
     [clojure.tools.logging :as log]
     [playasophy.wonderdome.geometry.sphere :as sphere]
-    [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.color :as color]))
+    [playasophy.wonderdome.util.color :as color])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (def ^:private ^:const move-rate
@@ -14,7 +15,7 @@
 (defrecord DartMode
   [offset scale]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -40,4 +41,4 @@
 (defn init
   "Creates a new dart mode."
   []
-  (DartMode. 1.0 1.0))
+  (->DartMode 1.0 1.0))

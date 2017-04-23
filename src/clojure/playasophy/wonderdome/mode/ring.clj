@@ -1,14 +1,15 @@
 (ns playasophy.wonderdome.mode.ring
   (:require
     [clojure.tools.logging :as log]
-    [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.color :as color]))
+    [playasophy.wonderdome.util.color :as color])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (defrecord RingMode
   [ring-base ring-width]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -34,4 +35,4 @@
   ([]
    (init 0.4 0.2))
   ([ring-base ring-width]
-   (RingMode. ring-base ring-width)))
+   (->RingMode ring-base ring-width)))

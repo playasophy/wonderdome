@@ -2,9 +2,10 @@
   (:require
     [clojure.tools.logging :as log]
     [playasophy.wonderdome.geometry.sphere :as sphere]
-    [playasophy.wonderdome.mode.core :as mode]
     [playasophy.wonderdome.util.color :as color]
-    [playasophy.wonderdome.util.control :as control]))
+    [playasophy.wonderdome.util.control :as control])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (defn- distance
@@ -20,6 +21,7 @@
   ([layers]
    (reduce (fn [c1 c2] (if (= c2 color/none) c1 c2)) layers)))
 
+
 (defn- bomb-color
   [barrel-radius pixel bomb]
   (do
@@ -31,10 +33,11 @@
         (color/rainbow (/ delta radius))
         color/none))))
 
+
 (defrecord BombsMode
   [barrel-radius barrel-height cursor-position bombs]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -97,4 +100,4 @@
   ([]
    (init 0.099 (* 0.068 8) {:theta 0 :z 0.20}))
   ([barrel-radius barrel-height cursor-position]
-   (BombsMode. barrel-radius barrel-height cursor-position [])))
+   (->BombsMode barrel-radius barrel-height cursor-position [])))
