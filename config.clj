@@ -129,12 +129,16 @@
 
 (defmode :tunes 27)
 
+(defmode :worms)
+
 (register-mode :blue
   (playasophy.wonderdome.mode.BlueMode.))
 
 
+
 (defconfig :playlist
   [:beachball
+   :worms
    :dart
    :tunes
    :flicker
