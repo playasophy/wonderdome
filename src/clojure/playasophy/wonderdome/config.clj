@@ -71,6 +71,18 @@
          (log/error ex# ~(str "Failed to initialize mode " k))))))
 
 
+(defmacro register-mode
+  "Initializes a new mode and registers it with the configuration."
+  [k & init-body]
+  `(try
+     (swap!
+       next-config
+       assoc-in [:modes ~k]
+       (do ~@init-body))
+     (catch Exception ex#
+       (log/error ex# ~(str "Failed to initialize mode " k)))))
+
+
 (defn read-file
   "Loads a system configuration file and returns the config."
   [path]

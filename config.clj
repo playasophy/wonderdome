@@ -129,6 +129,9 @@
 
 (defmode :tunes 27)
 
+(register-mode :blue
+  (playasophy.wonderdome.mode.BlueMode.))
+
 
 (defconfig :playlist
   [:beachball
