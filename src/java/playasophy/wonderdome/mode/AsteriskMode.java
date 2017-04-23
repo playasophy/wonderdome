@@ -85,5 +85,4 @@ public class AsteriskMode implements Mode<AsteriskMode> {
 
     }
 
-
 }

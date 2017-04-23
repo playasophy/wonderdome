@@ -5,7 +5,7 @@ if which scalac 2>&1 > /dev/null; then
     scalac \
         -classpath $(lein classpath) \
         -d target/classes \
-        src/scala/*.scala
+        src/scala/playasophy/wonderdome/mode/*.scala
 else
     echo "No scalac found, skipping."
 fi
