@@ -35,10 +35,10 @@ public final class Color {
         checkNormalizedArgument(v, "Value (a.k.a. brightness) must be in [0.0, 1.0]");
     }
 
-    private static void checkNormalizedArgument(fload x) {
+    private static void checkNormalizedArgument(float x) {
         checkNormalizedArgument(x, "Argument must be in [0.0, 1.0], but was: " + x);
     }
-    private static void checkNormalizedArgument(fload x, String message) {
+    private static void checkNormalizedArgument(float x, String message) {
         if (!(0.0 <= x && x <= 1.0)) {
             new IllegalArgumentException(message);
         }
