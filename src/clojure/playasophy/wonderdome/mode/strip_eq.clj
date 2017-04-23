@@ -1,8 +1,9 @@
 (ns playasophy.wonderdome.mode.strip-eq
   (:require
     [playasophy.wonderdome.geometry.sphere :as sphere]
-    [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.color :as color]))
+    [playasophy.wonderdome.util.color :as color])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 ;; StripEQ will process audio signals and turn each strip into an indicator for
@@ -10,7 +11,7 @@
 (defrecord StripEqMode
   [num-strips pix-per-strip]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -57,4 +58,4 @@
 (defn init
   "Creates a new StripEQ visualizer mode."
   []
-  (StripEqMode. 5 256))
+  (->StripEqMode 5 256))

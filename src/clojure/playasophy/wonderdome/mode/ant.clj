@@ -1,17 +1,19 @@
 (ns playasophy.wonderdome.mode.ant
   (:require
-    [playasophy.wonderdome.mode.core :as mode]
     [playasophy.wonderdome.util.color :as color]
-    [playasophy.wonderdome.util.control :as control]))
+    [playasophy.wonderdome.util.control :as control])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (def speed-bounds [1 10])
 (def length-bounds [2 10])
 
+
 (defrecord AntMode
   [position speed length hue saturation]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -62,4 +64,4 @@
 (defn init
   "Creates a new ant mode with starting speed, and length."
   [speed length]
-  (AntMode. 0 speed length 0.0 1.0))
+  (->AntMode 0 speed length 0.0 1.0))

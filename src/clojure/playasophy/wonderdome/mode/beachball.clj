@@ -2,17 +2,20 @@
   (:require
     [clojure.tools.logging :as log]
     [playasophy.wonderdome.geometry.sphere :as sphere]
-    [playasophy.wonderdome.mode.core :as mode]
     [playasophy.wonderdome.util.color :as color]
-    [playasophy.wonderdome.util.control :as control]))
+    [playasophy.wonderdome.util.control :as control])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
-(def speed-bounds [(/ sphere/tau 36) (* sphere/tau 3)])
+(def speed-bounds
+  [(/ sphere/tau 36) (* sphere/tau 3)])
+
 
 (defrecord BeachballMode
   [theta speed color-lists index]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -60,4 +63,4 @@
   ([color-lists]
    (init (/ sphere/tau 4) color-lists))
   ([speed color-lists]
-   (BeachballMode. 0 speed color-lists 0)))
+   (->BeachballMode 0 speed color-lists 0)))

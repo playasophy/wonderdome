@@ -89,7 +89,7 @@
             :minim minim
             :input input
             :process
-            (doto (Thread. (audio-loop period input channel) "AudioInput")
+            (doto (Thread. ^Runnable (audio-loop period input channel) "AudioInput")
               (.setDaemon true)
               (.start)))
           this)
@@ -120,4 +120,4 @@
   given channel."
   [channel period]
   {:pre [(some? channel) (pos? period)]}
-  (AudioInput. channel period nil nil nil))
+  (->AudioInput channel period nil nil nil))

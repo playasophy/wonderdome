@@ -80,7 +80,7 @@
       (do
         (log/info "Reading config files in" file)
         (doseq [f (file-seq file)]
-          (read-file (.toString f))))
+          (read-file (str f))))
       (try
         (log/info "Reading config file" path)
         (binding [*ns* (find-ns 'playasophy.wonderdome.config)]

@@ -1,7 +1,8 @@
 (ns playasophy.wonderdome.mode.lantern
   (:require
-    [playasophy.wonderdome.mode.core :as mode]
-    [playasophy.wonderdome.util.color :as color]))
+    [playasophy.wonderdome.util.color :as color])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 (def ^:private ^:const adjustment-rate
@@ -12,7 +13,7 @@
 (defrecord LanternMode
   [brightness]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
@@ -41,4 +42,4 @@
 (defn init
   "Creates a new lantern mode with starting brightness."
   [brightness]
-  (LanternMode. brightness))
+  (->LanternMode brightness))

@@ -1,9 +1,10 @@
 (ns playasophy.wonderdome.mode.tunes
   (:require
     [playasophy.wonderdome.geometry.sphere :as sphere :refer [pi tau]]
-    [playasophy.wonderdome.mode.core :as mode]
     [playasophy.wonderdome.util.color :as color]
-    [playasophy.wonderdome.util.control :as ctl]))
+    [playasophy.wonderdome.util.control :as ctl])
+  (:import
+    playasophy.wonderdome.mode.Mode))
 
 
 ;; General idea:
@@ -105,7 +106,7 @@
    log-next?      ; Debugging helper state
    ]
 
-  mode/Mode
+  Mode
 
   (update
     [this event]
